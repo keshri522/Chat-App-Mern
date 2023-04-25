@@ -102,7 +102,6 @@ const Signup = () => {
             <Button
               h="1.5rem"
               size="sm"
-              bg="white"
               onClick={(handleClick) => Setshowpassword(!showpassword)}
             >
               {showpassword ? "Hide" : "Show"}
@@ -133,7 +132,6 @@ const Signup = () => {
             <Button
               h="1.5rem"
               size="sm"
-              bg="white"
               onClick={(handleClick) =>
                 SetshowConfirmPassword(!showConfirmPassword)
               }
