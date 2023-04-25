@@ -6,7 +6,7 @@ const mongoose = require("mongoose");
 
 const MessageSchema = mongoose.Schema(
   {
-    sender: {
+    from: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
     },
