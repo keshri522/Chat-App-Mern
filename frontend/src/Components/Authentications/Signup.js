@@ -12,27 +12,86 @@ import {
   Text,
 } from "@chakra-ui/react";
 import validation from "../../validation/signupValidation";
+import { useToast } from "@chakra-ui/react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
-import Login from "./Login";
 const Signup = () => {
   // creating state for some of the field like name,email,password,confirmpassword,pic
   const [name, Setname] = useState("");
   const [email, Setemail] = useState("");
   const [password, Setpassword] = useState("");
   const [Confirm_Password, SetConfirm_password] = useState("");
-  const [pic, Setpic] = useState(null);
+  const [pic, Setpic] = useState(null); //storing the pic in cloudynary application and using this api we can also upload to aws.
   const [showpassword, Setshowpassword] = useState(false);
   const [showConfirmPassword, SetshowConfirmPassword] = useState(false);
   const [checkerror, Setcheckerror] = useState({});
+  const [loding, Setloding] = useState(false);
+  const toast = useToast();
+  const navigate = useNavigate();
 
   //   creating a funtion Imageuploader for uploading the file in profile pic
+  // const ImageUploader = (event) => {
+  //   const file = event.target.files[0];
+  //   const reader = new FileReader();
+  //   reader.readAsDataURL(file);
+  //   reader.onloadend = () => {
+  //     Setpic(reader.result);
+  //   };
+  // };
   const ImageUploader = (event) => {
     const file = event.target.files[0];
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = () => {
-      Setpic(reader.result);
-    };
+    Setloding(true);
+    if (file === undefined) {
+      // i want to show a pop up in Chakra ui that is called toast..
+      toast({
+        title: "Please Select an Image.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      //if pic is undefined or null we basically return from here not to forword..
+      return;
+    }
+    //now checking the extention of the pic if it matches then what to do..
+    if (file.type === "image/jpeg" || file.type === "image/png") {
+      //this is the common code for uploading the pic in cloudynary.. we can also use aws  S3 storage service to store image
+      const formdata = new FormData();
+      formdata.append("file", file);
+      formdata.append("upload_preset", "chat-photo");
+      formdata.append("cloud_name", "dpuovw5jw");
+      //after uploading to cloudynary we basically making a post api call  and save the link to database...in pic user schema
+      axios
+        .post(
+          "https://api.cloudinary.com/v1_1/dpuovw5jw/image/upload",
+          formdata //once i clikc on the signup the photo is uploaded to cloudinary server and give a link that link is added in our datab user collection
+        )
+        //what ever the res come in console we pic the res.data. to string and set to setpic and save to user collection
+        .then((res) => {
+          //insde the response lots of thing coming one is data inside data we have a url so put the url in user collection in setpic
+          console.log(res.data.url.toString()); //checking what likn is coming in console.
+          Setpic(res.data.url.toString());
+          Setloding(false);
+        })
+        //if there is any error then we can handle using catch method in promise we can also use asyn and await
+        .catch((err) => {
+          console.log(err);
+          Setloding(false);
+        });
+    }
+    //if file.type!===given extentsion then i have show a popup using toast method in chakra ui
+    else {
+      toast({
+        title: "Please Select an Image with jpg/png.",
+        status: "warning",
+        duration: 5000,
+        isClosable: true,
+        position: "top",
+      });
+      Setloding(false);
+      return;
+    }
   };
   //   creating a function for signup
 
@@ -48,15 +107,7 @@ const Signup = () => {
     if (Object.keys(errors).length === 0) {
       //means no error go to else conditon
       Setcheckerror({});
-
-      // if no errors, submit the form..
-
-      //   clear the fields
-      //   Setname("");
-      //   Setemail("");
-      //   Setpassword("");
-      //   SetConfirm_password("");
-      //   Setpic("");
+      navigate("/home");
     } else {
       // if there are errors, display the errors
       Setcheckerror(errors);
@@ -151,7 +202,7 @@ const Signup = () => {
       </FormControl>
       <FormControl>
         <FormLabel>Upload your profile Picture</FormLabel>
-        <Box w="20%">{pic && <Image src={pic} alt="uploaded image" />}</Box>
+        {/* <Box w="20%">{pic && <Image src={pic} alt="uploaded image" />}</Box> */}
         <Input type="file" p={1.5} accept="image/*" onChange={ImageUploader}>
           {/*here input tpye=file will accept all the image like jpg ,png  */}
         </Input>
@@ -162,13 +213,14 @@ const Signup = () => {
         colorScheme="green"
         style={{ marginTop: 14 }}
         onClick={handleSubmit}
+        isLoading={loding} //just a inbuilt mathod which continue spin until or image is uploaded to cloudynary.
       >
         Signup
       </Button>
       {/* for refreshing the page */}
       <Button
         width="100%"
-        colorScheme="orange"
+        colorScheme="blue"
         style={{ marginTop: 14 }}
         onClick={() => {
           window.location.reload();
