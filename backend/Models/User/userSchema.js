@@ -9,6 +9,7 @@ const userSchema = mongoose.Schema(
     email: {
       type: String,
       required: true,
+      unique: true,
     },
     password: {
       type: String,
@@ -16,7 +17,6 @@ const userSchema = mongoose.Schema(
     },
     pic: {
       type: String,
-      required: true,
       default:
         "https://med.gov.bz/wp-content/uploads/2020/08/dummy-profile-pic.jpg",
     },
