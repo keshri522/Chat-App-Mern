@@ -12,6 +12,8 @@ import {
   Text,
 } from "@chakra-ui/react";
 import validation from "../../validation/signupValidation";
+
+import Login from "./Login";
 const Signup = () => {
   // creating state for some of the field like name,email,password,confirmpassword,pic
   const [name, Setname] = useState("");
@@ -46,8 +48,9 @@ const Signup = () => {
     if (Object.keys(errors).length === 0) {
       //means no error go to else conditon
       Setcheckerror({});
+
       // if no errors, submit the form..
-      console.log(obj);
+
       //   clear the fields
       //   Setname("");
       //   Setemail("");

@@ -7,24 +7,30 @@ import {
   InputGroup,
   InputRightElement,
   Button,
+  Text,
 } from "@chakra-ui/react";
-
+import Loginvalidation from "../../validation/loginValidation";
 const Login = () => {
   const [email, Setemail] = useState();
   const [password, Setpassword] = useState();
   const [showpassword, Setshowpassword] = useState(false);
+  const [checkerror, Setcheckerror] = useState({}); //for checking any error is there or not
   // creating a handle submit function when user click on the sign  in what happpens ..handle by this
   const handleSubmit = () => {
-    let loginData = {
+    let obj = {
       email,
       password,
-    };
-    console.log(loginData);
+    }; //checking the errors in the object.
+    const errors = Loginvalidation(obj); // validate the input fields using the validation function
+    if (Object.keys(errors).length === 0) {
+      //means no error go to else conditon
+      Setcheckerror({});
+      // if no errors, submit the form..
+    } else {
+      // if there are errors, display the errors
+      Setcheckerror(errors);
+    }
   };
-  //   finction for refreshing the whole page ..
-  //   const refresh = () => {
-  //     window.location.reload();
-  //   };
 
   return (
     // vstack just for vertically adding something ...
@@ -35,6 +41,9 @@ const Login = () => {
           placeholder="Enter your Email"
           onChange={(e) => Setemail(e.target.value)}
         ></Input>
+        <Text color="red.500" fontSize="sm">
+          {checkerror.email}
+        </Text>
       </FormControl>
 
       {/* for the pasword field */}
@@ -57,6 +66,9 @@ const Login = () => {
             </Button>
           </InputRightElement>
         </InputGroup>
+        <Text color="red.500" fontSize="sm">
+          {checkerror.password}
+        </Text>
       </FormControl>
       {/* creating a button for sign in */}
       <Button
