@@ -54,7 +54,7 @@ const Login = () => {
           { email, password }, //what we are sending from frontend login page
           config //what type of data we are seding in headers file we have alredy define in config
         );
-        // console.log(data);
+        console.log(data);
 
         //here showing a pop up that registraion is completed..
         toast({

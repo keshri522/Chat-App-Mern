@@ -149,6 +149,92 @@ router.post("/login", async (req, res) => {
     res.status(400).send(error);
   }
 });
+
+//createing a route for when user sign in come to home or dashboard..first we need to verfiy the JWT token and show all the users which are user already logged in wxcept me..
+router.get("/", async (req, res) => {
+  let decodeToken = req.headers.token; //becasue this is get request not have body we have send the auth token in headers..
+  // console.log(decodeToken);
+  try {
+    if (!decodeToken) {
+      res.status(400).json("Unauthorized User");
+    } else {
+      //now if this token is present then we need to veerify the token using jwt..
+      const tokenVerified = JWT.verify(
+        decodeToken.split(" ")[1],
+        process.env.SECRET_KEY
+      ); //here we are breaking token and taking the first array of this which is the token.
+      // console.log(tokenVerified); //return the whole details of logged in person also id with the help of this id we can fetch all the user from user collection
+
+      if (!tokenVerified) {
+        res.status(400).json("Unauthorized User");
+      } else {
+        //then we have to show all the logged in user which are alredy in chat appliction except verfiedJToken person..
+        const alluser = await User.aggregate([
+          { $match: { name: { $ne: tokenVerified.name } } },
+        ]).project({ password: 0, email: 0, __v: 0 }); //i dont want to show passwod email and __v so put these thing to 0..
+        //sedning these respone to get api ..
+        res.send(alluser);
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.send(error);
+  }
+});
+
+// creating a api for Query Search of any users using queeery..
+//note if we want to search one one id or name then we can use param but we have here more than one querry string then use query ..
+//creating a Search function to get all the serach users..
+
+router.get("/find", async (req, res) => {
+  const data = req.query.search;
+  let decodeToken = req.headers.token;
+  console.log(decodeToken);
+  //each time we make a api for  any request we have to verify the jwt token again and again..
+  try {
+    if (!decodeToken) {
+      res.status(400).json("Unauthorized User");
+    } else {
+      //now if this token is present then we need to veerify the token using jwt..
+      const tokenVerified = JWT.verify(
+        decodeToken.split(" ")[1],
+        process.env.SECRET_KEY
+      ); //here we are breaking token and taking the first array of this which is the token.
+      // console.log(tokenVerified); //return the whole details of logged in person also id with the help of this id we can fetch all the user from user collection
+
+      if (!tokenVerified) {
+        res.status(400).json("Unauthorized User");
+      } else {
+        if (data) {
+          const SearchedUser = await User.aggregate([
+            {
+              $match: {
+                //matches any of one if any of one matches it gives the user that is searched by clients in frontend
+                $or: [
+                  {
+                    name: { $regex: data, $options: "i" }, //pattern for searching name inbuild
+                    //here options is just for caseinsestative when user find any others user no matter its captial or smallletter if present then return
+                  },
+                  {
+                    email: { $regex: data, $options: "i" }, //same pattern just for email seaching
+                  },
+                ],
+              },
+            },
+          ]).project({ name: 1 }); // i want to show only the name of the user nothing more ...so use projects ..
+          res.status(200).json(SearchedUser); // after searching we are sending the res to frontend to the clients
+        } else {
+          res.status(400).send("Please Enter the Name"); //if no search found simply return or response a empty obj..
+        }
+      }
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+
+  //this is logged in user so we did not return  loggd person name in searching it will search al the users excpet him
+});
 // here we export whole router when user go to api/user/registration then it will show signup page
 module.exports = router;
 

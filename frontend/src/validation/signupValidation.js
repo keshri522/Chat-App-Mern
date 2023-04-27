@@ -38,16 +38,17 @@ const validation = (data) => {
   //     return { error: "Data is undefined." };
   //   }
   const email_pattern = /^\w+([\.-]?\w+)*@gmail\.com$/;
-  const name_pattern = /^[a-zA-Z]{3,20}$/;
+  // const name_pattern = /^[a-zA-Z]{3,40}$/;
   const password_pattern =
     /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
   let errors = {};
 
   if (data.name === "") {
     errors.name = "Required!";
-  } else if (!name_pattern.test(data.name)) {
-    errors.name = "Name must be between 3 and 20 characters!";
   }
+  // } else if (data.name.length < 40) {
+  //   errors.name = "Name must be less thant 40 characters!";
+  // }
 
   // This is for email Validations
   if (data.email === "") {
