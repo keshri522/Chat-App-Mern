@@ -60,7 +60,7 @@ const validation = (data) => {
     errors.password = "Required!";
   } else if (!password_pattern.test(data.password)) {
     errors.password =
-      "Password must contain at least one letter,number and special character!";
+      "Password must 8 chars contain at least one letter,number and special character!";
   }
   // for the confirm password..  Confirm_Password,
   if (data.Confirm_Password === "") {

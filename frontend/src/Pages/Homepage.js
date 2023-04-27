@@ -19,7 +19,7 @@ const Homepage = () => {
         d="flex"
         justifyContent="center"
         p={3}
-        bg={"#EDF2F7"}
+        bg="#f1f2f6"
         w="100%"
         m="40px 0 15px 0"
         borderRadius="lg"
@@ -40,7 +40,8 @@ const Homepage = () => {
         m="40px 0 15px 0"
         borderRadius="lg"
         borderWidth="1px"
-        bg="#EDF2F7"
+        // bg="#EDF2F7"
+        bg="#f1f2f6"
       >
         <Tabs variant="unstyled">
           <TabList>

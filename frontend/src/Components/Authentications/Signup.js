@@ -7,8 +7,6 @@ import {
   VStack,
   InputRightElement,
   Button,
-  Box,
-  Image,
   Text,
 } from "@chakra-ui/react";
 import validation from "../../validation/signupValidation";
@@ -72,7 +70,7 @@ const Signup = () => {
           //insde the response lots of thing coming one is data inside data we have a url so put the url in user collection in setpic
           console.log(res.data.url.toString()); //checking what likn is coming in console.
           Setpic(res.data.url.toString());
-          Setloding(false);
+          Setloding(false); //means our pic is uploaded to cloudinary
         })
         //if there is any error then we can handle using catch method in promise we can also use asyn and await
         .catch((err) => {
@@ -95,7 +93,7 @@ const Signup = () => {
   };
   //   creating a function for signup
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     let obj = {
       name,
       email,
@@ -104,13 +102,48 @@ const Signup = () => {
     };
     // check errors in the from or not
     const errors = validation(obj); // validate the input fields using the validation function
-    if (Object.keys(errors).length === 0) {
-      //means no error go to else conditon
-      Setcheckerror({});
-      navigate("/home");
-    } else {
-      // if there are errors, display the errors
-      Setcheckerror(errors);
+    try {
+      if (Object.keys(errors).length === 0) {
+        //means no error go to else conditon
+        Setcheckerror({});
+
+        //now calling our api axios to send the data to server..
+        //when we click on signup we are sending some data to backend which in the form of header in json format..
+        const config = {
+          headers: {
+            "Content-type": "application/json", //in headers what type of data is sent to the server we have to define to make axiox call to server
+          },
+        };
+        //now using axiox send all the form data to backend/server
+        const { data } = await axios.post(
+          "http://localhost:4000/api/user/registration", //endpoint where we send the data api..
+          { name, email, password, pic }, //what are data we are sending to particular api..
+          config //content-tpye
+        );
+
+        //here showing a pop up that registraion is completed..
+        toast({
+          title: "Registration Sucessfully Completed",
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+          position: "top",
+        });
+        localStorage.setItem("FormData", JSON.stringify(data));
+        //once competed set loading to false..
+
+        navigate("/home");
+      } else {
+        // if there are errors, display the errors
+        Setcheckerror(errors);
+      }
+    } catch (error) {
+      if (error.response && error.response.status === 400) {
+        //here when user enter the same email address server will throw an errro with 400 code ..
+        Setcheckerror({ email: "Email already exists" }); // here we set the setcheckerror ..to email field email alredy exists..
+      } else {
+        console.log(error);
+      }
     }
   };
 
@@ -134,13 +167,19 @@ const Signup = () => {
         <FormLabel>Email</FormLabel>
         <Input
           placeContent="Enter your Email"
-          onChange={(e) => Setemail(e.target.value)}
+          onChange={(e) => Setemail(e.target.value.toLowerCase())}
         ></Input>
         {/* display the error message for the Name field */}
-        <Text color="red.500" fontSize="sm">
+        {/* <Text color="red.500" fontSize="sm">
           {checkerror.email}
-        </Text>
+        </Text> */}
+        {checkerror.email && ( //when server will res to 400 code then email error will set to Email alredy  exists. for the duplication of email
+          <Text color="red.500" fontSize="sm">
+            {checkerror.email}
+          </Text>
+        )}
       </FormControl>
+      {console.log(checkerror.email)}
       <FormControl id="my-password" isRequired isInvalid={checkerror.password}>
         <FormLabel>Password</FormLabel>
         <InputGroup>

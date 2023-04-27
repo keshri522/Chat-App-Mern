@@ -29,6 +29,7 @@ router.post("/registration", async (req, res) => {
           name: req.body.name,
           email: req.body.email,
           password: req.body.password,
+          pic: req.body.pic,
         });
         // now we are saving all the datails in User collection we always save the encrtypted password so we use bcrypt to convert to hash  password then save..
         bcrypt.hash(
@@ -108,7 +109,7 @@ router.post("/login", async (req, res) => {
           user.password //come from user whose email is req.body.email..
         );
         if (!matchedPassword) {
-          res.status(400).send("Invalid Credentials");
+          res.status(401).send("Invalid Credentials");
         } else {
           // if matchedPassword is  there then we gave him a auth-jwt token for authrization...
           //creating payload means what are thing we want get with the help of the token of userdetails.
