@@ -189,7 +189,7 @@ router.get("/", async (req, res) => {
 router.get("/find", async (req, res) => {
   const data = req.query.search;
   let decodeToken = req.headers.token;
-  console.log(decodeToken);
+  // console.log(decodeToken);
   //each time we make a api for  any request we have to verify the jwt token again and again..
   try {
     if (!decodeToken) {
