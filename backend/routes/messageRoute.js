@@ -15,7 +15,7 @@ router.use((req, res, next) => {
   // JWT code for autorization of uses.
   // first thing we need to verfiy the user whenever we create a api using jwt toke
   const ChekingToken = req.headers.token;
-  console.log(ChekingToken);
+  // console.log(ChekingToken);
   if (!ChekingToken) {
     res.status(400).send("Unauthorized User");
   } else {
@@ -38,6 +38,7 @@ router.use((req, res, next) => {
 // creating a personal message one to one message api...
 
 router.post("/personal", async (req, res) => {
+  //api for sending one to one message ...
   let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
   let To = new mongoose.Types.ObjectId(req.body.sender); // to whom to be sent //onc the click of user we get the id send to that id
   try {
@@ -89,6 +90,61 @@ router.post("/personal", async (req, res) => {
 
     message.save(); //saving the message to personal Schema collection..
     res.status(200).json(UserDetials);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+//creating api for getting all the personal message when user send a personal message to some other use we have get the message in both user..
+// 1=> logged in person when click on some other users.(from).
+// 2=> whom to be clicked to get the conversations users(to).
+// 3=> then we have use $lookup for getting more details of each from and to user...
+// 4=> then we have match in our Chat collection if there is any chat between  from and to or to and from ..a and b or b and a..
+// 5=> then what we want to show if the from the details like lastmessage or time..
+// 6=> then send the response ...
+
+router.get("/conversationByUser/query", async (req, res) => {
+  let user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
+  let user2 = new mongoose.Types.ObjectId(req.query.userId);
+
+  try {
+    let conversationList = await Personal.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "from", //whoom i want to get the details in personall collection who send this (from)user so get all the details by joinng in usercollection
+          foreignField: "_id", //what is from called in user ..
+          as: "fromObj",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "To", //coming from personal collection whom to send that details is coming..
+          foreignField: "_id",
+          as: "toObj",
+        },
+      },
+    ])
+
+      .match({
+        $or: [
+          { $and: [{ from: user1 }, { To: user2 }] }, //matching conversation from both person.. like a to b
+          { $and: [{ from: user2 }, { To: user1 }] }, //matching conversation from b to a
+        ],
+      })
+      .project({
+        //i dont want to show these details to anyone as a respond coming from users collection so put this in project
+        "toObj.password": 0,
+        "toObj.__v": 0,
+        "toObj.pic": 0,
+        "fromObj.password": 0,
+        "fromObj.__v": 0,
+        "fromObj.pic": 0,
+      });
+    //sednig response to frontend
+    res.status(200).send(conversationList);
   } catch (error) {
     console.log(error);
     res.status(400).send(error);

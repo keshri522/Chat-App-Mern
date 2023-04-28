@@ -11,12 +11,14 @@ const ConnectDb = require("./configDb/dtabaseConnection");
 ConnectDb();
 // importing user routes api ..
 const User = require("./routes/userRoutes");
+const Message = require("./routes/messageRoute");
 //importing middleware...
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
 app.use(bodyParser.json());
 // create a api using middle ware like api for each of the pages ...
-app.use("/api/user", User);
+app.use("/api/user", User); //only for user route jsut a middleware..
+app.use("/api/message", Message); //this is for the message api only
 //creating a server.
 const Port = process.env.Port || 4000;
 app.listen(Port, () => {
