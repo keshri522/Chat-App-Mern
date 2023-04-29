@@ -21,7 +21,7 @@ const chatSchema = mongoose.Schema(
     },
     users: [
       {
-        type: mongoose.Schema.Types.ObjectId,
+        type: String,
         ref: "User",
       },
     ],
@@ -29,7 +29,7 @@ const chatSchema = mongoose.Schema(
       type: String,
     },
     groupAdmin: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "User",
     },
   },
