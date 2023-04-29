@@ -201,6 +201,7 @@ router.get("/conversationByUser/query", async (req, res) => {
 });
 
 //creating a group chat API fro the user when user want to create a group..
+
 // router.post(
 //   "/createGroupChat",
 //   asyncHandler(async (req, res) => {
@@ -208,43 +209,52 @@ router.get("/conversationByUser/query", async (req, res) => {
 //       res.status(400).json("Please enter all the fields");
 //     } else {
 //       let chatname = req.body.chatname; //name of the chat group coming from frontend
-//       let users = JSON.parse(req.body.users); //users coming from frontend in the from of JSON.Stringy because users have array of object ..so we convert into javascript format in backend
+//       let USERS = JSON.parse(req.body.users); //users coming from frontend in the from of JSON.Stringy because users have array of object ..so we convert into javascript format in backend
 
-//       if (users.length > 2) {
+//       if (USERS.length > 2) {
 //         res.status(400).json("More than 2 users to create a new group");
 //       } else {
-//         users.push(verfiedJToken.name); //when logged user create group he is also the part of the  group so we have push logged in useed to the new group chat..
+//         USERS.push(verfiedJToken.name); //when logged user create group he is also the part of the  group so we have push logged in useed to the new group chat..
 //         // verfiedJToken.name; //this is the logged user name coming from jwt token in middle ware router.use
 //         try {
 //           //creating a new group chat ...with the logged in users
 //           const newGroupChat = await new Chat({
 //             chatName: chatname,
 //             isGroup: true,
-//             users: users,
+//             users: USERS,
 //             groupAdmin: verfiedJToken.name,
 //           });
-//           // res.status(200).send(newGroupChat);
+//           // const fullChat = await Chat.findOne({
+//           //   _id: newGroupChat._id,
+//           // }).populate("users", "-pasword");
 
-//           //i want to get more information of users that are added into the groupcaht using lookup to find the details inside the user collection.
-//           const Userdetails = await Chat.aggregate([
-//             {
-//               $match: { _id: newGroupChat._id }, //finding the user with the help of newgroupchat._id
-//             },
-//             {
-//               $lookup: {
-//                 from: "users", //from which collection i want to get the details //
-//                 localField: "users", //local to chat collection i want users key to find the detais from users collections
-//                 foreignField: "_id", //common id field in
-//                 as: "userInfo", // alias name
-//               },
-//             },
-//           ]).project({
-//             // i dont want to show the password or __v in the response ... sending to frontend
-//             "userInfo.password": 0,
-//             "userInfo.__v": 0,
-//           });
-//           res.status(200).send(Userdetails);
-//           console.log(Userdetails);
+//           // const save = await newGroupChat.save(); //saving all the chats in the chat model
+//           // const details = await User.aggregate([
+//           //   {
+//           //     $match: { users: { $in: newGroupChat.users } },
+//           //   },
+
+//           //   {
+//           //     $lookup: {
+//           //       from: "users",
+//           //       localField: "_id",
+//           //       foreignField: "_id",
+//           //       as: "userDetails",
+//           //     },
+//           //   },
+//           // ]).project({
+//           //   "userDetails.password": 0,
+//           // });
+//           // console.log(newGroupChat);
+//           // const adminDetails = await User.findOne({
+//           //   name: newGroupChat.groupAdmin,
+//           // })
+//           //   .select("name")
+//           //   .select("email")
+//           //   .select("pic");
+
+//           res.status(200).send(newGroupChat);
+//           console.log(details);
 //         } catch (error) {
 //           res.status(400).send(error);
 //         }
@@ -258,25 +268,29 @@ router.post(
     if (!req.body.users || !req.body.chatname) {
       res.status(400).json("Please enter all the fields");
     } else {
-      let chatname = req.body.chatname; //name of the chat group coming from frontend
-      let USERS = JSON.parse(req.body.users); //users coming from frontend in the from of JSON.Stringy because users have array of object ..so we convert into javascript format in backend
+      let chatname = req.body.chatname;
+      let USERS = JSON.parse(req.body.users);
 
       if (USERS.length > 2) {
         res.status(400).json("More than 2 users to create a new group");
       } else {
-        USERS.push(verfiedJToken.name); //when logged user create group he is also the part of the  group so we have push logged in useed to the new group chat..
-        // verfiedJToken.name; //this is the logged user name coming from jwt token in middle ware router.use
+        USERS.push(verfiedJToken.id);
         try {
-          //creating a new group chat ...with the logged in users
           const newGroupChat = await new Chat({
             chatName: chatname,
             isGroup: true,
             users: USERS,
             groupAdmin: verfiedJToken.name,
           });
-          const save = await newGroupChat.save(); //saving all the chats in the chat model
+          const adminDetails = await User.findOne({
+            name: newGroupChat.groupAdmin, //getting all the details of admin of the groups ..
+          })
+            .select("name")
+            .select("email")
+            .select("pic");
+          const save = await newGroupChat.save();
 
-          res.status(200).send(newGroupChat);
+          res.status(200).send({ newGroupChat, adminDetails });
         } catch (error) {
           res.status(400).send(error);
         }

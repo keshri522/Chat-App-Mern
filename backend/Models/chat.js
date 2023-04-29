@@ -22,7 +22,6 @@ const chatSchema = mongoose.Schema(
     users: [
       {
         type: String,
-        ref: "User",
       },
     ],
     lastMessage: {
