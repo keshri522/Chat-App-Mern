@@ -15,6 +15,7 @@ router.use((req, res, next) => {
   // JWT code for autorization of uses.
   // first thing we need to verfiy the user whenever we create a api using jwt toke
   const ChekingToken = req.headers.token;
+
   // console.log(ChekingToken);
   if (!ChekingToken) {
     res.status(400).send("Unauthorized User");
@@ -92,6 +93,42 @@ router.post("/personal", async (req, res) => {
     res.status(200).json(UserDetials);
   } catch (error) {
     console.log(error);
+    res.status(400).send(error);
+  }
+});
+
+// creating Conversation list of user all the user to whom logged users had a conversation ...
+// 1=> whom conversation list to find logged in uuser.
+// 2=> finding all the deatisl of logged in users using lookup
+// 3=>matching in database or Chat collection inside users if the logged user has a conversation between any of the users..
+// 4=> using project to see what we want to see or send to server..
+
+router.get("/conversationList", async (req, res) => {
+  //it gives the conversation bewtween looged in user or other users..
+  let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
+
+  try {
+    const conversationList = await Chat.aggregate([
+      //getting more details of users like name pic and more..
+      {
+        $lookup: {
+          from: "users", //getting details from user collection
+          localField: "users", //in the chat collection i want to get the details of users key..
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+    ])
+      .match({ users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } })
+      //matching if logged used had any conversation between all the users in sie chat collection
+
+      .project({
+        "userDetails.password": 0,
+        "userDetails.__v": 0,
+      });
+    //sending response to frontend..
+    res.status(200).json(conversationList);
+  } catch (error) {
     res.status(400).send(error);
   }
 });
