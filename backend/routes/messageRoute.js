@@ -36,6 +36,13 @@ router.use((req, res, next) => {
 
 //first if we hit any of api then first router.use middleuser is execute then go to next().. api or miidleware
 
+// List of all the api that i am creating once by one.
+// 1. Personal message Api...(post api)
+// 2/ Get personal message APi (get request).
+// 3 Conversatio Get Requet APi (get Api)..
+// 4 One to One Conversation between users (get conversation) or get all one to  personal message.
+// 5 creating post group Api for creating group..
+
 // creating a personal message one to one message api...
 
 router.post("/personal", async (req, res) => {
