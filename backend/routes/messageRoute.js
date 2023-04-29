@@ -222,6 +222,7 @@ router.post(
             users: USERS,
             groupAdmin: verfiedJToken.name,
           });
+
           const adminDetails = await User.findOne({
             name: newGroupChat.groupAdmin, //getting all the details of admin of the groups ..
           })
@@ -238,5 +239,41 @@ router.post(
     }
   })
 );
+
+// creating route for updating the group name ...
+// router.put("/rename", async (req, res) => {
+//   const { chatId, chatname } = req.body;
+//   let newId = new mongoose.Types.ObjectId(chatId); //coming from frontend or http server or body of request
+//   try {
+//     const userDetails = await Chat.aggregate([
+//       {
+//         $match: { _id: newId },
+//       },
+//       {
+//         $set: { chatName: chatname },
+//       },
+//     ]);
+//     res.send(userDetails);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
+router.put("/rename", async (req, res) => {
+  const { chatId, chatname } = req.body;
+  let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
+
+  try {
+    const find = await Chat.findOne({ _id: newId });
+    if (find) {
+      find.chatName = chatname; //rename the old chatName
+    } else {
+      res.status(400).send("Chat not found");
+    }
+    const save = find.save();
+    res.status(400).send(find); //sending the updated chatName to frontend as response..
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 
 module.exports = router;
