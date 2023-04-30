@@ -12,6 +12,7 @@ ConnectDb();
 // importing user routes api ..
 const User = require("./routes/userRoutes");
 const Message = require("./routes/messageRoute");
+const UpdateRoute = require("./routes/update");
 //importing middleware...
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cors());
@@ -19,6 +20,7 @@ app.use(bodyParser.json());
 // create a api using middle ware like api for each of the pages ...
 app.use("/api/user", User); //only for user route jsut a middleware..
 app.use("/api/message", Message); //this is for the message api only
+app.use("/api/update", UpdateRoute); //this route is for updating only
 //creating a server.
 const Port = process.env.Port || 4000;
 app.listen(Port, () => {

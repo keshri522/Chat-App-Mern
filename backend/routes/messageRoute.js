@@ -72,6 +72,8 @@ router.post("/personal", async (req, res) => {
         //here if from and is presend or not all the thing are save or updated inside the Conversation model..
       }
     );
+
+    console.log(Find._id);
     const UserDetials = await Chat.aggregate([
       //this will give me  more infromation about sender or receviers
       {
@@ -90,6 +92,7 @@ router.post("/personal", async (req, res) => {
       "userDeatails.password": 0,
       "__v:": 0,
     });
+    console.log(UserDetials);
     //   save all the message in the pesonal message schema what two users  messaged to each others
     let message = await new Personal({
       from: from,
@@ -97,7 +100,7 @@ router.post("/personal", async (req, res) => {
       body: req.body.message,
       chat: Find._id,
     });
-
+    // console.log(UserDetials);
     message.save(); //saving the message to personal Schema collection..
     res.status(200).json(UserDetials);
   } catch (error) {
@@ -205,16 +208,20 @@ router.get("/conversationByUser/query", async (req, res) => {
 router.post(
   "/createGroupChat",
   asyncHandler(async (req, res) => {
+    // it will check if there is a field like users or chatname is this is empty then trhwo a errror ..basically this 3pr party module for handling errros in backend
     if (!req.body.users || !req.body.chatname) {
       res.status(400).json("Please enter all the fields");
     } else {
-      let chatname = req.body.chatname;
-      let USERS = JSON.parse(req.body.users);
-
-      if (USERS.length > 2) {
-        res.status(400).json("More than 2 users to create a new group");
+      let chatname = req.body.chatname; //coming from request of body..
+      let USERS = req.body.users; //getting from client side ..
+      if (!Array.isArray(USERS)) {
+        USERS = [USERS]; // Convert to an array becuuse we are taken the req.body.users in chat collection is an object Id so ..first convert into array
+      }
+      if (USERS.length < 2) {
+        res.status(400).json("At least 2  users to create a new group"); //here if length is less than 2 than group will not created
       } else {
-        USERS.push(verfiedJToken.id);
+        USERS.push(verfiedJToken.id); // this  is  just when admin create a group chat he is also added in this chat so we are push admin or looged in user to the array
+
         try {
           const newGroupChat = await new Chat({
             chatName: chatname,
@@ -258,22 +265,22 @@ router.post(
 //     res.status(400).send(error);
 //   }
 // });
-router.put("/rename", async (req, res) => {
-  const { chatId, chatname } = req.body;
-  let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
+// router.put("/rename", async (req, res) => {
+//   const { chatId, chatname } = req.body;
+//   let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
 
-  try {
-    const find = await Chat.findOne({ _id: newId });
-    if (find) {
-      find.chatName = chatname; //rename the old chatName
-    } else {
-      res.status(400).send("Chat not found");
-    }
-    const save = find.save();
-    res.status(400).send(find); //sending the updated chatName to frontend as response..
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
+//   try {
+//     const find = await Chat.findOne({ _id: newId });
+//     if (find) {
+//       find.chatName = chatname; //rename the old chatName
+//     } else {
+//       res.status(400).send("Chat not found");
+//     }
+//     const save = find.save();
+//     res.status(400).send(find); //sending the updated chatName to frontend as response..
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 
 module.exports = router;

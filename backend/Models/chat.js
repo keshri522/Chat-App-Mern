@@ -21,7 +21,8 @@ const chatSchema = mongoose.Schema(
     },
     users: [
       {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
       },
     ],
     lastMessage: {
