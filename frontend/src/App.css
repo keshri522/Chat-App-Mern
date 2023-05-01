@@ -4,4 +4,10 @@ background-color: #D9AFD9;
     min-height: 100vh;
    
 }
+.design:hover{
+text-decoration:underline;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+
 

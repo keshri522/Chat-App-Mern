@@ -8,11 +8,15 @@ import {
   InputRightElement,
   Button,
   Text,
+  Box,
+  Container,
 } from "@chakra-ui/react";
 import validation from "../../validation/signupValidation";
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux"; //dispatcher to send all the data to reducers sendDatatoStore
+import { sendDataToStore } from "../../Redux/ReduxSlice"; //this is the action generator for redux
 
 const Signup = () => {
   // creating state for some of the field like name,email,password,confirmpassword,pic
@@ -27,16 +31,9 @@ const Signup = () => {
   const [loding, Setloding] = useState(false);
   const toast = useToast();
   const navigate = useNavigate();
-
-  //   creating a funtion Imageuploader for uploading the file in profile pic
-  // const ImageUploader = (event) => {
-  //   const file = event.target.files[0];
-  //   const reader = new FileReader();
-  //   reader.readAsDataURL(file);
-  //   reader.onloadend = () => {
-  //     Setpic(reader.result);
-  //   };
-  // };
+  const dispatch = useDispatch();
+  const getDataFromReduxStore = useSelector((state) => state.USERS); //getting all the data coming from response from Global state of the apllication from store
+  console.log("the data is ", getDataFromReduxStore);
   const ImageUploader = (event) => {
     const file = event.target.files[0];
     Setloding(true);
@@ -69,7 +66,7 @@ const Signup = () => {
         .then((res) => {
           //insde the response lots of thing coming one is data inside data we have a url so put the url in user collection in setpic
           console.log(res.data.url.toString()); //checking what likn is coming in console.
-          Setpic(res.data.url.toString());
+          Setpic(res.data.url.toString()); //seting the Url of pic to the setPic..
           Setloding(false); //means our pic is uploaded to cloudinary
         })
         //if there is any error then we can handle using catch method in promise we can also use asyn and await
@@ -129,10 +126,12 @@ const Signup = () => {
           isClosable: true,
           position: "top",
         });
-        localStorage.setItem("FormData", JSON.stringify(data));
+        dispatch(sendDataToStore(data));
+        // localStorage.setItem("SignupData", JSON.stringify(data)); //what are response coming from serveer saving to localStroage
         //once competed set loading to false..
-
-        navigate("/home");
+        if (getDataFromReduxStore) {
+          navigate("/"); //once verifed the data is present in local strogage redirected to login page ..
+        }
       } else {
         // if there are errors, display the errors
         Setcheckerror(errors);
@@ -148,126 +147,166 @@ const Signup = () => {
   };
 
   return (
-    <VStack spacing="5px" color="black">
-      <FormControl id="my-name" isRequired isInvalid={checkerror.name}>
-        <FormLabel>Name</FormLabel>
-        <Input
-          placeContent="Enter your name"
-          onChange={(e) => Setname(e.target.value)}
-        ></Input>
-        {/* display the error message for the Name field */}
-        {/* using in build method like Text and name of the error */}
-        <Text color="red.500" fontSize="sm">
-          {checkerror.name}
+    <Container maxW="xl" centerContent>
+      <Box
+        d="flex"
+        justifyContent="center"
+        p={3}
+        bg="#f1f2f6"
+        w="100%"
+        m="40px 0 15px 0"
+        borderRadius="lg"
+        borderWidth="1px"
+      >
+        <Text
+          fontSize="3xl"
+          fontFamily="heading"
+          color="#38B2AC"
+          textAlign="center"
+        >
+          Welcome To My Chat App
         </Text>
-      </FormControl>
+      </Box>
+      <Box
+        p={3}
+        w="100%"
+        m="40px 0 15px 0"
+        borderRadius="lg"
+        borderWidth="1px"
+        // bg="#EDF2F7"
+        bg="#f1f2f6"
+      >
+        <VStack spacing="5px" color="black">
+          <FormControl id="my-name" isRequired isInvalid={checkerror.name}>
+            <FormLabel>Name</FormLabel>
+            <Input
+              placeContent="Enter your name"
+              onChange={(e) => Setname(e.target.value)}
+            ></Input>
+            {/* display the error message for the Name field */}
+            {/* using in build method like Text and name of the error */}
+            <Text color="red.500" fontSize="sm">
+              {checkerror.name}
+            </Text>
+          </FormControl>
 
-      {/* for the other fields we have to as many formcontrol  */}
-      <FormControl id="my-email" isRequired isInvalid={checkerror.email}>
-        <FormLabel>Email</FormLabel>
-        <Input
-          placeContent="Enter your Email"
-          onChange={(e) => Setemail(e.target.value.toLowerCase())}
-        ></Input>
-        {/* display the error message for the Name field */}
-        {/* <Text color="red.500" fontSize="sm">
+          {/* for the other fields we have to as many formcontrol  */}
+          <FormControl id="my-email" isRequired isInvalid={checkerror.email}>
+            <FormLabel>Email</FormLabel>
+            <Input
+              placeContent="Enter your Email"
+              onChange={(e) => Setemail(e.target.value.toLowerCase())}
+            ></Input>
+            {/* display the error message for the Name field */}
+            {/* <Text color="red.500" fontSize="sm">
           {checkerror.email}
         </Text> */}
-        {checkerror.email && ( //when server will res to 400 code then email error will set to Email alredy  exists. for the duplication of email
-          <Text color="red.500" fontSize="sm">
-            {checkerror.email}
-          </Text>
-        )}
-      </FormControl>
-      {console.log(checkerror.email)}
-      <FormControl id="my-password" isRequired isInvalid={checkerror.password}>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
-            //   here when we click on the show button means we are revsing the showpassword field .. when it is true then show the text other wise show password
-            type={showpassword ? "text" : "password"}
-            placeContent="Enter your Password"
-            onChange={(e) => Setpassword(e.target.value)}
-          ></Input>
+            {checkerror.email && ( //when server will res to 400 code then email error will set to Email alredy  exists. for the duplication of email
+              <Text color="red.500" fontSize="sm">
+                {checkerror.email}
+              </Text>
+            )}
+          </FormControl>
 
-          {/* for the hide and showw password we have wrap our input field inside input group and uise inputrightelemebnt */}
-          <InputRightElement width="4.5rem">
-            <Button
-              h="1.5rem"
-              size="sm"
-              onClick={(handleClick) => Setshowpassword(!showpassword)}
-            >
-              {showpassword ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-        {/* display the error message for the Name field */}
-        <Text color="red.500" fontSize="sm">
-          {checkerror.password}
-        </Text>
-      </FormControl>
-      {/* wrapping confirm password inside the input group to make it show and hide just like passwod field */}
-      <FormControl
-        id="my-confirm_password"
-        isRequired
-        isInvalid={checkerror.Confirm_Password}
-      >
-        <FormLabel>Confirm Password</FormLabel>
-        <InputGroup>
-          <Input
-            type={showConfirmPassword ? "text" : "password"}
-            placeContent="Confrim Password"
-            onChange={(e) => SetConfirm_password(e.target.value)}
-          ></Input>
-          {/* for the show and hide of password */}
+          <FormControl
+            id="my-password"
+            isRequired
+            isInvalid={checkerror.password}
+          >
+            <FormLabel>Password</FormLabel>
+            <InputGroup>
+              <Input
+                //   here when we click on the show button means we are revsing the showpassword field .. when it is true then show the text other wise show password
+                type={showpassword ? "text" : "password"}
+                placeContent="Enter your Password"
+                onChange={(e) => Setpassword(e.target.value)}
+              ></Input>
 
-          <InputRightElement width="4.5rem">
-            <Button
-              h="1.5rem"
-              size="sm"
-              onClick={(handleClick) =>
-                SetshowConfirmPassword(!showConfirmPassword)
-              }
+              {/* for the hide and showw password we have wrap our input field inside input group and uise inputrightelemebnt */}
+              <InputRightElement width="4.5rem">
+                <Button
+                  h="1.5rem"
+                  size="sm"
+                  onClick={(handleClick) => Setshowpassword(!showpassword)}
+                >
+                  {showpassword ? "Hide" : "Show"}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            {/* display the error message for the Name field */}
+            <Text color="red.500" fontSize="sm">
+              {checkerror.password}
+            </Text>
+          </FormControl>
+          {/* wrapping confirm password inside the input group to make it show and hide just like passwod field */}
+          <FormControl
+            id="my-confirm_password"
+            isRequired
+            isInvalid={checkerror.Confirm_Password}
+          >
+            <FormLabel>Confirm Password</FormLabel>
+            <InputGroup>
+              <Input
+                type={showConfirmPassword ? "text" : "password"}
+                placeContent="Confrim Password"
+                onChange={(e) => SetConfirm_password(e.target.value)}
+              ></Input>
+              {/* for the show and hide of password */}
+
+              <InputRightElement width="4.5rem">
+                <Button
+                  h="1.5rem"
+                  size="sm"
+                  onClick={(handleClick) =>
+                    SetshowConfirmPassword(!showConfirmPassword)
+                  }
+                >
+                  {/* button show Hide or show based on usestate changes */}
+                  {showConfirmPassword ? "Hide" : "Show"}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            {/* display the error message for the Name field */}
+            <Text color="red.500" fontSize="sm">
+              {checkerror.Confirm_Password}
+            </Text>
+          </FormControl>
+          <FormControl>
+            <FormLabel>Upload your profile Picture</FormLabel>
+            {/* <Box w="20%">{pic && <Image src={pic} alt="uploaded image" />}</Box> */}
+            <Input
+              type="file"
+              p={1.5}
+              accept="image/*"
+              onChange={ImageUploader}
             >
-              {/* button show Hide or show based on usestate changes */}
-              {showConfirmPassword ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-        {/* display the error message for the Name field */}
-        <Text color="red.500" fontSize="sm">
-          {checkerror.Confirm_Password}
-        </Text>
-      </FormControl>
-      <FormControl>
-        <FormLabel>Upload your profile Picture</FormLabel>
-        {/* <Box w="20%">{pic && <Image src={pic} alt="uploaded image" />}</Box> */}
-        <Input type="file" p={1.5} accept="image/*" onChange={ImageUploader}>
-          {/*here input tpye=file will accept all the image like jpg ,png  */}
-        </Input>
-      </FormControl>
-      {/* creating button for sign up the whole thing */}
-      <Button
-        width="100%"
-        colorScheme="green"
-        style={{ marginTop: 14 }}
-        onClick={handleSubmit}
-        isLoading={loding} //just a inbuilt mathod which continue spin until or image is uploaded to cloudynary.
-      >
-        Signup
-      </Button>
-      {/* for refreshing the page */}
-      <Button
-        width="100%"
-        colorScheme="blue"
-        style={{ marginTop: 14 }}
-        onClick={() => {
-          window.location.reload();
-        }}
-      >
-        Reload
-      </Button>
-    </VStack>
+              {/*here input tpye=file will accept all the image like jpg ,png  */}
+            </Input>
+          </FormControl>
+          {/* creating button for sign up the whole thing */}
+          <Button
+            width="100%"
+            colorScheme="green"
+            style={{ marginTop: 14 }}
+            onClick={handleSubmit}
+            isLoading={loding} //just a inbuilt mathod which continue spin until or image is uploaded to cloudynary.
+          >
+            Signup
+          </Button>
+          {/* for refreshing the page */}
+          <Button
+            width="100%"
+            colorScheme="blue"
+            style={{ marginTop: 14 }}
+            onClick={() => {
+              window.location.reload();
+            }}
+          >
+            Reload
+          </Button>
+        </VStack>
+      </Box>
+    </Container>
   );
 };
 

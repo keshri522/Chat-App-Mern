@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import {
   VStack,
   FormControl,
@@ -8,10 +9,15 @@ import {
   InputRightElement,
   Button,
   Text,
+  Container,
+  Box,
 } from "@chakra-ui/react";
 import Loginvalidation from "../../validation/loginValidation";
 import axios from "axios";
 import { useToast } from "@chakra-ui/react"; //just a hook like in react come from chakra ui to make pop up beatiful
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import Signup from "./Signup";
 
 const Login = () => {
   const [email, Setemail] = useState();
@@ -20,6 +26,7 @@ const Login = () => {
   const [checkerror, Setcheckerror] = useState({}); //for checking any error is there or not
   // creating a handle submit function when user click on the sign  in what happpens ..handle by this
   const toast = useToast();
+  const navigate = useNavigate();
 
   //function for login as a guest//
   const guest = () => {
@@ -82,69 +89,98 @@ const Login = () => {
   };
 
   return (
-    // vstack just for vertically adding something ...
-    <VStack spacing="5px" color="black">
-      <FormControl id="my-first" isRequired>
-        <FormLabel>Email</FormLabel>
-        <Input
-          placeholder="Enter your Email"
-          onChange={(e) => Setemail(e.target.value)}
-          value={email}
-        ></Input>
-        {/* if email is not write then server will send a code of 400 and we handle the errro in catch if code==400  then email error is invaild credentials */}
-        <Text color="red.500" fontSize="sm">
-          {checkerror.email}
-        </Text>
-      </FormControl>
-
-      {/* for the pasword field */}
-      <FormControl id="my-first" isRequired>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
-            type={showpassword ? "text" : "password"}
-            placeholder="Enter your Password"
-            onChange={(e) => Setpassword(e.target.value)}
-            value={password}
-          ></Input>
-          {/* for the hiding or showing of password */}
-          <InputRightElement width="4.5rem">
-            <Button
-              h="1.5rem"
-              size="sm"
-              onClick={(handleClick) => Setshowpassword(!showpassword)}
-            >
-              {showpassword ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-        {/* same if password is not right then we set the errro in catch block if code==401 then errro come in passowrd is invailid credentials */}
-        <Text color="red.500" fontSize="sm">
-          {checkerror.password}
-        </Text>
-      </FormControl>
-      {/* creating a button for sign in */}
-      <Button
-        width="100%"
-        colorScheme="blue"
-        style={{ marginTop: 14 }}
-        onClick={handleSubmit}
+    <Container maxW="xl" centerContent>
+      <Box
+        d="flex"
+        justifyContent="center"
+        p={3}
+        bg="#f1f2f6"
+        w="100%"
+        m="40px 0 15px 0"
+        borderRadius="lg"
+        borderWidth="1px"
       >
-        Login
-      </Button>
-      {/* if user simply login as a guest then he/she will click on the button to make them guest user  */}
-      <Button
-        variant="solid"
-        width="100%"
-        colorScheme="red"
-        style={{ marginTop: 14 }}
-        onClick={guest}
+        <Text
+          fontSize="3xl"
+          fontFamily="heading"
+          color="#38B2AC"
+          textAlign="center"
+        >
+          Welcome To My Chat App
+        </Text>
+      </Box>
+      <Box
+        p={3}
+        w="100%"
+        m="40px 0 15px 0"
+        borderRadius="lg"
+        borderWidth="1px"
+        // bg="#EDF2F7"
+        bg="#f1f2f6"
       >
-        Login as a Guest
-      </Button>
+        {/* ); // vstack just for vertically adding something ... */}
+        <VStack spacing="5px" color="black">
+          <FormControl id="my-first" isRequired>
+            <FormLabel>Email</FormLabel>
+            <Input
+              placeholder="Enter your Email"
+              onChange={(e) => Setemail(e.target.value)}
+              value={email}
+            ></Input>
+            {/* if email is not write then server will send a code of 400 and we handle the errro in catch if code==400  then email error is invaild credentials */}
+            <Text color="red.500" fontSize="sm">
+              {checkerror.email}
+            </Text>
+          </FormControl>
 
-      {/* this button is just for reloading the website  */}
-      {/* <Button
+          {/* for the pasword field */}
+          <FormControl id="my-first" isRequired>
+            <FormLabel>Password</FormLabel>
+            <InputGroup>
+              <Input
+                type={showpassword ? "text" : "password"}
+                placeholder="Enter your Password"
+                onChange={(e) => Setpassword(e.target.value)}
+                value={password}
+              ></Input>
+              {/* for the hiding or showing of password */}
+              <InputRightElement width="4.5rem">
+                <Button
+                  h="1.5rem"
+                  size="sm"
+                  onClick={(handleClick) => Setshowpassword(!showpassword)}
+                >
+                  {showpassword ? "Hide" : "Show"}
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+            {/* same if password is not right then we set the errro in catch block if code==401 then errro come in passowrd is invailid credentials */}
+            <Text color="red.500" fontSize="sm">
+              {checkerror.password}
+            </Text>
+          </FormControl>
+          {/* creating a button for sign in */}
+          <Button
+            width="100%"
+            colorScheme="blue"
+            style={{ marginTop: 14 }}
+            onClick={handleSubmit}
+          >
+            Login
+          </Button>
+          {/* if user simply login as a guest then he/she will click on the button to make them guest user  */}
+          <Button
+            variant="solid"
+            width="100%"
+            colorScheme="red"
+            style={{ marginTop: 14 }}
+            onClick={guest}
+          >
+            Login as a Guest
+          </Button>
+
+          {/* this button is just for reloading the website  */}
+          {/* <Button
         width="100%"
         colorScheme="orange"
         style={{ marginTop: 14 }}
@@ -152,7 +188,18 @@ const Login = () => {
       >
         Reload
       </Button> */}
-    </VStack>
+          <Link to="/Signup">
+            <small
+              onClick={() => navigate("/Signup")}
+              className="design"
+              style={{ color: "black", fontWeight: "normal" }}
+            >
+              Don't have a account Click to Signup?
+            </small>
+          </Link>
+        </VStack>
+      </Box>
+    </Container>
   );
 };
 
