@@ -9,5 +9,30 @@ text-decoration:underline;
     text-decoration-color: red;
     text-underline-offset: 3px;
 }
+.box{
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px;
+    height: 92vh;
+}
+.spread{
+    display: flex;
+    justify-content: space-between;
+    background-color: #D9AFD9;
+    width: 100%;
+    padding: 5px 10px 5px 10px;
+    border-width: 3px;
+    align-items: center;
+
+}
+
+@media  (min-width:100px) and (max-width:250px){
+    .name{
+     
+        flex-direction: column;
+        width: 100%;
+    }
+}
 
 

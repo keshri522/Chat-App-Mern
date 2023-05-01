@@ -17,7 +17,6 @@ import axios from "axios";
 import { useToast } from "@chakra-ui/react"; //just a hook like in react come from chakra ui to make pop up beatiful
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import Signup from "./Signup";
 
 const Login = () => {
   const [email, Setemail] = useState();
@@ -40,6 +39,7 @@ const Login = () => {
       isClosable: true,
       position: "top",
     });
+    navigate("/chats"); //once login  as guest directly navigate to chats pages
   };
   const handleSubmit = async () => {
     let obj = {
@@ -71,6 +71,7 @@ const Login = () => {
           isClosable: true,
           position: "top",
         });
+        navigate("/chats");
         // if no errors, submit the form..
       } else {
         // if there are errors, display the errors
@@ -179,15 +180,6 @@ const Login = () => {
             Login as a Guest
           </Button>
 
-          {/* this button is just for reloading the website  */}
-          {/* <Button
-        width="100%"
-        colorScheme="orange"
-        style={{ marginTop: 14 }}
-        onClick={refresh}
-      >
-        Reload
-      </Button> */}
           <Link to="/Signup">
             <small
               onClick={() => navigate("/Signup")}

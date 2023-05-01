@@ -10,13 +10,14 @@ import {
   Text,
   Box,
   Container,
+  HStack,
 } from "@chakra-ui/react";
 import validation from "../../validation/signupValidation";
 import { useToast } from "@chakra-ui/react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux"; //dispatcher to send all the data to reducers sendDatatoStore
-import { sendDataToStore } from "../../Redux/ReduxSlice"; //this is the action generator for redux
+import { sendDetailTOStore } from "../../Redux/CreateSlice"; //this is the action generator for redux
 
 const Signup = () => {
   // creating state for some of the field like name,email,password,confirmpassword,pic
@@ -32,8 +33,9 @@ const Signup = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const getDataFromReduxStore = useSelector((state) => state.USERS); //getting all the data coming from response from Global state of the apllication from store
-  console.log("the data is ", getDataFromReduxStore);
+
+  const getDataFromReduxStore = useSelector((state) => state.USER); //getting all the data coming from response from Global state of the apllication from combine reducer  SignUpData state
+  console.log("Singup data", getDataFromReduxStore);
   const ImageUploader = (event) => {
     const file = event.target.files[0];
     Setloding(true);
@@ -97,6 +99,7 @@ const Signup = () => {
       password,
       Confirm_Password,
     };
+
     // check errors in the from or not
     const errors = validation(obj); // validate the input fields using the validation function
     try {
@@ -126,7 +129,8 @@ const Signup = () => {
           isClosable: true,
           position: "top",
         });
-        dispatch(sendDataToStore(data));
+
+        dispatch(sendDetailTOStore(data));
         // localStorage.setItem("SignupData", JSON.stringify(data)); //what are response coming from serveer saving to localStroage
         //once competed set loading to false..
         if (getDataFromReduxStore) {
@@ -189,7 +193,6 @@ const Signup = () => {
               {checkerror.name}
             </Text>
           </FormControl>
-
           {/* for the other fields we have to as many formcontrol  */}
           <FormControl id="my-email" isRequired isInvalid={checkerror.email}>
             <FormLabel>Email</FormLabel>
@@ -207,7 +210,6 @@ const Signup = () => {
               </Text>
             )}
           </FormControl>
-
           <FormControl
             id="my-password"
             isRequired
@@ -293,17 +295,29 @@ const Signup = () => {
           >
             Signup
           </Button>
-          {/* for refreshing the page */}
-          <Button
-            width="100%"
-            colorScheme="blue"
-            style={{ marginTop: 14 }}
-            onClick={() => {
-              window.location.reload();
-            }}
-          >
-            Reload
-          </Button>
+
+          <HStack w="100%" display="flex" justifyContent="space-between">
+            <Button
+              width="49%"
+              colorScheme="blue"
+              style={{ marginTop: 14 }}
+              onClick={() => {
+                window.location.reload();
+              }}
+            >
+              Clear Fields
+            </Button>
+            <Button
+              width="49%"
+              colorScheme="teal"
+              style={{ marginTop: 14 }}
+              onClick={() => {
+                navigate("/");
+              }}
+            >
+              Login
+            </Button>
+          </HStack>
         </VStack>
       </Box>
     </Container>

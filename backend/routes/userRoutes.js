@@ -68,7 +68,7 @@ router.post("/registration", async (req, res) => {
                       name: newuser.name,
                       Id: newuser._id,
                       email: newuser.email,
-                      token: "Bearer " + token,
+                      pic: newuser.pic,
                     });
                   }
                 }
@@ -136,7 +136,6 @@ router.post("/login", async (req, res) => {
                   name: user.name,
                   Id: user._id,
                   email: user.email,
-                  token: "Bearer " + token,
                 });
               }
             }

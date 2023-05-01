@@ -1,10 +1,10 @@
 import { configureStore } from "@reduxjs/toolkit";
-import MySlice from "../Redux/ReduxSlice";
+import MySlice from "../Redux/CreateSlice";
 
 const store = configureStore({
   reducer: {
-    // here USER is A Global state for the entire application.. if we data we SImply use USER State to get all the data from local stroage
-    USERS: MySlice,
+    USER: MySlice,
   },
 });
+
 export default store;
