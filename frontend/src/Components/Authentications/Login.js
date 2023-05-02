@@ -17,6 +17,8 @@ import axios from "axios";
 import { useToast } from "@chakra-ui/react"; //just a hook like in react come from chakra ui to make pop up beatiful
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import { sendDetailTOStore } from "../../Redux/CreateSlice";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const [email, Setemail] = useState();
@@ -26,6 +28,7 @@ const Login = () => {
   // creating a handle submit function when user click on the sign  in what happpens ..handle by this
   const toast = useToast();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   //function for login as a guest//
   const guest = () => {
@@ -62,8 +65,9 @@ const Login = () => {
           config //what type of data we are seding in headers file we have alredy define in config
         );
         // Store the token in local storage because we have verify this token in each of request so i have save but once user logout it will be deleted automatcially
-        localStorage.setItem("token", JSON.stringify(data.token));
-        console.log(data);
+        // localStorage.setItem("token", JSON.stringify(data.token));
+
+        dispatch(sendDetailTOStore(data.token)); //sending the res token to store global state from where i can access all the details of user like name or pic show in ui
 
         //here showing a pop up that registraion is completed..
         toast({

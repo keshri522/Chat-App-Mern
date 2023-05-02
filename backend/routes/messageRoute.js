@@ -73,7 +73,6 @@ router.post("/personal", async (req, res) => {
       }
     );
 
-    console.log(Find._id);
     const UserDetials = await Chat.aggregate([
       //this will give me  more infromation about sender or receviers
       {
@@ -92,7 +91,7 @@ router.post("/personal", async (req, res) => {
       "userDeatails.password": 0,
       "__v:": 0,
     });
-    console.log(UserDetials);
+
     //   save all the message in the pesonal message schema what two users  messaged to each others
     let message = await new Personal({
       from: from,

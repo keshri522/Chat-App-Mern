@@ -115,9 +115,11 @@ router.post("/login", async (req, res) => {
           // if matchedPassword is  there then we gave him a auth-jwt token for authrization...
           //creating payload means what are thing we want get with the help of the token of userdetails.
           const infoPayload = {
+            // this will come when we want to show all the details in frontedn while decoding
             id: user._id,
             name: user.name,
             email: user.email,
+            pic: user.pic,
           };
           JWT.sign(
             infoPayload,
@@ -125,6 +127,7 @@ router.post("/login", async (req, res) => {
             {
               expiresIn: 31556926, // Seconds in a year my token will expire  in one year
             },
+
             (err, token) => {
               //if any error then show me the error..
               if (err) {
@@ -132,6 +135,7 @@ router.post("/login", async (req, res) => {
                 res.status(400).send(err);
               } else {
                 // after provindg the jwt auth token i basically send all the respone to severs ..
+
                 res.status(200).json({
                   Success: true,
                   name: user.name,
@@ -189,6 +193,7 @@ router.get("/", async (req, res) => {
 
 router.get("/find", async (req, res) => {
   const data = req.query.search;
+  console.log(data);
   let decodeToken = req.headers.token;
   // console.log(decodeToken);
   //each time we make a api for  any request we have to verify the jwt token again and again..

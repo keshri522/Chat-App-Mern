@@ -130,8 +130,6 @@ const Signup = () => {
           position: "top",
         });
 
-        dispatch(sendDetailTOStore(data));
-        // localStorage.setItem("SignupData", JSON.stringify(data)); //what are response coming from serveer saving to localStroage
         //once competed set loading to false..
         if (getDataFromReduxStore) {
           navigate("/"); //once verifed the data is present in local strogage redirected to login page ..

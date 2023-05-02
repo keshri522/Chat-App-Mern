@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -35,34 +35,34 @@ import { sendDetailTOStore } from "../Redux/CreateSlice";
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import SingleUserDetails from "./SingleUserDetails";
-
+import jwt_decode from "jwt-decode"; //for decoding the payload
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
   const [searchedResult, SetsearchedResult] = useState([]); // contains a lots of user coming from search ..
   const [searchLoading, SetsearchLoading] = useState(false); // when user click on search it is loading ...
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
-  const UserDetails = useSelector((state) => state.USER); //getting all the data from store when user  sign up  ..
-  const toast = useToast();
-  const gettingTokenFromLocalStorage = JSON.parse(
-    localStorage.getItem("token")
-  );
+  const UserDetails = useSelector((state) => state.USER); //getting the JWT token from Global state of application redux so ican show user name or pic dynamically according to login of users
 
-  //this is just of opening or closing of my profile
-  // Add a state variable to keep track of whether the modal should be open or closed
+  const toast = useToast();
+  var decoded = jwt_decode(UserDetails.DATA); //here we decode all the thing that are coming from JWT token from server in payload so with the helo of this we can show userpic or usenae dyanmically to ui or profile instead of saving all the details anywhere we basically decode this payload once user log out token will be deleted
+  // console.log("the decode is", decoded);
+  // console.log(decoded.name);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const Logout = () => {
     //creating a function for log out when user click on log out all the data set in store become empty
     dispatch(sendDetailTOStore("")); //cearing the store
-    localStorage.setItem("token", ""); //once log out i basically clear the local storage field of token
-    navigate("/");
+
+    navigate("/"); //navigate to chat page
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   const userSelected = () => {
     //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
   };
+
   const handleClick = async () => {
     //this function will handle our search User using get api when i click on go button it will search all the user in the app  basically we makeing a get request to show all the users ..
     if (!search || search.length === 0) {
@@ -80,12 +80,11 @@ const SearchDrawer = () => {
         SetsearchLoading(true); //when user click on go it will ture that will be used latar
         const config = {
           headers: {
-            token: gettingTokenFromLocalStorage, //here token is  the same name that we have writeent userROutes in find user in decodetoken=req.param.token
+            token: UserDetails.DATA, //here token is  the same name that we have writeent userROutes in find user in decodetoken=req.param.token should be same name as token that we have written backend userroute in find api in req.param.token
           },
         };
         const { data } = await axios.get(
           `http://localhost:4000/api/user/find?search=${search}`, //calling our backend api
-
           config
         ); //calling our api to get all the details of users who is in my application
         SetsearchLoading(false);
@@ -105,6 +104,7 @@ const SearchDrawer = () => {
       }
     }
   };
+
   return (
     //using chakra ui components to build my SearchDrawer .. to make it fast....
     <>
@@ -144,12 +144,12 @@ const SearchDrawer = () => {
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 <Box display="flex" alignItems="center">
                   {/* //coming from Global store of app which is reduxtoolkit */}
-                  <Text mr={2}>{UserDetails.DATA.name}</Text>
+                  <Text mr={2}>{decoded.name}</Text>
 
                   <Avatar
                     size="sm"
                     cursor="pointer"
-                    src={UserDetails.DATA.pic} //coming from Global store of app which is reduxtoolkit
+                    src={decoded.pic} //coming from Global store of app which is reduxtoolkit
                   />
                 </Box>
               </MenuButton>
@@ -178,18 +178,18 @@ const SearchDrawer = () => {
             justifyContent="center"
             color="tomato"
           >
-            Name: {UserDetails.DATA.name}
+            Name: {decoded.name}
           </ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <Image
               borderRadius="full"
               boxSize="160px"
-              src={UserDetails.DATA.pic} // coming from Redux store which is global state of the app
-              alt={UserDetails.DATA.name} // coming from Redux store which is global state of the app
+              src={decoded.pic} // coming from Redux store which is global state of the app
+              alt={decoded.name} // coming from Redux store which is global state of the app
             ></Image>
             <Text fontSize="20px" color="tomato" fontFamily="heading" mt="20px">
-              Email:{UserDetails.DATA.email}
+              Email:{decoded.email}
             </Text>
           </ModalBody>
 
@@ -202,6 +202,7 @@ const SearchDrawer = () => {
         placement="left"
         onClick={() => {
           SetsideDrawer(false);
+
           // Setsearch(" ");
           SetsearchedResult([]); // clear searchedResult when drawer is closed  so user can searched again
         }} //
@@ -235,10 +236,11 @@ const SearchDrawer = () => {
             <DrawerBody>
               <Box display="flex" pb={2}>
                 <Input
-                  placeholder="  Search Users by name or Email"
+                  placeholder="  Search Users by name "
                   mr={2}
                   value={search} //
-                  onChange={(e) => Setsearch(e.target.value)} //setting Search state what ever user enter into the input filed
+                  // onChange={(e) => Setsearch(e.target.value)} //setting Search state what ever user enter into the input filed
+                  onChange={(e) => Setsearch(e.target.value)}
                 ></Input>
                 <Button colorScheme="teal" onClick={handleClick}>
                   Go
