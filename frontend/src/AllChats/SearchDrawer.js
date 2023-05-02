@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -18,6 +18,13 @@ import {
   ModalBody,
   ModalCloseButton,
   Image,
+  Drawer,
+  DrawerOverlay,
+  DrawerContent,
+  DrawerHeader,
+  DrawerBody,
+  Input,
+  useToast,
 } from "@chakra-ui/react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
@@ -25,26 +32,79 @@ import { useDisclosure } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { sendDetailTOStore } from "../Redux/CreateSlice";
+import axios from "axios";
+import ChatLoading from "./ChatLoading";
+import SingleUserDetails from "./SingleUserDetails";
 
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
   const [searchedResult, SetsearchedResult] = useState([]); // contains a lots of user coming from search ..
   const [searchLoading, SetsearchLoading] = useState(false); // when user click on search it is loading ...
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
+  const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
   const UserDetails = useSelector((state) => state.USER); //getting all the data from store when user  sign up  ..
-  console.log(UserDetails);
+  const toast = useToast();
+  const gettingTokenFromLocalStorage = JSON.parse(
+    localStorage.getItem("token")
+  );
+
   //this is just of opening or closing of my profile
   // Add a state variable to keep track of whether the modal should be open or closed
-
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const Logout = () => {
     //creating a function for log out when user click on log out all the data set in store become empty
-    dispatch(sendDetailTOStore(""));
+    dispatch(sendDetailTOStore("")); //cearing the store
+    localStorage.setItem("token", ""); //once log out i basically clear the local storage field of token
     navigate("/");
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
+  const userSelected = () => {
+    //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
+  };
+  const handleClick = async () => {
+    //this function will handle our search User using get api when i click on go button it will search all the user in the app  basically we makeing a get request to show all the users ..
+    if (!search || search.length === 0) {
+      //basically we add a condtion if this is not true then not go to the api or else statement
+      toast({
+        title: "Cannot be empty.",
+        status: "warning",
+        duration: 2000,
+        isClosable: true,
+        position: "top-left",
+      });
+    } else {
+      // i am making a get api call to fetch all the  list of users from backend.. api that i created...
+      try {
+        SetsearchLoading(true); //when user click on go it will ture that will be used latar
+        const config = {
+          headers: {
+            token: gettingTokenFromLocalStorage, //here token is  the same name that we have writeent userROutes in find user in decodetoken=req.param.token
+          },
+        };
+        const { data } = await axios.get(
+          `http://localhost:4000/api/user/find?search=${search}`, //calling our backend api
+
+          config
+        ); //calling our api to get all the details of users who is in my application
+        SetsearchLoading(false);
+        SetsearchedResult(data); //what ever the nu,ber of user come from the backedn as a response we bascially put this on setserResult because it ia array of object and user can hoave more than one
+      } catch (error) {
+        if (error.response && error.response.status === 400) {
+          //if searchuser is not empty and user is not available in Database the we get request but in response server will throw an errro No user is found so i basically capture the error with the status code ...
+          toast({
+            title: "No users found for the given search query",
+            status: "warning",
+            duration: 2000,
+            isClosable: true,
+            position: "top-left",
+          });
+        }
+        SetsearchLoading(false);
+      }
+    }
+  };
   return (
     //using chakra ui components to build my SearchDrawer .. to make it fast....
     <>
@@ -62,7 +122,9 @@ const SearchDrawer = () => {
           hasArrow
           placeContent="bottom_end"
         >
-          <Button variant="outline">
+          {/* just for openiing for sidedrawer we create onclick function and set setsidedrawer to true  */}
+          {/* <Button variant="outline" onClick={() => SetsideDrawer(true)}> */}
+          <Button variant="outline" onClick={() => SetsideDrawer(true)}>
             {/* font awesome icons for search of users */}
             <i class="fa-solid fa-magnifying-glass"></i>
             <Text d={{ base: "none" }} px={4}>
@@ -123,8 +185,8 @@ const SearchDrawer = () => {
             <Image
               borderRadius="full"
               boxSize="160px"
-              src={UserDetails.DATA.pic}
-              alt={UserDetails.DATA.name}
+              src={UserDetails.DATA.pic} // coming from Redux store which is global state of the app
+              alt={UserDetails.DATA.name} // coming from Redux store which is global state of the app
             ></Image>
             <Text fontSize="20px" color="tomato" fontFamily="heading" mt="20px">
               Email:{UserDetails.DATA.email}
@@ -134,6 +196,73 @@ const SearchDrawer = () => {
           <ModalFooter></ModalFooter>
         </ModalContent>
       </Modal>
+      {/* just a modal when click on my profile or logout what will happend will define by this.. */}
+      <Drawer
+        isOpen={sideDrawer} //when it is  true it will open
+        placement="left"
+        onClick={() => {
+          SetsideDrawer(false);
+          // Setsearch(" ");
+          SetsearchedResult([]); // clear searchedResult when drawer is closed  so user can searched again
+        }} //
+        onOverlayClick={() => {
+          SetsideDrawer(false); //if we click outside any where  the field side drawer will  be closed it will only if we click outside the sidedrawer not in sidedrawer
+
+          SetsearchedResult([]); // clear searchedResult when drawer is closed  so user can searched again
+        }}
+      >
+        <DrawerOverlay>
+          <DrawerContent>
+            <DrawerHeader
+              display="flex"
+              pb={2}
+              justifyContent="space-between"
+              borderBottomWidth="1px"
+            >
+              <Text>Search Users</Text>
+              <Button
+                color="red"
+                bg="none"
+                onClick={() => {
+                  SetsideDrawer(false);
+
+                  SetsearchedResult([]); // clear searchedResult when drawer is closed  so user can searched again
+                }}
+              >
+                <i class="fa-solid fa-xmark"></i>
+              </Button>
+            </DrawerHeader>
+            <DrawerBody>
+              <Box display="flex" pb={2}>
+                <Input
+                  placeholder="  Search Users by name or Email"
+                  mr={2}
+                  value={search} //
+                  onChange={(e) => Setsearch(e.target.value)} //setting Search state what ever user enter into the input filed
+                ></Input>
+                <Button colorScheme="teal" onClick={handleClick}>
+                  Go
+                </Button>
+              </Box>
+              {searchLoading ? ( //if searchloading is ture then show Chatloading or else show all the users in a a singleChat compoonet that contains all the info of users to whom what i want to show
+                <ChatLoading></ChatLoading>
+              ) : (
+                searchedResult?.map(
+                  (
+                    user //here if there is  no users come in search instead of giving errror it will undefined the things becasue i am using optional  channing here // it will map ecah and every user which will come inside the search options
+                  ) => (
+                    <SingleUserDetails
+                      key={user._id}
+                      user={user}
+                      handleUser={() => userSelected(user._id)}
+                    ></SingleUserDetails>
+                  )
+                )
+              )}
+            </DrawerBody>
+          </DrawerContent>
+        </DrawerOverlay>
+      </Drawer>
     </>
   );
 };

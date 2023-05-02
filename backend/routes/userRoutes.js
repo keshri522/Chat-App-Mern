@@ -69,6 +69,7 @@ router.post("/registration", async (req, res) => {
                       Id: newuser._id,
                       email: newuser.email,
                       pic: newuser.pic,
+                      token: "Bearer " + token,
                     });
                   }
                 }
@@ -136,6 +137,7 @@ router.post("/login", async (req, res) => {
                   name: user.name,
                   Id: user._id,
                   email: user.email,
+                  token: "Bearer " + token,
                 });
               }
             }
@@ -152,7 +154,7 @@ router.post("/login", async (req, res) => {
 //createing a route for when user sign in come to home or dashboard..first we need to verfiy the JWT token and show all the users which are user already logged in wxcept me..
 router.get("/", async (req, res) => {
   let decodeToken = req.headers.token; //becasue this is get request not have body we have send the auth token in headers..
-  // console.log(decodeToken);
+  console.log(decodeToken);
   try {
     if (!decodeToken) {
       res.status(400).json("Unauthorized User");
@@ -220,10 +222,16 @@ router.get("/find", async (req, res) => {
                 ],
               },
             },
-          ]).project({ name: 1 }); // i want to show only the name of the user nothing more ...so use projects ..
-          res.status(200).json(SearchedUser); // after searching we are sending the res to frontend to the clients
+          ]).project({ name: 1, email: 1, pic: 1 }); // i want to show only the name of the user nothing more ...so use projects ..
+          if (SearchedUser.length === 0) {
+            //if there is no user found simply return the error message with the code 404
+            res.status(400).send("No users found for the given search query");
+          } else {
+            res.status(200).json(SearchedUser);
+          }
+          // res.status(200).json(SearchedUser); // after searching we are sending the res to frontend to the clients
         } else {
-          res.status(400).send("Please Enter the Name"); //if no search found simply return or response a empty obj..
+          res.status(400).send("User not found"); //if no search found simply return or response a empty obj..
         }
       }
     }

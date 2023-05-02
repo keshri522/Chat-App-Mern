@@ -299,7 +299,7 @@ const Signup = () => {
           <HStack w="100%" display="flex" justifyContent="space-between">
             <Button
               width="49%"
-              colorScheme="blue"
+              colorScheme="red"
               style={{ marginTop: 14 }}
               onClick={() => {
                 window.location.reload();
@@ -309,7 +309,7 @@ const Signup = () => {
             </Button>
             <Button
               width="49%"
-              colorScheme="teal"
+              colorScheme="blue"
               style={{ marginTop: 14 }}
               onClick={() => {
                 navigate("/");

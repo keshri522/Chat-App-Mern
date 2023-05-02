@@ -54,14 +54,14 @@ const validation = (data) => {
   if (data.email === "") {
     errors.email = "Required!";
   } else if (!email_pattern.test(data.email)) {
-    errors.email = "email must contain aphanumber & special Characters! ";
+    errors.email = "please check must be in email format  ";
   }
   //   for the password field
   if (data.password === "") {
     errors.password = "Required!";
   } else if (!password_pattern.test(data.password)) {
     errors.password =
-      "Password must 8 chars contain at least one letter,number and special character!";
+      "Password must be atleast 8 chars contain at least one letter,number and special character!";
   }
   // for the confirm password..  Confirm_Password,
   if (data.Confirm_Password === "") {

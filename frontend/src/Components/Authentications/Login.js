@@ -61,6 +61,8 @@ const Login = () => {
           { email, password }, //what we are sending from frontend login page
           config //what type of data we are seding in headers file we have alredy define in config
         );
+        // Store the token in local storage because we have verify this token in each of request so i have save but once user logout it will be deleted automatcially
+        localStorage.setItem("token", JSON.stringify(data.token));
         console.log(data);
 
         //here showing a pop up that registraion is completed..
@@ -78,6 +80,7 @@ const Login = () => {
         Setcheckerror(errors);
       }
     } catch (error) {
+      //coming from servers backend  if email alredy exist or not
       if (error.response && error.response.status === 400) {
         //if server sent any response like email is not right then we havve to cpature the  code and put in setcheckerror with email field
         Setcheckerror({ email: "Invalid Credentials" });
@@ -95,7 +98,7 @@ const Login = () => {
         d="flex"
         justifyContent="center"
         p={3}
-        bg="#f1f2f6"
+        bg="#ffffff"
         w="100%"
         m="40px 0 15px 0"
         borderRadius="lg"
@@ -117,7 +120,7 @@ const Login = () => {
         borderRadius="lg"
         borderWidth="1px"
         // bg="#EDF2F7"
-        bg="#f1f2f6"
+        bg="#ffffff"
       >
         {/* ); // vstack just for vertically adding something ... */}
         <VStack spacing="5px" color="black">
