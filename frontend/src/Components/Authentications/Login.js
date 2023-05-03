@@ -18,7 +18,7 @@ import { useToast } from "@chakra-ui/react"; //just a hook like in react come fr
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { sendDetailTOStore } from "../../Redux/CreateSlice";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 
 const Login = () => {
   const [email, Setemail] = useState();
@@ -31,10 +31,21 @@ const Login = () => {
   const dispatch = useDispatch();
 
   //function for login as a guest//
-  const guest = () => {
-    Setemail("guest123@gmail.com"); //defatult set to email..
-    Setpassword("12345678a@"); //default set to password..
+  const guest = async () => {
     //here showing a pop up that registraion is completed..
+    const config = {
+      headers: {
+        "Content-type": "application/json", //in headers what type of data is sent to the server we have to define to make axiox call to server
+      },
+    };
+    const email = "guest123@gmail.com";
+    const password = "12345678a@";
+    const { data } = await axios.post(
+      "http://localhost:4000/api/user/login", //api endpoint where to send the data
+      { email, password }, //what we are sending from frontend login page
+      config //what type of data we are seding in headers file we have alredy define in config
+    );
+
     toast({
       title: "Login Sucessfully Completed",
       status: "success",
@@ -42,6 +53,7 @@ const Login = () => {
       isClosable: true,
       position: "top",
     });
+    dispatch(sendDetailTOStore(data.token)); //sending the res token to store global state from where i can access all the details of user like name or pic show in ui
     navigate("/chats"); //once login  as guest directly navigate to chats pages
   };
   const handleSubmit = async () => {

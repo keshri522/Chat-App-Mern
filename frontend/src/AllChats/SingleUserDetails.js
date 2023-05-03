@@ -6,7 +6,9 @@ const SingleUserDetails = ({ user, handleUser }) => {
   return (
     <>
       <Box
-        onClick={handleUser} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js
+        onClick={() => {
+          handleUser(user._id);
+        }} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js
         cursor="pointer"
         bg="#dff9fb"
         _hover={{

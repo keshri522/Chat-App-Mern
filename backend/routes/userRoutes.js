@@ -125,7 +125,7 @@ router.post("/login", async (req, res) => {
             infoPayload,
             process.env.SECRET_KEY,
             {
-              expiresIn: 31556926, // Seconds in a year my token will expire  in one year
+              expiresIn: 31556930, // Seconds in a year my token will expire  in one year
             },
 
             (err, token) => {

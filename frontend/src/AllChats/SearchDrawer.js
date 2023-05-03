@@ -32,9 +32,11 @@ import { useDisclosure } from "@chakra-ui/react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { sendDetailTOStore } from "../Redux/CreateSlice";
+import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import SingleUserDetails from "./SingleUserDetails";
+
 import jwt_decode from "jwt-decode"; //for decoding the payload
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
@@ -42,25 +44,61 @@ const SearchDrawer = () => {
   const [searchLoading, SetsearchLoading] = useState(false); // when user click on search it is loading ...
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
-  const UserDetails = useSelector((state) => state.USER); //getting the JWT token from Global state of application redux so ican show user name or pic dynamically according to login of users
+  const UserDetails = useSelector((state) => state.USER);
+  const items = useSelector((state) => state.CREATECHATDATA);
+
+  //getting the JWT token from Global state of application redux so ican show user name or pic dynamically according to login of users
 
   const toast = useToast();
-  var decoded = jwt_decode(UserDetails.DATA); //here we decode all the thing that are coming from JWT token from server in payload so with the helo of this we can show userpic or usenae dyanmically to ui or profile instead of saving all the details anywhere we basically decode this payload once user log out token will be deleted
-  // console.log("the decode is", decoded);
-  // console.log(decoded.name);
+  let takeTokenFrom;
+  let decoded;
+  if (UserDetails && typeof UserDetails.DATA === "string") {
+    takeTokenFrom = UserDetails.DATA.split(" ")[1];
+    decoded = jwt_decode(takeTokenFrom);
+  }
 
+  //here we decode all the thing that are coming from JWT token from server in payload so with the helo of this we can show userpic or usenae dyanmically to ui or profile instead of saving all the details anywhere we basically decode this payload once user log out token will be deleted
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const Logout = () => {
     //creating a function for log out when user click on log out all the data set in store become empty
-    dispatch(sendDetailTOStore("")); //cearing the store
 
+    localStorage.removeItem("userData"); //cearing all the details of user that is saved to localstroage
     navigate("/"); //navigate to chat page
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
-  const userSelected = () => {
+  const userSelected = async (id) => {
     //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
+    try {
+      SetsearchLoading(true);
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          token: UserDetails.DATA,
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:4000/api/message/createChat",
+        { UserId: id },
+
+        config
+      );
+      const sendingItemToStoreFromResponse = {
+        //filtering all the necessary data from backend response
+        ChattingId: data[0]._id,
+        loggedInpersonId: data[0].userDeatails[0]._id,
+        loggedInpersonName: data[0].userDeatails[0].name,
+        loggedInpersonPic: data[0].userDeatails[0].pic,
+        OtherUserId: data[0].userDeatails[1]._id,
+        OtherUserName: data[0].userDeatails[1].name,
+        OtherUserPic: data[0].userDeatails[1].pic,
+      };
+      SetsearchLoading(false);
+      dispatch(SendUserDataToStore(sendingItemToStoreFromResponse)); //seding only necessary data to redux from the response coming from backend
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleClick = async () => {

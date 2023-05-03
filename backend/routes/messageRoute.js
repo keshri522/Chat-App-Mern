@@ -108,6 +108,59 @@ router.post("/personal", async (req, res) => {
   }
 });
 
+//creating a api which will create a chat betweeen two user when logged in user will click on search users it will create a chat between them..
+router.post("/createChat", async (req, res) => {
+  //api for sending one to one message ...
+  let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
+  let To = new mongoose.Types.ObjectId(req.body.UserId); // to whom to be sent //onc the click of user we get the id send to that id
+  try {
+    const Find = await Chat.findOneAndUpdate(
+      {
+        isGroup: false,
+        users: {
+          $all: [{ $elemMatch: { $eq: from } }, { $elemMatch: { $eq: To } }], //matching all the  fields in the users
+        },
+      },
+      // then creating a converstation between to and from.
+      {
+        users: [from, To], //then create a new conversation bewtween to and from
+      },
+      {
+        upsert: true, //if from and to is already present then we simply udate the last message with the help of upsert:true.
+        new: true, //new:true=if there is no Conversation between to and from then create a new converstation to and from ..
+        setDefaultsOnInsert: true, //setDefaultsOnInsert:true=if you create a new conversation so use she same schema that are defiend in  the convetsation schema not others
+
+        //here if from and is presend or not all the thing are save or updated inside the Conversation model..
+      }
+    );
+
+    const UserDetials = await Chat.aggregate([
+      //this will give me  more infromation about sender or receviers
+      {
+        $match: { _id: Find._id },
+      },
+      //now using lookup we get the userdatias  of smae Find>-id users
+      {
+        $lookup: {
+          from: "users", //from where we want the details...
+          localField: "users", //in CHat collection what key i want the  get the details here users is array of object it will show me from as well as to  uservdetails boths
+          foreignField: "_id", // what users._id is named in our UsersCollection users._id is called _id in users.
+          as: "userDeatails", //just a alias name any name here
+        },
+      },
+    ]).project({
+      "userDeatails.password": 0,
+      "__v:": 0,
+    });
+
+    // console.log(UserDetials);
+
+    res.status(200).json(UserDetials);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
+
 // creating Conversation list of user all the user to whom logged users had a conversation ...
 // 1=> whom conversation list to find logged in uuser.
 // 2=> finding all the deatisl of logged in users using lookup
