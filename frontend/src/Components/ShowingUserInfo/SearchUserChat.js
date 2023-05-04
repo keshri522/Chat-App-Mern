@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
-const SingleUserDetails = ({ user, handleUser }) => {
+const SearchUserChat = ({ user, handleUser }) => {
   // taking as a props passing from SearchDrawer ...
 
   return (
@@ -43,4 +43,4 @@ const SingleUserDetails = ({ user, handleUser }) => {
   );
 };
 
-export default SingleUserDetails;
+export default SearchUserChat;

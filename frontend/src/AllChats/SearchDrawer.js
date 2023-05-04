@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -33,9 +33,10 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { sendDetailTOStore } from "../Redux/CreateSlice";
 import { SendUserDataToStore } from "../Redux/UserDataSlice";
+
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
-import SingleUserDetails from "./SingleUserDetails";
+import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
 
 import jwt_decode from "jwt-decode"; //for decoding the payload
 const SearchDrawer = () => {
@@ -45,17 +46,16 @@ const SearchDrawer = () => {
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
   const UserDetails = useSelector((state) => state.USER);
+  console.log(UserDetails);
+  const [storedUser, setStoredUser] = useState("");
+  const [CreateChat, setChatCreate] = useState([{}]); //this is a global vvariable that can be access any everywhere in this component
   const items = useSelector((state) => state.CREATECHATDATA);
 
   //getting the JWT token from Global state of application redux so ican show user name or pic dynamically according to login of users
 
   const toast = useToast();
-  let takeTokenFrom;
-  let decoded;
-  if (UserDetails && typeof UserDetails.DATA === "string") {
-    takeTokenFrom = UserDetails.DATA.split(" ")[1];
-    decoded = jwt_decode(takeTokenFrom);
-  }
+
+  const decoded = jwt_decode(UserDetails.DATA); //decoding the jwt token to access all the details like pic name or image from teh dynamic users
 
   //here we decode all the thing that are coming from JWT token from server in payload so with the helo of this we can show userpic or usenae dyanmically to ui or profile instead of saving all the details anywhere we basically decode this payload once user log out token will be deleted
   const dispatch = useDispatch();
@@ -64,12 +64,41 @@ const SearchDrawer = () => {
     //creating a function for log out when user click on log out all the data set in store become empty
 
     localStorage.removeItem("userData"); //cearing all the details of user that is saved to localstroage
+
     navigate("/"); //navigate to chat page
+    window.location.reload();
   };
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
+  // const userSelected = async (id) => {
+
+  //   //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
+  //   try {
+  //     SetsearchLoading(true);
+  //     const config = {
+  //       headers: {
+  //         "Content-type": "application/json",
+  //         token: UserDetails.DATA,
+  //       },
+  //     };
+  //     const { data } = await axios.post(
+  //       "http://localhost:4000/api/message/createChat",
+  //       { UserId: id },
+
+  //       config
+  //     );
+  //     console.log(data);
+  //     dispatch(setSendingItemToStoreFromResponse({ data }));
+  //     // setSendingItemToStoreFromResponse({ data });
+  //     SetsearchLoading(false);
+  //     console.log("the store data is", items);
+  //     // dispatch(SendUserDataToStore(sendingItemToStoreFromResponse)); //seding only necessary data to redux from the response coming from backend
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
   const userSelected = async (id) => {
-    //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
     try {
       SetsearchLoading(true);
       const config = {
@@ -81,25 +110,20 @@ const SearchDrawer = () => {
       const { data } = await axios.post(
         "http://localhost:4000/api/message/createChat",
         { UserId: id },
-
         config
       );
-      const sendingItemToStoreFromResponse = {
-        //filtering all the necessary data from backend response
-        ChattingId: data[0]._id,
-        loggedInpersonId: data[0].userDeatails[0]._id,
-        loggedInpersonName: data[0].userDeatails[0].name,
-        loggedInpersonPic: data[0].userDeatails[0].pic,
-        OtherUserId: data[0].userDeatails[1]._id,
-        OtherUserName: data[0].userDeatails[1].name,
-        OtherUserPic: data[0].userDeatails[1].pic,
-      };
+
+      // dispatch(SendUserDataToStore({ data }));
+      setChatCreate(data);
       SetsearchLoading(false);
-      dispatch(SendUserDataToStore(sendingItemToStoreFromResponse)); //seding only necessary data to redux from the response coming from backend
     } catch (error) {
       console.log(error);
     }
   };
+  useEffect(() => {
+    userSelected();
+  }, [dispatch]);
+  console.log("the chat is", CreateChat);
 
   const handleClick = async () => {
     //this function will handle our search User using get api when i click on go button it will search all the user in the app  basically we makeing a get request to show all the users ..
@@ -206,7 +230,7 @@ const SearchDrawer = () => {
       </Box>
       {/* creating modal for my profile when user click  on my profile */}
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isOpen={isOpen}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader
@@ -291,11 +315,11 @@ const SearchDrawer = () => {
                   (
                     user //here if there is  no users come in search instead of giving errror it will undefined the things becasue i am using optional  channing here // it will map ecah and every user which will come inside the search options
                   ) => (
-                    <SingleUserDetails
+                    <SearchUserChat
                       key={user._id}
                       user={user}
                       handleUser={() => userSelected(user._id)}
-                    ></SingleUserDetails>
+                    ></SearchUserChat>
                   )
                 )
               )}

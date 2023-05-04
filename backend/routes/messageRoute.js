@@ -3,9 +3,10 @@ const mongoose = require("mongoose"); // 3rd party modules
 const router = express.Router(); //global router..
 const JWT = require("jsonwebtoken");
 const Chat = require("../Models/chat");
-const Personal = require("../Models/personalMessage");
+
 const asyncHandler = require("express-async-handler"); // for checking any error in backed
 const User = require("../Models/User/userSchema");
+const Message = require("../Models/personalMessage");
 
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
@@ -93,7 +94,7 @@ router.post("/personal", async (req, res) => {
     });
 
     //   save all the message in the pesonal message schema what two users  messaged to each others
-    let message = await new Personal({
+    let message = await new Message({
       from: from,
       To: To,
       body: req.body.message,
@@ -168,6 +169,7 @@ router.post("/createChat", async (req, res) => {
 // 4=> using project to see what we want to see or send to server..
 
 router.get("/conversationList", async (req, res) => {
+  // this will givee you whole information of users  from or to also included the details of users
   //it gives the conversation bewtween looged in user or other users..
   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
 
@@ -182,19 +184,82 @@ router.get("/conversationList", async (req, res) => {
           as: "userDetails",
         },
       },
-    ])
-      .match({ users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } })
-      //matching if logged used had any conversation between all the users in sie chat collection
+      {
+        $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
+      },
+      {
+        $project: {
+          //i want to show only Isgroup or userdetails s
 
-      .project({
-        "userDetails.password": 0,
-        "userDetails.__v": 0,
-      });
+          isGroup: 1,
+          chatName: 1,
+          lastMessage: 1,
+          userDetails: {
+            $filter: {
+              input: "$userDetails",
+              as: "user",
+              cond: { $ne: ["$$user._id", loggedInUser] },
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          "userDetails.password": 0, // exclude the password field
+          "userDetails.email": 0, // exclude the password field
+        },
+      },
+      {
+        $unwind: "$userDetails",
+      },
+    ]);
 
     //sending response to frontend..
     res.status(200).json(conversationList);
   } catch (error) {
     res.status(400).send(error);
+  }
+});
+// router.get("/conversationList", async (req, res) => {
+//   try {
+//     const loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id);
+
+//     const conversationList = await Chat.find({
+//       users: {
+//         $all: [{ $elemMatch: { $eq: loggedInUser } }],
+//         $not: { $elemMatch: { $eq: loggedInUser } },
+//       },
+//     })
+//       .populate("users", "-password -email")
+//       .populate("groupAdmin", "-password -email")
+//       .select("isGroup chatName lastMessage users groupAdmin");
+//     if (conversationList.length === 0) {
+//       //if no any users found then reponse a error
+
+//       return res.status(404).json({ error: "No conversations found." });
+//     }
+
+//     res.status(200).json(conversationList);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
+//creating api to return all the pics of users that are present in database
+router.get("/getpic/:Id", async (req, res) => {
+  //this api will get all pic based on Userid from frontedent
+  const Id = req.params.Id;
+  console.log(Id);
+  try {
+    const Getpic = await User.findOne({ _id: Id }).select("pic"); //it will return only pic we can also use agregate function here to get
+
+    res.status(200).send(Getpic);
+    if (!Getpic) {
+      res.status(401).send("Sorry no pic founds");
+      res.end;
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("User Pic not found");
   }
 });
 
@@ -206,56 +271,75 @@ router.get("/conversationList", async (req, res) => {
 // 5=> then what we want to show if the from the details like lastmessage or time..
 // 6=> then send the response ...
 
+// router.get("/conversationByUser/query", async (req, res) => {
+//   let user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
+
+//   let user2 = new mongoose.Types.ObjectId(req.query.userId);
+
+//   try {
+//     let conversationList = await Message.aggregate([
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "from", //whoom i want to get the details in personall collection who send this (from)user so get all the details by joinng in usercollection
+//           foreignField: "_id", //what is from called in user ..
+//           as: "fromObj",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           from: "users",
+//           localField: "To", //coming from personal collection whom to send that details is coming..
+//           foreignField: "_id",
+//           as: "toObj",
+//         },
+//       },
+//       {
+//         $match: {
+//           $or: [
+//             { $and: [{ from: user1 }, { To: user2 }] },
+//             { $and: [{ from: user2 }, { To: user1 }] },
+//           ],
+//         },
+//       },
+//     ]).project({
+//       //i dont want to show these details to anyone as a respond coming from users collection so put this in project
+//       "toObj.password": 0,
+//       "toObj.email": 0,
+//       "fromObj.password": 0,
+//       "fromObj.email": 0,
+//     });
+
+//     //sednig response to frontend
+
+//     res.status(200).send(conversationList);
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).send(error);
+//   }
+// });
 router.get("/conversationByUser/query", async (req, res) => {
   let user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
-
   let user2 = new mongoose.Types.ObjectId(req.query.userId);
 
   try {
-    let conversationList = await Personal.aggregate([
-      {
-        $lookup: {
-          from: "users",
-          localField: "from", //whoom i want to get the details in personall collection who send this (from)user so get all the details by joinng in usercollection
-          foreignField: "_id", //what is from called in user ..
-          as: "fromObj",
-        },
-      },
-      {
-        $lookup: {
-          from: "users",
-          localField: "To", //coming from personal collection whom to send that details is coming..
-          foreignField: "_id",
-          as: "toObj",
-        },
-      },
-    ])
+    let conversationList = await Message.find({
+      $or: [
+        { $and: [{ from: user1 }, { To: user2 }] },
+        { $and: [{ from: user2 }, { To: user1 }] },
+      ],
+    })
+      .populate("from", "-password -email")
+      .populate("To", "-password -email")
 
-      .match({
-        $or: [
-          { $and: [{ from: user1 }, { To: user2 }] }, //matching conversation from both person.. like a to b
-          { $and: [{ from: user2 }, { To: user1 }] }, //matching conversation from b to a
-        ],
-      })
-      .project({
-        //i dont want to show these details to anyone as a respond coming from users collection so put this in project
-        "toObj.password": 0,
-        "toObj.__v": 0,
-        "toObj.pic": 0,
-        "fromObj.password": 0,
-        "fromObj.__v": 0,
-        "fromObj.pic": 0,
-      });
+      .exec();
 
-    //sednig response to frontend
-    res.status(200).send(conversationList);
-  } catch (error) {
-    console.log(error);
-    res.status(400).send(error);
+    res.json(conversationList);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Internal Server Error");
   }
 });
-
-//creating a group chat API fro the user when user want to create a group..
 
 router.post(
   "/createGroupChat",
@@ -317,22 +401,22 @@ router.post(
 //     res.status(400).send(error);
 //   }
 // });
-// router.put("/rename", async (req, res) => {
-//   const { chatId, chatname } = req.body;
-//   let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
+router.put("/rename", async (req, res) => {
+  const { chatId, chatname } = req.body;
+  let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
 
-//   try {
-//     const find = await Chat.findOne({ _id: newId });
-//     if (find) {
-//       find.chatName = chatname; //rename the old chatName
-//     } else {
-//       res.status(400).send("Chat not found");
-//     }
-//     const save = find.save();
-//     res.status(400).send(find); //sending the updated chatName to frontend as response..
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
+  try {
+    const find = await Chat.findOne({ _id: newId });
+    if (find) {
+      find.chatName = chatname; //rename the old chatName
+    } else {
+      res.status(400).send("Chat not found");
+    }
+    const save = find.save();
+    res.status(400).send(find); //sending the updated chatName to frontend as response..
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 
 module.exports = router;

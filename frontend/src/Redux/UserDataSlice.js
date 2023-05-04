@@ -17,12 +17,9 @@ const UserSlice = createSlice({
   name: "USERS",
   reducers: {
     SendUserDataToStore: (state, action) => {
-      if (state.DATA !== null) {
-        state.DATA.push(action.payload);
-      } else {
-        state.DATA = [action.payload];
-      }
-      localStorage.setItem("UserResponse", JSON.stringify(state.DATA)); //sending the data to localstrogage becasue once user refresh the page our token will not expire and not say undefined
+      state.DATA.push(action.payload);
+
+      // localStorage.setItem("UserResponse", JSON.stringify(state.DATA)); //sending the data to localstrogage becasue once user refresh the page our token will not expire and not say undefined
     },
   },
 });

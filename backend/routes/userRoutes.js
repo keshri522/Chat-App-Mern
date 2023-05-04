@@ -156,9 +156,9 @@ router.post("/login", async (req, res) => {
 });
 
 //createing a route for when user sign in come to home or dashboard..first we need to verfiy the JWT token and show all the users which are user already logged in wxcept me..
-router.get("/", async (req, res) => {
+router.get("/FetchUsers", async (req, res) => {
   let decodeToken = req.headers.token; //becasue this is get request not have body we have send the auth token in headers..
-  console.log(decodeToken);
+
   try {
     if (!decodeToken) {
       res.status(400).json("Unauthorized User");
@@ -248,6 +248,34 @@ router.get("/find", async (req, res) => {
   //this is logged in user so we did not return  loggd person name in searching it will search al the users excpet him
 });
 // here we export whole router when user go to api/user/registration then it will show signup page
+// router.get("/FetchUserList", async (req, res) => {
+//   let decodeToken = req.headers.token; //becasue this is get request not have body we have send the auth token in headers..
+
+//   try {
+//     if (!decodeToken) {
+//       res.status(400).json("Unauthorized User");
+//     } else {
+//       //now if this token is present then we need to veerify the token using jwt..
+//       const tokenVerified = JWT.verify(
+//         decodeToken.split(" ")[1],
+//         process.env.SECRET_KEY
+//       ); //here we are breaking token and taking the first array of this which is the token.
+//       // console.log(tokenVerified); //return the whole details of logged in person also id with the help of this id we can fetch all the user from user collection
+
+//       if (!tokenVerified) {
+//         res.status(400).json("Unauthorized User");
+//       } else {
+//         //then we have to show all the logged in user which are alredy in chat appliction except verfiedJToken person..
+//         const FetchUser = User.find({ _id: { $ne: tokenVerified._id } }); //get all the users except logged in users
+//         res.json(FetchUser);
+//         console.log(FetchUser);
+//       }
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.json(error);
+//   }
+// });
 module.exports = router;
 
 //i am using bcrypt to save all the user password once user fill all the information in hashed format in encrypted form ..no one can see the password even the db ower.

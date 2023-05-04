@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   VStack,
@@ -24,38 +24,13 @@ const Login = () => {
   const [email, Setemail] = useState();
   const [password, Setpassword] = useState();
   const [showpassword, Setshowpassword] = useState(false);
+  const [data, Setdata] = useState();
   const [checkerror, Setcheckerror] = useState({}); //for checking any error is there or not
   // creating a handle submit function when user click on the sign  in what happpens ..handle by this
   const toast = useToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  //function for login as a guest//
-  const guest = async () => {
-    //here showing a pop up that registraion is completed..
-    const config = {
-      headers: {
-        "Content-type": "application/json", //in headers what type of data is sent to the server we have to define to make axiox call to server
-      },
-    };
-    const email = "guest123@gmail.com";
-    const password = "12345678a@";
-    const { data } = await axios.post(
-      "http://localhost:4000/api/user/login", //api endpoint where to send the data
-      { email, password }, //what we are sending from frontend login page
-      config //what type of data we are seding in headers file we have alredy define in config
-    );
-
-    toast({
-      title: "Login Sucessfully Completed",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
-      position: "top",
-    });
-    dispatch(sendDetailTOStore(data.token)); //sending the res token to store global state from where i can access all the details of user like name or pic show in ui
-    navigate("/chats"); //once login  as guest directly navigate to chats pages
-  };
   const handleSubmit = async () => {
     let obj = {
       email,
@@ -187,16 +162,6 @@ const Login = () => {
             onClick={handleSubmit}
           >
             Login
-          </Button>
-          {/* if user simply login as a guest then he/she will click on the button to make them guest user  */}
-          <Button
-            variant="solid"
-            width="100%"
-            colorScheme="red"
-            style={{ marginTop: 14 }}
-            onClick={guest}
-          >
-            Login as a Guest
           </Button>
 
           <Link to="/Signup">

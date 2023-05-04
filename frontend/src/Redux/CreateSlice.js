@@ -21,12 +21,27 @@
 // export default MySlice.reducer;
 import { createSlice } from "@reduxjs/toolkit";
 
+// const getDataFromLocalStroage = () => {
+//   let localData = localStorage.getItem("userData");
+//   if (localData !== null) {
+//     return JSON.parse(localData);
+//   } else {
+//     return [];
+//   }
+// };
 const getDataFromLocalStroage = () => {
   let localData = localStorage.getItem("userData");
-  if (localData) {
-    return JSON.parse(localData);
+
+  if (localData !== null) {
+    try {
+      const parsedData = JSON.parse(localData);
+
+      return parsedData;
+    } catch (error) {
+      return null;
+    }
   } else {
-    return [];
+    return null;
   }
 };
 

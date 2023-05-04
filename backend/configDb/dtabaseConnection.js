@@ -9,6 +9,7 @@ const ConnectDb = async () => {
       //   useFindAndModify: true,
     });
     console.log(`Successfully Connected to Database`);
+    return mongoose;
   } catch (error) {
     console.log(error);
   }
