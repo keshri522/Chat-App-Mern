@@ -1,6 +1,6 @@
 import React from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
-const SearchUserChat = ({ user, handleUser }) => {
+const SearchUserChat = ({ user, handleUser, ShowImages }) => {
   // taking as a props passing from SearchDrawer ...
 
   return (
@@ -24,13 +24,7 @@ const SearchUserChat = ({ user, handleUser }) => {
         mb={2}
         borderRadius="lg"
       >
-        <Avatar
-          mr={2}
-          size="sm"
-          cursor="pointer"
-          name={user.name}
-          src={user.pic}
-        />
+        <Avatar mr={2} size="sm" cursor="pointer" src={user.pic} />
         <Box>
           <Text>{user.name}</Text>
           <Text fontSize="xs">

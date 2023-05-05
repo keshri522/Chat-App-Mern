@@ -245,39 +245,39 @@ router.get("/find", async (req, res) => {
     res.status(400).send(error);
   }
 
-  //this is logged in user so we did not return  loggd person name in searching it will search al the users excpet him
+  //creating a api fro the updation of proile picture ..
+
+  // router.put("/changeprofile", async (req, res) => {
+  //   const { id } = req.body; //coming from req
+  //   const { pic } = req.body; //coming from req
+
+  //   try {
+  //     const updatedUser = await User.findByIdAndUpdate(
+  //       id,
+  //       { pic },
+  //       { new: true }
+  //     ); //if id i find thei it will update the pic
+
+  //     if (!updatedUser) {
+  //       //if used id is not present it throw a error with status code 404
+  //       return res.status(404).json({ message: "User not found" });
+  //     }
+
+  //     res.status(200).json({
+  //       message: "Profile picture updated successfully",
+  //       user: updatedUser,
+  //     });
+  //   } catch (error) {
+  //     console.error(error);
+  //     res.status(500).json({ message: "Server error" });
+  //   }
+
+  //   //this is logged in user so we did not return  loggd person name in searching it will search al the users excpet him
+  // });
+
+  // here we export whole router when user go to api/user/registration then it will show signup page
 });
-// here we export whole router when user go to api/user/registration then it will show signup page
-// router.get("/FetchUserList", async (req, res) => {
-//   let decodeToken = req.headers.token; //becasue this is get request not have body we have send the auth token in headers..
-
-//   try {
-//     if (!decodeToken) {
-//       res.status(400).json("Unauthorized User");
-//     } else {
-//       //now if this token is present then we need to veerify the token using jwt..
-//       const tokenVerified = JWT.verify(
-//         decodeToken.split(" ")[1],
-//         process.env.SECRET_KEY
-//       ); //here we are breaking token and taking the first array of this which is the token.
-//       // console.log(tokenVerified); //return the whole details of logged in person also id with the help of this id we can fetch all the user from user collection
-
-//       if (!tokenVerified) {
-//         res.status(400).json("Unauthorized User");
-//       } else {
-//         //then we have to show all the logged in user which are alredy in chat appliction except verfiedJToken person..
-//         const FetchUser = User.find({ _id: { $ne: tokenVerified._id } }); //get all the users except logged in users
-//         res.json(FetchUser);
-//         console.log(FetchUser);
-//       }
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.json(error);
-//   }
-// });
 module.exports = router;
 
 //i am using bcrypt to save all the user password once user fill all the information in hashed format in encrypted form ..no one can see the password even the db ower.
 // after this we provide a jwt token
-// with the help of jwt token it is esy to verify the user

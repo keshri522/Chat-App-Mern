@@ -83,6 +83,8 @@ const Login = () => {
     }
   };
 
+  // creatina a function which is resposible for getting the name image or emial of logged in person from server or databse
+
   return (
     <Container maxW="xl" centerContent>
       <Box

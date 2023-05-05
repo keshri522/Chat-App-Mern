@@ -220,6 +220,24 @@ router.get("/conversationList", async (req, res) => {
     res.status(400).send(error);
   }
 });
+router.get("/getpic", async (req, res) => {
+  //this api will get all pic based on Userid from frontedent
+  const Id = new mongoose.Types.ObjectId(req.query.Id);
+  if (!mongoose.Types.ObjectId.isValid(Id)) {
+    return res.status(400).send("Invalid user ID");
+  }
+  console.log(Id);
+  try {
+    const Getpic = await User.findOne({ _id: Id }).select("pic name email"); //it will return only pic we can also use agregate function here to get
+
+    res.status(200).send(Getpic);
+    console.log(Getpic);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("User Pic not found");
+  }
+});
+
 // router.get("/conversationList", async (req, res) => {
 //   try {
 //     const loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id);
@@ -245,23 +263,23 @@ router.get("/conversationList", async (req, res) => {
 //   }
 // });
 //creating api to return all the pics of users that are present in database
-router.get("/getpic/:Id", async (req, res) => {
-  //this api will get all pic based on Userid from frontedent
-  const Id = req.params.Id;
-  console.log(Id);
-  try {
-    const Getpic = await User.findOne({ _id: Id }).select("pic"); //it will return only pic we can also use agregate function here to get
+// router.get("/getpic/:Id", async (req, res) => {
+//   //this api will get all pic based on Userid from frontedent
+//   const Id = new mongoose.Types.ObjectId(req.params.Id);
 
-    res.status(200).send(Getpic);
-    if (!Getpic) {
-      res.status(401).send("Sorry no pic founds");
-      res.end;
-    }
-  } catch (error) {
-    console.log(error);
-    res.status(400).send("User Pic not found");
-  }
-});
+//   try {
+//     const Getpic = await User.findOne({ _id: Id }).select("pic"); //it will return only pic we can also use agregate function here to get
+
+//     res.status(200).send(Getpic);
+//     if (!Getpic) {
+//       res.status(401).send("Sorry no pic founds");
+//       res.end;
+//     }
+//   } catch (error) {
+//     console.log(error);
+//     res.status(400).send("User Pic not found");
+//   }
+// });
 
 //creating api for getting all the personal message when user send a personal message to some other use we have get the message in both user..
 // 1=> logged in person when click on some other users.(from).

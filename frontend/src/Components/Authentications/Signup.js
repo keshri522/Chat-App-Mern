@@ -273,7 +273,7 @@ const Signup = () => {
           </FormControl>
           <FormControl>
             <FormLabel>Upload your profile Picture</FormLabel>
-            {/* <Box w="20%">{pic && <Image src={pic} alt="uploaded image" />}</Box> */}
+
             <Input
               type="file"
               p={1.5}

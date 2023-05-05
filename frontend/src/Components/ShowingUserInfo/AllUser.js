@@ -22,7 +22,7 @@ const AllUser = ({ user, handleUser, ShowImage }) => {
         px={3}
         py={2}
         mb={2}
-        borderRadius="sm"
+        borderRadius="lg"
       >
         <Box
           display="flex"

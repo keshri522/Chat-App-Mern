@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Button,
@@ -25,6 +25,7 @@ import {
   DrawerBody,
   Input,
   useToast,
+  Spinner,
 } from "@chakra-ui/react";
 import { BellIcon, ChevronDownIcon } from "@chakra-ui/icons";
 import { useSelector } from "react-redux";
@@ -45,15 +46,18 @@ const SearchDrawer = () => {
   const [searchLoading, SetsearchLoading] = useState(false); // when user click on search it is loading ...
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
-  const UserDetails = useSelector((state) => state.USER);
+  const UserDetails = useSelector((state) => state.USER); //getting token from redux store
   console.log(UserDetails);
   const [storedUser, setStoredUser] = useState("");
   const [CreateChat, setChatCreate] = useState([{}]); //this is a global vvariable that can be access any everywhere in this component
   const items = useSelector((state) => state.CREATECHATDATA);
-
+  const [openModal, SetopenModal] = useState(false); //just for opening and closing of modal which contain Image data
+  const [runremovepic, Setrunremovepic] = useState(false); // this is just for calliing our remove api function in useefeect to add condtion other wilse when ever i refresh the page it will run again and again
+  const [imagestore, Setimagestore] = useState();
   //getting the JWT token from Global state of application redux so ican show user name or pic dynamically according to login of users
-
+  const inputRef = useRef();
   const toast = useToast();
+  const UserData = useSelector((state) => state.CREATECHATDATA.DATA); //getting data from redux stroe
 
   const decoded = jwt_decode(UserDetails.DATA); //decoding the jwt token to access all the details like pic name or image from teh dynamic users
 
@@ -98,6 +102,32 @@ const SearchDrawer = () => {
   //   }
   // };
 
+  // creating a function to remove the Users profile pictures from Dp
+  const RemovePic = async (userid) => {
+    console.log("the user id is", userid);
+    Setrunremovepic(true);
+
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          token: UserDetails.DATA,
+        },
+      };
+      const { data } = await axios.put(
+        //this api will remove the profile picture of logged in person at a given endpoints
+        "http://localhost:4000/api/update/remove-profile-picture",
+        { userId: userid },
+        config
+      );
+      Setrunremovepic(false);
+      dispatch(SendUserDataToStore(data));
+      // dispatch(sendDetailTOStore(data.token)); //once updating i bascailly generate a new token which will contain new nifo the update picture i send to global store of apllication in redux
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(UserData);
   const userSelected = async (id) => {
     try {
       SetsearchLoading(true);
@@ -121,9 +151,12 @@ const SearchDrawer = () => {
     }
   };
   useEffect(() => {
+    if (runremovepic) {
+      //if ths is true then only run this ok unecessary ccalling the api we simply add a conmdtion to avoid redundancy
+      RemovePic();
+    }
     userSelected();
   }, [dispatch]);
-  console.log("the chat is", CreateChat);
 
   const handleClick = async () => {
     //this function will handle our search User using get api when i click on go button it will search all the user in the app  basically we makeing a get request to show all the users ..
@@ -167,6 +200,48 @@ const SearchDrawer = () => {
     }
   };
 
+  const ChangeProfile = async (id) => {
+    SetsearchLoading(true);
+    // create a new FormData object
+    const formData = new FormData();
+    formData.append("userId", id);
+    formData.append("profilePicture", imagestore);
+
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          token: UserDetails.DATA,
+        },
+      };
+
+      const { data } = await axios.post(
+        "http://localhost:4000/api/update/update-profile-picture",
+
+        // {
+        //   userId: id,
+        //   profilePicture:
+        //   ""
+        // },
+        formData,
+
+        config
+      );
+      console.log("the data is", data);
+      if (data.sucess) {
+        dispatch(SendUserDataToStore(data));
+      }
+
+      // Dispatch the action with the new token
+
+      // localStorage.setItem("userData", JSON.stringify(data.toekn));
+      SetsearchLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // console.log(UserData);
   return (
     //using chakra ui components to build my SearchDrawer .. to make it fast....
     <>
@@ -206,12 +281,12 @@ const SearchDrawer = () => {
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
                 <Box display="flex" alignItems="center">
                   {/* //coming from Global store of app which is reduxtoolkit */}
-                  <Text mr={2}>{decoded.name}</Text>
+                  <Text mr={2}>{UserData.name}</Text>
 
                   <Avatar
                     size="sm"
                     cursor="pointer"
-                    src={decoded.pic} //coming from Global store of app which is reduxtoolkit
+                    src={UserData.pic} //coming from Global store of app which is reduxtoolkit
                   />
                 </Box>
               </MenuButton>
@@ -240,22 +315,99 @@ const SearchDrawer = () => {
             justifyContent="center"
             color="tomato"
           >
-            Name: {decoded.name}
+            Name: {UserData.name}
           </ModalHeader>
-          <ModalCloseButton />
+
           <ModalBody>
             <Image
               borderRadius="full"
-              boxSize="160px"
-              src={decoded.pic} // coming from Redux store which is global state of the app
-              alt={decoded.name} // coming from Redux store which is global state of the app
+              boxSize="250px"
+              src={UserData.pic} // coming from Redux store which is global state of the app
+              // coming from Redux store which is global state of the app
             ></Image>
             <Text fontSize="20px" color="tomato" fontFamily="heading" mt="20px">
-              Email:{decoded.email}
+              Email:{UserData.email}
             </Text>
           </ModalBody>
 
-          <ModalFooter></ModalFooter>
+          <ModalFooter
+            display="flex"
+            flexDirection={{ base: "column", md: "row" }}
+            justifyContent={{ base: "space-between", md: "flex-end" }}
+          >
+            <Button
+              w={{ base: "100%", md: "" }}
+              mb={{ base: "10px", md: "0" }}
+              mx={1}
+              onClick={onClose}
+            >
+              Close
+            </Button>
+
+            {/* render spinner if loading status is true */}
+            {UserData.pic ? ( //rederring conditinoally the remove button here if pic there then only show button other wise null
+              <Button
+                w={{ base: "100%", md: "" }}
+                mb={{ base: "10px", md: "0" }}
+                mx={1}
+                colorScheme="red"
+                onClick={() => {
+                  RemovePic(decoded.id); //note id is always be taken as jwt token for uinwie idetification of users
+                }}
+                isLoading={runremovepic}
+              >
+                {runremovepic &&
+                runremovepic.length &&
+                runremovepic.length > 0 ? ( //adding conditionally rendering
+                  <Spinner></Spinner>
+                ) : (
+                  "Remove"
+                )}
+              </Button>
+            ) : null}
+            {/* <Button
+              onClick={() => {
+                ChangeProfile(decoded.id);
+              }}
+            >
+              Change
+            </Button> */}
+            <Button
+              w={{ base: "100%", md: "" }}
+              mb={{ base: "10px", md: "0" }}
+              mx={1}
+              colorScheme="yellow"
+              onClick={(id) => {
+                inputRef.current.click(); //trigger the input element when the button is clicked
+                ChangeProfile(decoded.id); //user logged in person id coming from redux store globally
+              }}
+              isLoading={searchLoading}
+            >
+              Change
+            </Button>
+            <input
+              type="file"
+              style={{ display: "none" }}
+              ref={inputRef}
+              onChange={(event) => {
+                // this is function of getting url image into string or url
+                const file = event.target.files[0];
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                  const base64Image = reader.result.replace(
+                    /^data:image\/(png|jpeg|jpg);base64,/,
+                    ""
+                  );
+                  // 'base64Image' will contain the image as a Base64 encoded string
+                  // you can now save this string to your database
+                  Setimagestore(reader.result);
+                  console.log(imagestore);
+                };
+              }}
+            ></input>
+            {/* // handle file upload here } /> */}
+          </ModalFooter>
         </ModalContent>
       </Modal>
       {/* just a modal when click on my profile or logout what will happend will define by this.. */}
@@ -318,7 +470,7 @@ const SearchDrawer = () => {
                     <SearchUserChat
                       key={user._id}
                       user={user}
-                      handleUser={() => userSelected(user._id)}
+                      handleUser={(user_id) => userSelected(user._id)}
                     ></SearchUserChat>
                   )
                 )

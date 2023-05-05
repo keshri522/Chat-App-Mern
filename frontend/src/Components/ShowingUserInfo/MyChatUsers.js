@@ -2,12 +2,12 @@ import React from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
 import { useToast } from "@chakra-ui/react";
 
-const MyUserChat = ({ users, handleUser, ShowImage }) => {
+const MyUserChat = ({ user, handleUser, ShowImages }) => {
   // const toast = useToast();
   //   console.log("the ddata is in", users.userDetails.name);
 
   // taking as a props passing from SearchDrawer ...
-  if (!users || users.length === 0) {
+  if (!user || user.length === 0) {
     //if there is no users coming in response from api coming in props then i have show a error message
     return (
       // return from here it will not go else condtion if no users are coming respnonse
@@ -37,7 +37,7 @@ const MyUserChat = ({ users, handleUser, ShowImage }) => {
     <>
       <Box
         onClick={() => {
-          handleUser(users.userDetails._id);
+          handleUser(user.userDetails._id);
         }} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js
         cursor="pointer"
         bg="silver"
@@ -52,7 +52,7 @@ const MyUserChat = ({ users, handleUser, ShowImage }) => {
         px={3}
         py={2}
         mb={2}
-        borderRadius="sm"
+        borderRadius="lg"
       >
         <Box
           display="flex"
@@ -63,22 +63,23 @@ const MyUserChat = ({ users, handleUser, ShowImage }) => {
           <Box>
             <Avatar
               onClick={() => {
-                ShowImage(users._id); //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
+                ShowImages(user.userDetails._id);
+                //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
               }}
               mr={2}
               size="sm"
               cursor="pointer"
-              src={users.userDetails.pic} //showing the pic of users
+              src={user.userDetails.pic} //showing the pic of users
             />
           </Box>
           <Box>
-            {users.isGroup ? ( //cehcking whethere it is  group chat or single user chat by adding ternary operators
+            {user.isGroup ? ( //cehcking whethere it is  group chat or single user chat by adding ternary operators
               <Text
                 wordWrap="break-word"
                 mr={2}
                 fontSize={{ base: "md", md: "md", lg: "lg" }}
               >
-                {users.chatName}
+                {user.chatName}
               </Text>
             ) : (
               //if this is not group chat show the name of users
@@ -87,7 +88,7 @@ const MyUserChat = ({ users, handleUser, ShowImage }) => {
                 mr={2}
                 fontSize={{ base: "md", md: "md", lg: "lg" }}
               >
-                {users.userDetails.name}
+                {user.userDetails.name}
               </Text>
             )}
           </Box>
