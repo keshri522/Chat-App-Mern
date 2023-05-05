@@ -86,6 +86,87 @@ router.put("/addUser", async (req, res) => {
   }
 });
 
+router.post("/update-profile-picture", async (req, res) => {
+  //this api will update the user profiel picture from client side
+  try {
+    // Extract userId and profilePicture from request body
+    const { userId, profilePicture } = req.body; //coming from client side in the body of request
+    // Find user with the given userId in the database
+    const user = await User.findById(userId);
+    // Update the user's profile picture
+    user.pic = profilePicture; //here changig the pic of particular user id
+    await user.save(); //saving in the collection
+
+    // Send the new token to the client
+    res.json({
+      success: true,
+      message: "Profile picture updated successfully.",
+      pic: user.pic,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Internal server error.",
+    });
+  }
+});
+
+//   //this api will update the user profiel picture from client side
+//   try {
+//     // Extract userId and profilePicture from request body
+//     const { userId, profilePicture } = req.body; //coming from client side in the body of request
+//     // Find user with the given userId in the database
+//     const user = await User.findById(userId);
+//     // Update the user's profile picture
+//     user.pic = profilePicture; //here changig the pic of particular user id
+//     await user.save(); //saving in the collection
+
+//     // givng a JWT token for each time when user sign up or sign in.
+
+//     // Send response
+//     res.json({
+//       success: true,
+//       message: "Profile picture updated successfully.",
+//     });
+//   } catch (err) {
+//     res.status(500).json({
+//       success: false,
+//       message: "Internal server error.",
+//     });
+//   }
+// });
+// generating a jwt token for each time when i upload a pic or delete ic
+
+// creating a api from removing the profile pictuer of logged in useers first it will verfy the jwt token which is applied by router.use middleware
+router.put("/remove-profile-picture", async (req, res) => {
+  //it will removev the profile picture of users
+  const { userId } = req.body;
+
+  try {
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.pic = null; //setting the pic of users to null //
+    await user.save(); //saving into users collections
+
+    // Send the new token to the client
+    res.json({
+      success: true,
+      message: "Profile picture removed successfully.",
+      pic: user.pic,
+      name: user.name,
+      email: user.email,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 //creating the remove the user from Group Chat.
 router.put("/remove", async (req, res) => {
   const { chatId, UserId } = req.body; //coming from body of reqquest that are sent from the frontend by users.
