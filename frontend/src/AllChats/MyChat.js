@@ -22,6 +22,8 @@ import {
   Image,
   ModalFooter,
   Text,
+  TabIndicator,
+  Slide,
 } from "@chakra-ui/react";
 import { useDisclosure } from "@chakra-ui/react";
 import { sendResfromStore } from "../Redux/FetchDetailsSlice";
@@ -31,6 +33,7 @@ import { useState } from "react";
 import AllUser from "../Components/ShowingUserInfo/AllUser";
 import MyUserChat from "../Components/ShowingUserInfo/MyChatUsers";
 import { SendUserDataToStore } from "../Redux/UserDataSlice";
+import { AddIcon } from "@chakra-ui/icons";
 
 const MyChat = () => {
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
@@ -51,6 +54,7 @@ const MyChat = () => {
   const [userDetails, SetuserDetails] = useState({});
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
+  const [Deleteuser, SetDeleteuser] = useState(false); //this will run in use effect
   const AllChat = () => {};
 
   const FetchAllConversation = async () => {
@@ -66,11 +70,11 @@ const MyChat = () => {
         config
       );
       setConversationUser(data);
+
       SetLoadingAPi(false);
       //once clicked i set ti to true shwow the bssed on conditons
-      console.log("the all chat is", data);
     } catch (error) {
-      if (error && error.response && error.response.status === 404) {
+      if (error && error.response && error.response.status === 401) {
         //checking if there is any error coming from server with code 404 if error we have catch the error and show what ever the errror on ui
         toast({
           title: "Sorry No any Chats are Founded",
@@ -90,6 +94,7 @@ const MyChat = () => {
   const FetchUserAPi = async () => {
     //this is api to fetch all the users except logged in user once user login into the my app/
     SetsearchLoading(true);
+
     try {
       const config = {
         headers: {
@@ -159,6 +164,27 @@ const MyChat = () => {
     }
   };
 
+  //creatif a function which will deelte the users from my chats
+  const DeleteUser = async (id) => {
+    //calling a api fro deelteing a particular user from my chats based on ids
+    try {
+      SetDeleteuser(true);
+      const config = {
+        headers: {
+          token: DataToken.DATA,
+        },
+      };
+      const { data } = await axios.post(
+        //this is the api for deleting the particular chats of users
+        "http://localhost:4000/api/update/deleteUser",
+        { chatId: id },
+        config
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   //creating a api which will get the name emial or profile picture of looged in users
 
   useEffect(() => {
@@ -170,6 +196,9 @@ const MyChat = () => {
       PicOpen(); //it will run only if the openmodal become true whe make it ture on click on a pic on every users
     }
     GetDetailsOfLoggedUser();
+    if (DeleteUser === true) {
+      DeleteUser();
+    }
     // console.log("the data is", GetConversationList.DATA);
     FetchUserAPi(); //it will again and again if our pages refresh..
   }, [MyChat]); // if whenever our dependency will change our useeffect code will run ////
@@ -181,7 +210,6 @@ const MyChat = () => {
         flexDir="column"
         alignItems="center"
         p={3}
-        // bg="#D6A2E8"
         bg={{ base: "#a29bfe", md: "#D6A2E8" }}
         w={{ base: "100%", md: "31%" }}
         borderRadius="lg"
@@ -193,49 +221,67 @@ const MyChat = () => {
             display: "none",
           },
         }}
-        flexDirection={{ base: "column", md: "row" }} //for responsive screen based on break points
+        // flexDirection={{ base: "column", md: "row" }} //for responsive screen based on break points
+        minW={40}
       >
         <Tabs
           w="100%"
-          variant="unstyled"
+          variant="line"
           fontSize={{ base: "28px", md: "30px" }}
           fontFamily="Work sans"
           flexDirection={{ base: "column", md: "row" }}
-          justifyContent="space-between"
           alignItems="center"
+          position="relative"
         >
-          <TabList>
+          <TabList display="flex" justifyContent="space-between">
             <Tab
               flexDirection={{ base: "column", md: "row" }}
-              w="100%"
               justifyContent="space-between"
               alignItems="center"
             >
               <Button
                 fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                mb={{ base: 2, md: 0 }}
-                mx={{ base: 0, md: 1 }}
-                // width={{ base: "100%", md: "45%" }}
+                // mb={{ base: 2, md: 0 }}
+                // mx={{ base: 0, md: 1 }}
                 color={{ base: "teal", md: "black" }}
                 onClick={FetchUserAPi}
               >
                 Users
               </Button>
             </Tab>
-
-            <Tab>
+            <Tab
+              flexDirection={{ base: "column", md: "row" }}
+              justifyContent="space-between"
+              alignItems="center"
+            >
               <Button
                 fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                mb={{ base: 2, md: 0 }}
-                mx={{ base: 0, md: 1 }}
-                // width={{ base: "100%", md: "45%" }}
                 color={{ base: "teal", md: "black" }}
                 onClick={FetchAllConversation}
               >
                 My Chat
               </Button>
             </Tab>
+            <Tab
+              flexDirection={{ base: "column", md: "row" }}
+              justifyContent="space-between"
+              alignItems="center"
+            >
+              <Button
+                fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+                color={{ base: "teal", md: "black" }}
+              >
+                <AddIcon mx={2}></AddIcon>
+                New Group
+              </Button>
+            </Tab>
           </TabList>
+          <TabIndicator
+            mt="-1.5px"
+            height="2px"
+            bg="blue.500"
+            borderRadius="1px"
+          />
           <TabPanels>
             <TabPanel>
               {searchLoading ? ( //if searchloading is ture then show Chatloading or else show all the users in a a singleChat compoonet that contains all the info of users to whom what i want to show
@@ -257,6 +303,7 @@ const MyChat = () => {
                 )
               )}
             </TabPanel>
+
             <TabPanel>
               {LoadingAPi ? ( //if searchloading is ture then show Chatloading or else show all the users in a a singleChat compoonet that contains all the info of users to whom what i want to show
                 <ChatLoading></ChatLoading>
@@ -264,19 +311,21 @@ const MyChat = () => {
                 ConversationUser?.map(
                   //just a opational channing if no user is find so do not trhwo any error simply undefined this
                   (
-                    user,
+                    users,
                     index //here if there is  no users come in search instead of giving errror it will undefined the things becasue i am using optional  channing here // it will map ecah and every user which will come inside the search options
                   ) => (
                     <MyUserChat
                       key={index}
-                      user={user}
+                      users={users}
                       ShowImages={(userId) => PicOpen(userId)}
-                      handleUser={() => AllChat(user._id)}
+                      handleUser={() => AllChat(users._id)}
+                      DeleteUser={() => DeleteUser(users._id)}
                     ></MyUserChat>
                   )
                 )
               )}
             </TabPanel>
+            <TabPanel>Coming Soon</TabPanel>
           </TabPanels>
         </Tabs>
       </Box>

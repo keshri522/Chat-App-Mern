@@ -193,5 +193,19 @@ router.put("/remove", async (req, res) => {
     res.status(400).json(error);
   }
 });
+//creating a api which will delete the users in the My chat session which will take a id coming from cleint side
+//creating a api for deleting of a chat
+router.post("/deleteUser", async (req, res) => {
+  //this is a api for delteing the users of the my chats sessions
+  const chatId = req.body.chatId; //coming from client side
+  try {
+    // Find the chat by ID and delete it
+    const find = await Chat.findByIdAndDelete({ _id: chatId });
+
+    res.status(200).send("Conversation deleted successfully");
+  } catch (error) {
+    res.status(500).send("Error deleting conversation");
+  }
+});
 
 module.exports = router;

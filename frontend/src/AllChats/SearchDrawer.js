@@ -47,7 +47,8 @@ const SearchDrawer = () => {
   const [loadingChat, SetloadingChat] = useState(false); //when user click on other users it loading the chats between tthe users
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
   const UserDetails = useSelector((state) => state.USER); //getting token from redux store
-  console.log(UserDetails);
+  const [showHeading, setShowHeading] = useState(false);
+
   const [storedUser, setStoredUser] = useState("");
   const [CreateChat, setChatCreate] = useState([{}]); //this is a global vvariable that can be access any everywhere in this component
   const items = useSelector((state) => state.CREATECHATDATA);
@@ -73,6 +74,15 @@ const SearchDrawer = () => {
     window.location.reload();
   };
 
+  useEffect(() => {
+    // set a timeout to delay the animation start
+    const timeout = setTimeout(() => {
+      setShowHeading(true);
+    }, 500);
+
+    // clean up the timeout to avoid memory leaks
+    return () => clearTimeout(timeout);
+  }, []);
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   // const userSelected = async (id) => {
 
@@ -129,26 +139,8 @@ const SearchDrawer = () => {
   };
   console.log(UserData);
   const userSelected = async (id) => {
-    try {
-      SetsearchLoading(true);
-      const config = {
-        headers: {
-          "Content-type": "application/json",
-          token: UserDetails.DATA,
-        },
-      };
-      const { data } = await axios.post(
-        "http://localhost:4000/api/message/createChat",
-        { UserId: id },
-        config
-      );
-
-      // dispatch(SendUserDataToStore({ data }));
-      setChatCreate(data);
-      SetsearchLoading(false);
-    } catch (error) {
-      console.log(error);
-    }
+    //this function is just for once user click on searched user i want to show the ids of them
+    console.log("this selected user id is", id);
   };
   useEffect(() => {
     if (runremovepic) {
@@ -251,8 +243,10 @@ const SearchDrawer = () => {
         alignItems="center"
         flexWrap="wrap"
         w="100%"
-        bg="pink"
+        bg="facebook.200"
         gap={4}
+        p={2}
+        minW={60}
       >
         <Tooltip
           label="Search Users to Chat"
@@ -269,7 +263,16 @@ const SearchDrawer = () => {
             </Text>
           </Button>
         </Tooltip>
-        <Text fontSize="2xl" fontFamily="heading">
+
+        <Text
+          fontSize="2xl"
+          fontFamily="heading"
+          className={showHeading ? "slide-in" : ""}
+          fontWeight="bold"
+          letterSpacing="wide"
+          textShadow="0 0 10px rgba(255, 255, 255, 0.5)"
+          color="tomato"
+        >
           Welcome To My Chat
         </Text>
         <div>
@@ -365,13 +368,7 @@ const SearchDrawer = () => {
                 )}
               </Button>
             ) : null}
-            {/* <Button
-              onClick={() => {
-                ChangeProfile(decoded.id);
-              }}
-            >
-              Change
-            </Button> */}
+
             <Button
               w={{ base: "100%", md: "" }}
               mb={{ base: "10px", md: "0" }}
@@ -381,7 +378,6 @@ const SearchDrawer = () => {
                 inputRef.current.click(); //trigger the input element when the button is clicked
                 ChangeProfile(decoded.id); //user logged in person id coming from redux store globally
               }}
-              isLoading={searchLoading}
             >
               Change
             </Button>
@@ -395,10 +391,6 @@ const SearchDrawer = () => {
                 const reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = () => {
-                  const base64Image = reader.result.replace(
-                    /^data:image\/(png|jpeg|jpg);base64,/,
-                    ""
-                  );
                   // 'base64Image' will contain the image as a Base64 encoded string
                   // you can now save this string to your database
                   Setimagestore(reader.result);

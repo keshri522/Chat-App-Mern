@@ -1,28 +1,37 @@
 import React from "react";
+import { useState } from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
+
+import axios from "axios";
 const AllUser = ({ user, handleUser, ShowImage }) => {
   // taking as a props passing from SearchDrawer ...
+  // Define state variable to keep track of selected chat ID
+  const [selectedChatId, setSelectedChatId] = useState(null);
 
   return (
     <>
       <Box
         onClick={() => {
           handleUser(user._id);
+          setSelectedChatId(user._id); // Update selected chat ID on click
+
+          // Reset selected chat ID for previous user
         }} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js
         cursor="pointer"
         bg="#c56cf0"
         _hover={{
-          background: "#7ed6df",
-          color: "#ea8685",
+          background: "#c8d6e5",
+          color: "white",
         }}
-        minW={100}
         d="flex"
         alignItems="center"
         color="black"
-        px={3}
+        px={2}
         py={2}
         mb={2}
         borderRadius="lg"
+        minW={100}
+        bg="#e056fd"
       >
         <Box
           display="flex"

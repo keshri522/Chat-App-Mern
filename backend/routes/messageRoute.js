@@ -3,10 +3,10 @@ const mongoose = require("mongoose"); // 3rd party modules
 const router = express.Router(); //global router..
 const JWT = require("jsonwebtoken");
 const Chat = require("../Models/chat");
-
 const asyncHandler = require("express-async-handler"); // for checking any error in backed
 const User = require("../Models/User/userSchema");
 const Message = require("../Models/personalMessage");
+const crypto = require("crypto");
 
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
@@ -49,9 +49,17 @@ router.use((req, res, next) => {
 // creating a personal message one to one message api...
 
 router.post("/personal", async (req, res) => {
+  // Concatenate the user IDs and sort them to create a consistent string
+
   //api for sending one to one message ...
   let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
   let To = new mongoose.Types.ObjectId(req.body.sender); // to whom to be sent //onc the click of user we get the id send to that id
+  const userIds = [from.toString(), To.toString()].sort();
+  const chatNameString = userIds.join("");
+
+  // Hash the chatNameString to create a unique chatName
+  const hash = crypto.createHash("md5").update(chatNameString).digest("hex");
+  const chatName = `chat_${hash}`;
   try {
     const Find = await Chat.findOneAndUpdate(
       {
@@ -64,6 +72,7 @@ router.post("/personal", async (req, res) => {
       {
         users: [from, To], //then create a new conversation bewtween to and from
         lastMessage: req.body.message, //updating the last message in chat collection
+        chatName: chatName,
       },
       {
         upsert: true, //if from and to is already present then we simply udate the last message with the help of upsert:true.
@@ -110,63 +119,118 @@ router.post("/personal", async (req, res) => {
 });
 
 //creating a api which will create a chat betweeen two user when logged in user will click on search users it will create a chat between them..
-router.post("/createChat", async (req, res) => {
-  //api for sending one to one message ...
-  let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
-  let To = new mongoose.Types.ObjectId(req.body.UserId); // to whom to be sent //onc the click of user we get the id send to that id
-  try {
-    const Find = await Chat.findOneAndUpdate(
-      {
-        isGroup: false,
-        users: {
-          $all: [{ $elemMatch: { $eq: from } }, { $elemMatch: { $eq: To } }], //matching all the  fields in the users
-        },
-      },
-      // then creating a converstation between to and from.
-      {
-        users: [from, To], //then create a new conversation bewtween to and from
-      },
-      {
-        upsert: true, //if from and to is already present then we simply udate the last message with the help of upsert:true.
-        new: true, //new:true=if there is no Conversation between to and from then create a new converstation to and from ..
-        setDefaultsOnInsert: true, //setDefaultsOnInsert:true=if you create a new conversation so use she same schema that are defiend in  the convetsation schema not others
+// router.post("/createChat", async (req, res) => {
+//   //api for sending one to one message ...
+//   let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
+//   let To = new mongoose.Types.ObjectId(req.body.UserId); // to whom to be sent //onc the click of user we get the id send to that id
+//   try {
+//     const Find = await Chat.findOneAndUpdate(
+//       {
+//         isGroup: false,
+//         users: {
+//           $all: [{ $elemMatch: { $eq: from } }, { $elemMatch: { $eq: To } }], //matching all the  fields in the users
+//         },
+//       },
+//       // then creating a converstation between to and from.
+//       {
+//         users: [from, To], //then create a new conversation bewtween to and from
+//       },
+//       {
+//         upsert: true, //if from and to is already present then we simply udate the last message with the help of upsert:true.
+//         new: true, //new:true=if there is no Conversation between to and from then create a new converstation to and from ..
+//         setDefaultsOnInsert: true, //setDefaultsOnInsert:true=if you create a new conversation so use she same schema that are defiend in  the convetsation schema not others
 
-        //here if from and is presend or not all the thing are save or updated inside the Conversation model..
-      }
-    );
+//         //here if from and is presend or not all the thing are save or updated inside the Conversation model..
+//       }
+//     );
 
-    const UserDetials = await Chat.aggregate([
-      //this will give me  more infromation about sender or receviers
-      {
-        $match: { _id: Find._id },
-      },
-      //now using lookup we get the userdatias  of smae Find>-id users
-      {
-        $lookup: {
-          from: "users", //from where we want the details...
-          localField: "users", //in CHat collection what key i want the  get the details here users is array of object it will show me from as well as to  uservdetails boths
-          foreignField: "_id", // what users._id is named in our UsersCollection users._id is called _id in users.
-          as: "userDeatails", //just a alias name any name here
-        },
-      },
-    ]).project({
-      "userDeatails.password": 0,
-      "__v:": 0,
-    });
+//     const UserDetials = await Chat.aggregate([
+//       //this will give me  more infromation about sender or receviers
+//       {
+//         $match: { _id: Find._id },
+//       },
+//       //now using lookup we get the userdatias  of smae Find>-id users
+//       {
+//         $lookup: {
+//           from: "users", //from where we want the details...
+//           localField: "users", //in CHat collection what key i want the  get the details here users is array of object it will show me from as well as to  uservdetails boths
+//           foreignField: "_id", // what users._id is named in our UsersCollection users._id is called _id in users.
+//           as: "userDeatails", //just a alias name any name here
+//         },
+//       },
+//     ]).project({
+//       "userDeatails.password": 0,
+//       "__v:": 0,
+//     });
 
-    // console.log(UserDetials);
+//     // console.log(UserDetials);
 
-    res.status(200).json(UserDetials);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
+//     res.status(200).json(UserDetials);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 
 // creating Conversation list of user all the user to whom logged users had a conversation ...
 // 1=> whom conversation list to find logged in uuser.
 // 2=> finding all the deatisl of logged in users using lookup
 // 3=>matching in database or Chat collection inside users if the logged user has a conversation between any of the users..
 // 4=> using project to see what we want to see or send to server..
+
+// router.get("/conversationList", async (req, res) => {
+//   // this will givee you whole information of users  from or to also included the details of users
+//   //it gives the conversation bewtween looged in user or other users..
+//   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
+
+//   try {
+//     const conversationList = await Chat.aggregate([
+//       {
+//         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
+//       },
+
+//       //getting more details of users like name pic and more..
+//       {
+//         $lookup: {
+//           from: "users", //getting details from user collection
+//           localField: "users", //in the chat collection i want to get the details of users key..
+//           foreignField: "_id",
+//           as: "userDetails",
+//         },
+//       },
+
+//       // {
+//       //   $project: {
+//       //     //i want to show only Isgroup or userdetails s
+
+//       //     isGroup: 1,
+//       //     chatName: 1,
+//       //     lastMessage: 1,
+//       //     userDetails: {
+//       //       $filter: {
+//       //         input: "$userDetails",
+//       //         as: "user",
+//       //         cond: { $ne: ["$$user._id", loggedInUser] },
+//       //       },
+//       //     },
+//       //   },
+//       // },
+//       {
+//         $project: {
+//           "userDetails.password": 0, // exclude the password field
+//           "userDetails.email": 0, // exclude the password field
+//         },
+//       },
+//       // {
+//       //   $unwind: "$userDetails",
+//       // },
+//     ]);
+
+//     //sending response to frontend..
+//     res.status(200).json(conversationList);
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 
 router.get("/conversationList", async (req, res) => {
   // this will givee you whole information of users  from or to also included the details of users
@@ -175,6 +239,10 @@ router.get("/conversationList", async (req, res) => {
 
   try {
     const conversationList = await Chat.aggregate([
+      {
+        $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
+      },
+
       //getting more details of users like name pic and more..
       {
         $lookup: {
@@ -184,38 +252,22 @@ router.get("/conversationList", async (req, res) => {
           as: "userDetails",
         },
       },
-      {
-        $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
-      },
-      {
-        $project: {
-          //i want to show only Isgroup or userdetails s
 
-          isGroup: 1,
-          chatName: 1,
-          lastMessage: 1,
-          userDetails: {
-            $filter: {
-              input: "$userDetails",
-              as: "user",
-              cond: { $ne: ["$$user._id", loggedInUser] },
-            },
-          },
-        },
-      },
       {
         $project: {
           "userDetails.password": 0, // exclude the password field
           "userDetails.email": 0, // exclude the password field
         },
       },
-      {
-        $unwind: "$userDetails",
-      },
     ]);
 
-    //sending response to frontend..
-    res.status(200).json(conversationList);
+    if (conversationList.length === 0) {
+      //if no any conversation is found then throw a error or response to frontend
+      res.status(401).json("No Chats Founded");
+    } else {
+      //sending response to frontend..
+      res.status(200).json(conversationList);
+    }
   } catch (error) {
     res.status(400).send(error);
   }
@@ -362,9 +414,14 @@ router.get("/conversationByUser/query", async (req, res) => {
 router.post(
   "/createGroupChat",
   asyncHandler(async (req, res) => {
+    const existingGroup = await Chat.findOne({ chatName: req.body.chatname }); //checking if group name is alredy used or not to get rid of redunduncy
     // it will check if there is a field like users or chatname is this is empty then trhwo a errror ..basically this 3pr party module for handling errros in backend
     if (!req.body.users || !req.body.chatname) {
       res.status(400).json("Please enter all the fields");
+      // Check if the chat name is already in use
+    } else if (existingGroup) {
+      //adding condtion if group is already there then throu a errror
+      res.status(401).send("GroupName already in Use");
     } else {
       let chatname = req.body.chatname; //coming from request of body..
       let USERS = req.body.users; //getting from client side ..
@@ -383,14 +440,13 @@ router.post(
             users: USERS,
             groupAdmin: verfiedJToken.name,
           });
-
+          const save = await newGroupChat.save(); //saving the documents
           const adminDetails = await User.findOne({
             name: newGroupChat.groupAdmin, //getting all the details of admin of the groups ..
           })
             .select("name")
             .select("email")
             .select("pic");
-          const save = await newGroupChat.save();
 
           res.status(200).send({ newGroupChat, adminDetails });
         } catch (error) {

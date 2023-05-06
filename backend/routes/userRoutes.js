@@ -3,7 +3,7 @@ const express = require("express");
 const router = express.Router();
 const signupValidation = require("../Validation/registration"); //for signup validation
 const loginValidation = require("../Validation/login");
-
+const Chat = require("../Models/chat");
 const User = require("../Models/User/userSchema");
 const bcrypt = require("bcrypt");
 const JWT = require("jsonwebtoken");
@@ -228,10 +228,12 @@ router.get("/find", async (req, res) => {
               },
             },
           ]).project({ name: 1, email: 1, pic: 1 }); // i want to show only the name of the user nothing more ...so use projects ..
+
           if (SearchedUser.length === 0) {
             //if there is no user found simply return the error message with the code 404
             res.status(400).send("No users found for the given search query");
           } else {
+            // res.status(200).json(SearchedUser);
             res.status(200).json(SearchedUser);
           }
           // res.status(200).json(SearchedUser); // after searching we are sending the res to frontend to the clients
