@@ -70,7 +70,7 @@ const MyChat = () => {
         config
       );
       setConversationUser(data);
-
+      console.log("the data", data);
       SetLoadingAPi(false);
       //once clicked i set ti to true shwow the bssed on conditons
     } catch (error) {

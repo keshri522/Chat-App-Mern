@@ -28,19 +28,14 @@ text-decoration:underline;
 
 }
 
-/* .slide-in {
-    animation: slide-in 1s ease-out;
+
+.effect:hover{
+    
+   font-size: 29px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    
 }
-
-@keyframes slide-in {
-    from {
-        transform: translateX(-100%);
-    }
-
-    to {
-        transform: translateX(0%);
-    }
-} */
 .slide-in {
     animation: slide-in 2s ease-out;
 }

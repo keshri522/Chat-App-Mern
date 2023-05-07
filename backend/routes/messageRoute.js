@@ -7,7 +7,10 @@ const asyncHandler = require("express-async-handler"); // for checking any error
 const User = require("../Models/User/userSchema");
 const Message = require("../Models/personalMessage");
 const crypto = require("crypto");
+const { route } = require("./update");
+const Feeback = require("../Models/Feeback");
 
+const FeedbackForm = require("../Models/Feeback");
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
 let verfiedJToken; //globally declared
@@ -176,61 +179,6 @@ router.post("/personal", async (req, res) => {
 // 2=> finding all the deatisl of logged in users using lookup
 // 3=>matching in database or Chat collection inside users if the logged user has a conversation between any of the users..
 // 4=> using project to see what we want to see or send to server..
-
-// router.get("/conversationList", async (req, res) => {
-//   // this will givee you whole information of users  from or to also included the details of users
-//   //it gives the conversation bewtween looged in user or other users..
-//   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
-
-//   try {
-//     const conversationList = await Chat.aggregate([
-//       {
-//         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
-//       },
-
-//       //getting more details of users like name pic and more..
-//       {
-//         $lookup: {
-//           from: "users", //getting details from user collection
-//           localField: "users", //in the chat collection i want to get the details of users key..
-//           foreignField: "_id",
-//           as: "userDetails",
-//         },
-//       },
-
-//       // {
-//       //   $project: {
-//       //     //i want to show only Isgroup or userdetails s
-
-//       //     isGroup: 1,
-//       //     chatName: 1,
-//       //     lastMessage: 1,
-//       //     userDetails: {
-//       //       $filter: {
-//       //         input: "$userDetails",
-//       //         as: "user",
-//       //         cond: { $ne: ["$$user._id", loggedInUser] },
-//       //       },
-//       //     },
-//       //   },
-//       // },
-//       {
-//         $project: {
-//           "userDetails.password": 0, // exclude the password field
-//           "userDetails.email": 0, // exclude the password field
-//         },
-//       },
-//       // {
-//       //   $unwind: "$userDetails",
-//       // },
-//     ]);
-
-//     //sending response to frontend..
-//     res.status(200).json(conversationList);
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
 
 router.get("/conversationList", async (req, res) => {
   // this will givee you whole information of users  from or to also included the details of users
@@ -493,4 +441,22 @@ router.put("/rename", async (req, res) => {
   }
 });
 
+//creating a api from the feeback schema
+
+router.post("/feedback", async (req, res) => {
+  try {
+    const { name, email, feedback, rating } = req.body; //comig from clent side from frontend
+    const FeedbackItems = new Feeback({
+      name: name,
+      email: email,
+      feedback: feedback,
+      rating: rating,
+    });
+    console.log(FeedbackItems.rating);
+    await FeedbackItems.save(); //saving to feedback collections all the feedbacck
+    res.status(200).json("Sucessfully submitted");
+  } catch (error) {
+    res.status(400).send(error);
+  }
+});
 module.exports = router;

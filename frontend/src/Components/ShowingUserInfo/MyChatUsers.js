@@ -10,14 +10,14 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const UserDeatials = useSelector((state) => state.USER); //coming from redux store
   const Decode = jwt_decode(UserDeatials.DATA); //it gives the logged in user id coming from jwt token dynamicslly
-  const { isSmallerthan400px } = useMediaQuery("(min-width:450px)");
+  console.log(Decode);
   let GetSenderName = //this varaibe shows the name according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
-    Decode._id === users.users[0]
+    Decode.id === users.userDetails[0]._id
       ? users.userDetails[1].name
       : users.userDetails[0].name;
 
   const GetSenderPic = //this varaibe shows the pic according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
-    Decode._id === users.users[0]
+    Decode.id === users.userDetails[0]._id
       ? users.userDetails[1].pic
       : users.userDetails[0].pic;
 
