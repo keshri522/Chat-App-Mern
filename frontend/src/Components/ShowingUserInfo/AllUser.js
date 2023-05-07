@@ -2,7 +2,6 @@ import React from "react";
 import { useState } from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
 
-import axios from "axios";
 const AllUser = ({ user, handleUser, ShowImage }) => {
   // taking as a props passing from SearchDrawer ...
   // Define state variable to keep track of selected chat ID

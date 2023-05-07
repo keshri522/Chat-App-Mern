@@ -11,6 +11,7 @@ const { route } = require("./update");
 const Feeback = require("../Models/Feeback");
 
 const FeedbackForm = require("../Models/Feeback");
+const { group } = require("console");
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
 let verfiedJToken; //globally declared
@@ -184,12 +185,21 @@ router.get("/conversationList", async (req, res) => {
   // this will givee you whole information of users  from or to also included the details of users
   //it gives the conversation bewtween looged in user or other users..
   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
-
+  if (!mongoose.Types.ObjectId.isValid(loggedInUser)) {
+    return res.status(400).send("Invalid ObjectId");
+  }
   try {
     const conversationList = await Chat.aggregate([
       {
         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
       },
+
+      // {
+      //   $project: {
+      //     "groupDetails.password": 0, // exclude the password field
+      //     "groupDetails.email": 0, // exclude the password field
+      //   },
+      // },
 
       //getting more details of users like name pic and more..
       {
@@ -203,8 +213,15 @@ router.get("/conversationList", async (req, res) => {
 
       {
         $project: {
-          "userDetails.password": 0, // exclude the password field
-          "userDetails.email": 0, // exclude the password field
+          "userDetails.email": 1, // exclude the password field
+          "userDetails.name": 1, // exclude the password
+          "userDetails.pic": 1,
+          "userDetails._id": 1,
+          pic: 1, // include the pic field from chat details
+          isGroup: 1,
+          chatName: 1,
+          users: 1,
+          lastMessage: 1,
         },
       },
     ]);
@@ -372,7 +389,8 @@ router.post(
       res.status(401).send("GroupName already in Use");
     } else {
       let chatname = req.body.chatname; //coming from request of body..
-      let USERS = req.body.users; //getting from client side ..
+      let USERS = req.body.users; //getting from client side .
+      // let pic = req.body.GroupImage; //adding a group image
       if (!Array.isArray(USERS)) {
         USERS = [USERS]; // Convert to an array becuuse we are taken the req.body.users in chat collection is an object Id so ..first convert into array
       }
@@ -386,6 +404,8 @@ router.post(
             chatName: chatname,
             isGroup: true,
             users: USERS,
+            pic: req.body.GroupImage,
+            lastMessage: req.body.message,
             groupAdmin: verfiedJToken.name,
           });
           const save = await newGroupChat.save(); //saving the documents
@@ -398,7 +418,7 @@ router.post(
 
           res.status(200).send({ newGroupChat, adminDetails });
         } catch (error) {
-          res.status(400).send(error);
+          res.status(400).send(error.message);
         }
       }
     }
@@ -457,6 +477,43 @@ router.post("/feedback", async (req, res) => {
     res.status(200).json("Sucessfully submitted");
   } catch (error) {
     res.status(400).send(error);
+  }
+});
+
+router.get("/GroupPic", async (req, res) => {
+  //this api will get all pic based on Userid from frontedent
+  const Id = new mongoose.Types.ObjectId(req.query.Id);
+  if (!mongoose.Types.ObjectId.isValid(Id)) {
+    return res.status(400).send("Invalid user ID");
+  }
+
+  try {
+    const Getpic = await Chat.findOne({ _id: Id }).select("pic name email"); //it will return only pic we can also use agregate function here to get
+
+    res.status(200).send(Getpic);
+  } catch (error) {
+    console.log(error);
+    res.status(400).send("User Pic not found");
+  }
+});
+
+// creating a api which will find all the Group and all tthe details of admin or users based on id
+router.get("/groupInfo", async (req, res) => {
+  try {
+    const groupId = new mongoose.Types.ObjectId(req.body.groupId);
+    console.log(groupId);
+    const group = await Chat.findById(groupId)
+      .populate("users", "-password -__v") // populate the user details but exclude the password and version fields
+      .populate("groupAdmin", "-password -__v"); // populate the admin details but exclude the password and version fields
+
+    if (!group) {
+      return res.status(404).json({ message: "Group not found" }); //if no grouup then send a error
+    }
+
+    res.json({ group }); //oterwise sending a group detaisl of users
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 });
 module.exports = router;

@@ -1,16 +1,30 @@
-import React from "react";
-import { Avatar, Box, Text } from "@chakra-ui/react";
+import React, { useEffect } from "react";
+import {
+  Avatar,
+  Box,
+  Text,
+  Modal,
+  ModalBody,
+  ModalOverlay,
+  Button,
+  ModalContent,
+  ModalFooter,
+  Image,
+} from "@chakra-ui/react";
 import { DeleteIcon } from "@chakra-ui/icons";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
-import { useMediaQuery } from "@chakra-ui/react";
+import { useDisclosure } from "@chakra-ui/react";
+import axios from "axios";
 const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const UserDeatials = useSelector((state) => state.USER); //coming from redux store
   const Decode = jwt_decode(UserDeatials.DATA); //it gives the logged in user id coming from jwt token dynamicslly
-  console.log(Decode);
+  const [GroupImageStore, SetGroupImageStore] = useState(null);
+  const [openModal, SetopenModal] = useState(false);
+
   let GetSenderName = //this varaibe shows the name according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
     Decode.id === users.userDetails[0]._id
       ? users.userDetails[1].name
@@ -20,6 +34,28 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
     Decode.id === users.userDetails[0]._id
       ? users.userDetails[1].pic
       : users.userDetails[0].pic;
+
+  //creating a function if group  is there then it return the igroup show the group image only
+  const ShowGroupImage = async (id) => {
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          token: UserDeatials.DATA,
+        },
+      };
+      const { data } = await axios.get(
+        `http://localhost:4000/api/message/GroupPic?Id=${id}`,
+        config
+        // "http://localhost:4000/api/message/GroupPic",
+        // { groupId: id, config }
+      );
+
+      SetGroupImageStore(data.pic);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <>
@@ -32,7 +68,6 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
         cursor="pointer"
         _hover={{
           background: "#c8d6e5",
-          color: "white",
         }}
         d="flex"
         alignItems="center"
@@ -51,7 +86,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
           justifyContent="flex-start"
           alignItems="center"
         >
-          <Box>
+          {!users.isGroup ? (
             <Avatar
               onClick={() => {
                 ShowImages(users.userDetails[0]._id); //sending users id to components as a props
@@ -62,28 +97,64 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
               cursor="pointer"
               src={GetSenderPic} //showing the pic of users
             />
-          </Box>
+          ) : (
+            <Avatar
+              onClick={() => {
+                ShowGroupImage(users._id); //sending group id to components as a props
+                SetopenModal(true);
+                //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
+              }}
+              mr={2}
+              size="sm"
+              cursor="pointer"
+              src={users.pic} //showing the pic of groups
+            />
+          )}
           <Box>
             {users.isGroup ? ( //cehcking whethere it is  group chat or single user chat by adding ternary operators
-              <Text
-                flexWrap="wrap"
-                mr={2}
-                fontSize={{ base: "md", md: "md", lg: "lg" }}
-              >
-                {users.chatName}
-              </Text>
+              <Box>
+                <Text
+                  flexWrap="wrap"
+                  mr={2}
+                  fontSize={{ base: "md", md: "md", lg: "lg" }}
+                  wordWrap="break-word"
+                  color="#786fa6"
+                  fontStyle="normal"
+                  fontWeight="bold"
+                >
+                  {users.chatName}
+                  <Text
+                    fontSize={{ base: "md", md: "md", lg: "lg" }}
+                    color="#222f3e"
+                    fontStyle="italic"
+                    fontWeight="bold"
+                  >
+                    {users.lastMessage}
+                  </Text>
+                </Text>
+              </Box>
             ) : (
               //if this is not group chat show the name of users
-              <Text
-                wordWrap="break-word"
-                mr={2}
-                fontSize={{ base: "md", md: "md", lg: "lg" }}
-                color="#0fbcf9"
-                fontStyle="unset"
-                fontWeight="bold"
-              >
-                {GetSenderName}
-              </Text>
+              <Box>
+                <Text
+                  wordWrap="break-word"
+                  mr={2}
+                  fontSize={{ base: "md", md: "md", lg: "lg" }}
+                  fontWeight="bold"
+                  color="#786fa6"
+                  fontStyle="normal"
+                >
+                  {GetSenderName}
+                </Text>
+                <Text
+                  fontSize={{ base: "md", md: "md", lg: "lg" }}
+                  color="222f3e"
+                  fontStyle="italic"
+                  fontWeight="bold"
+                >
+                  {users.lastMessage}
+                </Text>
+              </Box>
             )}
           </Box>
           {showDeleteButton && ( // deeltebutton based on the
@@ -98,14 +169,39 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
             </Box>
           )}
         </Box>
-        <Text
-          fontSize={{ base: "md", md: "md", lg: "lg" }}
-          color="ActiveCaption"
-          fontStyle="normal"
-        >
-          {users.lastMessage}
-        </Text>
       </Box>
+      <Modal isOpen={openModal} onClose={onclose}>
+        <ModalOverlay />
+        <ModalContent minW="250px">
+          {/* <ModalHeader
+          </ModalHeader> */}
+
+          <ModalBody>
+            <Image
+              borderRadius="full"
+              boxSize="400px"
+              objectFit="cover"
+              src={GroupImageStore}
+              cursor="pointer"
+            ></Image>
+            <Text></Text>
+          </ModalBody>
+          <ModalFooter
+            display="flex"
+            flexDirection={{ base: "column", md: "row" }}
+            justifyContent={{ base: "space-between", md: "flex-end" }}
+          >
+            <Button
+              w={{ base: "100%", md: "" }}
+              mb={{ base: "10px", md: "0" }}
+              mx={1}
+              onClick={() => SetopenModal(false)}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };

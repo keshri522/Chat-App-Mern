@@ -43,7 +43,7 @@ import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
-
+import FeedbackForm from "../Modals/feedbackmodal";
 import jwt_decode from "jwt-decode"; //for decoding the payload
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
@@ -142,7 +142,7 @@ const SearchDrawer = () => {
       console.log(error);
     }
   };
-  console.log(UserData);
+
   const userSelected = async (id) => {
     //this function is just for once user click on searched user i want to show the ids of them
     console.log("this selected user id is", id);
@@ -231,108 +231,6 @@ const SearchDrawer = () => {
     }
   };
 
-  function FeedbackForm() {
-    //creating a  feedback from  taking feedback from the user later move to other compoents
-    const [name, setName] = useState(""); //creating usestate feidls to mage the valalue on onchage function
-    const [email, setEmail] = useState("");
-    const [feedback, setFeedback] = useState("");
-    const [rating, setRating] = useState("");
-
-    const handleSubmit = async (event) => {
-      //api calling to send all the feedback to server
-      event.preventDefault();
-      try {
-        const config = {
-          headers: {
-            "Content-type": "application/json",
-            token: UserDetails.DATA,
-          },
-        };
-        const { data } = await axios.post(
-          "http://localhost:4000/api/message/feedback",
-          { name, email, feedback, rating },
-          config
-        );
-      } catch (error) {
-        console.log(error);
-      }
-
-      SetopenModal(false); //to close the modal
-
-      toast({
-        title: "Thankyou For the Feedback ",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top",
-      });
-      // handle form submission logic here
-    };
-
-    return (
-      <Modal isOpen={openModal} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Feedback Form</ModalHeader>
-          <ModalCloseButton onClick={() => SetopenModal(false)} />
-          <ModalBody>
-            <form onSubmit={handleSubmit}>
-              <VStack spacing={4}>
-                <FormControl>
-                  <FormLabel>Name</FormLabel>
-                  <Input
-                    type="text"
-                    placeholder="Enter your name"
-                    value={name}
-                    onChange={(event) => setName(event.target.value)}
-                    required="true"
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Email</FormLabel>
-                  <Input
-                    type="email"
-                    placeholder="Enter your email address"
-                    value={email}
-                    onChange={(event) => setEmail(event.target.value)}
-                    required="true"
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Feedback</FormLabel>
-                  <Textarea
-                    style={{ resize: "none" }}
-                    placeholder="Enter your feedback"
-                    value={feedback}
-                    onChange={(event) => setFeedback(event.target.value)}
-                    required="true"
-                  />
-                </FormControl>
-                <FormControl>
-                  <FormLabel>Rating</FormLabel>
-                  <Select
-                    placeholder="Select a rating"
-                    value={rating}
-                    onChange={(event) => setRating(event.target.value)}
-                    required
-                  >
-                    <option value="1">1 - Poor</option>
-                    <option value="2">2 - Fair</option>
-                    <option value="3">3 - Good</option>
-                    <option value="4">4 - Very Good</option>
-                    <option value="5">5 - Excellent</option>
-                  </Select>
-                </FormControl>
-
-                <Button type="submit">Submit</Button>
-              </VStack>
-            </form>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  }
-
   return (
     //using chakra ui components to build my SearchDrawer .. to make it fast....
     <>
@@ -380,19 +278,12 @@ const SearchDrawer = () => {
           fontFamily="monospace"
           fontSize="25px"
         >
-          <button
-            className="effect"
-            onClick={() => {
-              SetopenModal(true);
-              // calling the function when setopentrue simple call the forms
-            }}
-          >
-            <i class="fa-solid fa-comment"></i>
-          </button>
-          <FeedbackForm //rendering the feedback from to ui on a condtions
-            isOpen={openModal}
-            onClose={() => SetopenModal(false)}
-          />
+          {/* here we wrapping out button to the feedback componets and passing the button to feebackmodal.js as a props */}
+          <FeedbackForm>
+            <button className="effect">
+              <i class="fa-solid fa-comment"></i>
+            </button>
+          </FeedbackForm>
         </Text>
         <div>
           <Menu>

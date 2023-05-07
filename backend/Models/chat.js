@@ -30,7 +30,11 @@ const chatSchema = mongoose.Schema(
     },
     groupAdmin: {
       type: String,
-      ref: "User",
+    },
+    pic: {
+      type: String,
+      default:
+        "https://med.gov.bz/wp-content/uploads/2020/08/dummy-profile-pic.jpg",
     },
   },
   {

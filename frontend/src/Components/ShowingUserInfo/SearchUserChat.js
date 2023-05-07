@@ -7,7 +7,7 @@ const SearchUserChat = ({ user, handleUser, ShowImages }) => {
     <>
       <Box
         onClick={() => {
-          handleUser(user._id);
+          handleUser(user);
         }} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js
         cursor="pointer"
         bg="#dff9fb"

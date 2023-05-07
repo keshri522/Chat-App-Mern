@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
 import ChatLoading from "./ChatLoading";
-
+import GroupModal from "../Modals/GroupModal";
 import { useNavigate } from "react-router-dom";
 import {
   Box,
@@ -70,7 +70,7 @@ const MyChat = () => {
         config
       );
       setConversationUser(data);
-      console.log("the data", data);
+
       SetLoadingAPi(false);
       //once clicked i set ti to true shwow the bssed on conditons
     } catch (error) {
@@ -98,6 +98,7 @@ const MyChat = () => {
     try {
       const config = {
         headers: {
+          "Content-type": "application/json",
           token: DataToken.DATA,
         },
       };
@@ -106,6 +107,7 @@ const MyChat = () => {
 
         config
       );
+
       //show it true to rendering conditionally
       SetFetchUser(data); //here seeting all the data coming from response  to useState Fetchusers because we can easily access any where in the components
       SetsearchLoading(false);
@@ -114,8 +116,8 @@ const MyChat = () => {
     }
   };
   //
+
   const PicOpen = async (ids) => {
-    console.log(ids);
     //return the pics of seelceted user it will return the from db
     SetopenModal(true);
     try {
@@ -267,13 +269,16 @@ const MyChat = () => {
               justifyContent="space-between"
               alignItems="center"
             >
-              <Button
-                fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                color={{ base: "teal", md: "black" }}
-              >
-                <AddIcon mx={2}></AddIcon>
-                New Group
-              </Button>
+              {/* here i am wrapping my Button of new gtroup to group modal which is creted in groupmodal.js and dsending the button as children */}
+              <GroupModal>
+                <Button
+                  fontSize={{ base: "17px", md: "10px", lg: "17px" }}
+                  color={{ base: "teal", md: "black" }}
+                >
+                  <AddIcon mx={2}></AddIcon>
+                  New Group
+                </Button>
+              </GroupModal>
             </Tab>
           </TabList>
           <TabIndicator
@@ -325,7 +330,7 @@ const MyChat = () => {
                 )
               )}
             </TabPanel>
-            <TabPanel>Coming Soon</TabPanel>
+            <TabPanel></TabPanel>
           </TabPanels>
         </Tabs>
       </Box>
