@@ -27,7 +27,7 @@ import { useDisclosure } from "@chakra-ui/react";
 const FeedbackForm = ({ children }) => {
   //taking buttons as a children from main components
   const UserDetails = useSelector((state) => state.USER); //getting token from redux store
-
+  const [submitSucess, SetsubmitSucess] = useState(false); //just show aafter the feedbacke is competed
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   //creating a  feedback from  taking feedback from the user later move to other compoents
   const [name, setName] = useState(""); //creating usestate feidls to mage the valalue on onchage function
@@ -36,6 +36,7 @@ const FeedbackForm = ({ children }) => {
   const [rating, setRating] = useState("");
   const toast = useToast();
   const handleSubmit = async (event) => {
+    SetsubmitSucess(true);
     //api calling to send all the feedback to server
     event.preventDefault(); //prevent  page from refreshing by default it refreshed the page
     try {

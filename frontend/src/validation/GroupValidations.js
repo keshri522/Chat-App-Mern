@@ -7,10 +7,10 @@ const GroupValidation = (data) => {
     errors.GroupName = "Required!";
   }
   //   for the password field
-  if (!data.SelectedUser) {
-    errors.SelectedUser = "Required!";
-  } else if (data.SelectedUser.length < 2) {
-    errors.SelectedUser = "Minimum 2 users is required!";
+  if (!data.selectedUser) {
+    errors.selectedUser = "Required!";
+  } else if (data.selectedUser.length < 2) {
+    errors.selectedUser = "Minimum 2 users is required!";
   }
   return errors;
 };

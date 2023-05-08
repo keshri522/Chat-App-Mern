@@ -9,13 +9,15 @@ const Message = require("../Models/personalMessage");
 const crypto = require("crypto");
 const { route } = require("./update");
 const Feeback = require("../Models/Feeback");
+const bodyParser = require("body-parser");
+const jsonParser = bodyParser.json({ limit: "50mb" }); // set the limit to 50mb or as needed
 
 const FeedbackForm = require("../Models/Feeback");
 const { group } = require("console");
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
 let verfiedJToken; //globally declared
-
+router.use(express.json({ limit: "50mb" }));
 router.use((req, res, next) => {
   //this is global middleware apply before server sent the response or after client make a request
   //this is the global middle ware for the autorization of jwt token .

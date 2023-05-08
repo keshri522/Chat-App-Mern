@@ -13,10 +13,11 @@ import {
   Spinner,
   Alert,
   AlertIcon,
+  Avatar,
 } from "@chakra-ui/react";
 
 import axios from "axios";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, useDisclosure } from "@chakra-ui/react";
 import GroupValidation from "../validation/GroupValidations";
@@ -24,6 +25,8 @@ import React from "react";
 import { debounce } from "lodash"; //import debouncing from lodash library
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
+import { useEffect } from "react";
+
 const GroupModal = ({ children }) => {
   //taking children as props from my chat.js to render the button of open the modal
   const UserDetails = useSelector((state) => state.USER); //getting token from redux store
@@ -32,12 +35,13 @@ const GroupModal = ({ children }) => {
   const [Search, setSearch] = useState(); //for seraching the users what we get from api search find user
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
-  const [fault, Setfault] = useState(); //for the modal for group chat valiations
+  const [fault, Setfault] = useState({}); //for the modal for group chat valiations
   const toast = useToast();
-  const [createClicked, setCreateClicked] = useState(false);
+  const [imageshow, setimageshow] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group
   const [isloading, setIsloading] = useState(false);
   const [isSubmitting, SetisSubmitting] = useState(false);
+  const inputRef = useRef();
   const upload = () => {};
   const resetForm = () => {
     //this is when i close the modal i want to empty all the things
@@ -45,23 +49,26 @@ const GroupModal = ({ children }) => {
     setSearchResult([]); //same here close the modal will clear the searh history of previous users
     setSelectedUsers([]); //clear once i close the modal dont want to see previous selected users
     Setfault({});
+    setimageshow(null);
   };
   const handleCreate = async () => {
     if (!GroupName || !selectedUsers || selectedUsers.length < 2) {
-      toast({
-        title: "Please enter a valid Group Name and select at least two users.",
-        status: "error",
-        duration: 2,
-        isClosable: true,
-        position: "top",
-      });
+      // toast({
+      //   title: "Please enter a valid Group Name and select at least two users.",
+      //   status: "error",
+      //   duration: 2,
+      //   isClosable: true,
+      //   position: "top",
+      // });
       alert("Please enter a  Group Name and select at least two users");
+
       SetisSubmitting(false);
+
       return;
     }
 
     //this is function which will create a group chat when click on create
-    SetisSubmitting(true);
+
     try {
       const config = {
         headers: {
@@ -76,40 +83,41 @@ const GroupModal = ({ children }) => {
           users: selectedUsers.map((users) => users._id), //send Id of users to backedn not the name of users becasue once if we have get the details of user if multiple users wwith same name so not easy so alsys send id to ayn one beccause it unique
           lastMessage: "", //these are require field filled by backedn or schema these are predrfiend firled in schema so we have to write but not to send from frontend
           groupAdmin: " ",
-          pic: " ", //if user not added pic by defualt it has a pic
+          GroupImage: imageshow, //if user not added pic by defualt it has a pic here name shoud be same that defined in api liek GroupImage
         },
         config
       );
-
+      console.log(data);
       alert("Group Created Sucessfully");
-      //   toast({
-      //     //if no any users show  a toast message
-      //     title: "Group Created SucessFully.",
-      //     status: "success",
-      //     duration: 2,
-      //     isClosable: true,
-      //     position: "top",
-      //   });
+      toast({
+        //if no any users show  a toast message
+        title: "Group Created SucessFully.",
+        status: "success",
+        duration: 2,
+        isClosable: true,
+        position: "top",
+      });
 
       SetisSubmitting(false);
       onClose();
       resetForm(); //clearing all the previous usersearch or user selected once group created
     } catch (error) {
       if (error && error.response && error.response.status === 401) {
-        // toast({
-        //   //if no any users show  a toast message
-        //   title: "Group Name already Exist be uinque Group.",
-        //   status: "error",
-        //   duration: 2,
-        //   isClosable: true,
-        //   position: "top",
-        // });
+        toast({
+          //if no any users show  a toast message
+          title: "Group Name already Exist be uinque Group.",
+          status: "error",
+          duration: 2,
+          isClosable: true,
+          position: "top",
+        });
         alert("Group already exists name must be unique");
       }
       console.log(error.message);
     }
   };
 
+  console.log(imageshow);
   //creating a handle search function to searching a users through api call
   const handleSearch = async (e) => {
     setIsloading(true); //first make it true because i want to run the function only this is true
@@ -177,6 +185,7 @@ const GroupModal = ({ children }) => {
       <Modal
         isOpen={isOpen}
         onClose={() => {
+          //reseting everthing on close of modals
           resetForm();
         }}
       >
@@ -187,7 +196,11 @@ const GroupModal = ({ children }) => {
             justifyContent="center"
             fontFamily="sans-serif"
           >
-            Create Group Chat
+            {imageshow ? ( //rendering basedd on the  imaageshow if there then show only if not then show create group
+              <Avatar mr={2} size="2xl" src={imageshow}></Avatar>
+            ) : (
+              "Create Group"
+            )}
           </ModalHeader>
           <ModalCloseButton onClick={onClose} />
           <ModalBody display="flex" flexDirection="column" alignItems="center">
@@ -213,6 +226,9 @@ const GroupModal = ({ children }) => {
                 my={3}
                 name={SearchResult}
               />
+              <Text color="red.500" fontSize="sm">
+                {fault.selectedUsers}
+              </Text>
             </FormControl>
             <Box>
               {selectedUsers?.map(
@@ -250,7 +266,32 @@ const GroupModal = ({ children }) => {
               <button onClick={handleCreate} className="btn">
                 {isSubmitting ? "Creating" : "Create Group"}
               </button>
-              <button className="btns">Group Image</button>
+              <span
+                onClick={() => inputRef.current.click()}
+                type="button"
+                className="btns"
+              >
+                {" "}
+                Upload Group Image{" "}
+              </span>
+              <input
+                type="file"
+                style={{ display: "none" }}
+                ref={inputRef}
+                onChange={(event) => {
+                  // this is function of getting url image into string or url
+                  const file = event.target.files[0];
+                  const reader = new FileReader();
+                  reader.readAsDataURL(file);
+                  reader.onload = () => {
+                    // 'base64Image' will contain the image as a Base64 encoded string
+                    // you can now save this string to your database
+                    setimageshow(reader.result);
+                  };
+                }}
+              ></input>
+              {/*               
+              <button className="btns">Group Image</button> */}
             </div>
           </ModalBody>
         </ModalContent>

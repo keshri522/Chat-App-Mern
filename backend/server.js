@@ -14,7 +14,13 @@ const User = require("./routes/userRoutes");
 const Message = require("./routes/messageRoute");
 const UpdateRoute = require("./routes/update");
 //importing middleware...
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
+app.use(express.json({ limit: "200mb" })); //this is also a middleware  which will apply first before server sednig the response first router.use will apply if everything is fine then go to next()
+//here i am incresing the size of payloads that i am sednig from the fronntend ...in body of https
 app.use(cors());
 app.use(bodyParser.json());
 // create a api using middle ware like api for each of the pages ...
