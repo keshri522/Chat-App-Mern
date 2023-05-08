@@ -45,6 +45,7 @@ import ChatLoading from "./ChatLoading";
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
 import FeedbackForm from "../Modals/feedbackmodal";
 import jwt_decode from "jwt-decode"; //for decoding the payload
+import { SendUserIdtoStore } from "../Redux/selectedUser";
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
   const [searchedResult, SetsearchedResult] = useState([]); // contains a lots of user coming from search ..
@@ -145,7 +146,6 @@ const SearchDrawer = () => {
 
   const userSelected = async (id) => {
     //this function is just for once user click on searched user i want to show the ids of them
-    console.log("this selected user id is", id);
   };
   useEffect(() => {
     if (runremovepic) {

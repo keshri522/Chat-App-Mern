@@ -17,6 +17,8 @@ import { useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
 import { useDisclosure } from "@chakra-ui/react";
 import axios from "axios";
+import { SendUserIdtoStore } from "../../Redux/selectedUser";
+import { useDispatch } from "react-redux";
 const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
@@ -24,7 +26,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const Decode = jwt_decode(UserDeatials.DATA); //it gives the logged in user id coming from jwt token dynamicslly
   const [GroupImageStore, SetGroupImageStore] = useState(null);
   const [openModal, SetopenModal] = useState(false);
-
+  const dispatch = useDispatch();
   let GetSenderName = //this varaibe shows the name according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
     Decode.id === users.userDetails[0]._id
       ? users.userDetails[1].name
@@ -90,6 +92,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
             <Avatar
               onClick={() => {
                 ShowImages(users.userDetails[0]._id); //sending users id to components as a props
+                //sending the id of selected users to store
                 //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
               }}
               mr={2}
@@ -102,6 +105,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
               onClick={() => {
                 ShowGroupImage(users._id); //sending group id to components as a props
                 SetopenModal(true);
+
                 //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
               }}
               mr={2}
@@ -116,20 +120,26 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                 <Text
                   flexWrap="wrap"
                   mr={2}
-                  fontSize={{ base: "md", md: "md", lg: "lg" }}
-                  wordWrap="break-word"
+                  fontSize={{ base: "12px", md: "15px", lg: "17px" }}
                   color="#786fa6"
-                  fontStyle="normal"
+                  fontStyle="italic"
                   fontWeight="bold"
+                  onClick={() => {
+                    //sending users id to components as a props
+                    // dispatch(SendUserIdtoStore(users._id)); //sending the id of selected users to store
+                    dispatch(SendUserIdtoStore(users)); //sending the details  of users when users  cliced on particular group
+                    //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
+                  }}
                 >
                   {users.chatName}
+
                   <Text
-                    fontSize={{ base: "md", md: "md", lg: "lg" }}
+                    fontSize={{ base: "10px", md: "13px", lg: "15px" }}
                     color="#222f3e"
                     fontStyle="italic"
                     fontWeight="bold"
                   >
-                    {users.lastMessage}
+                    {users.name} {users.lastMessage}
                   </Text>
                 </Text>
               </Box>
@@ -139,15 +149,20 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                 <Text
                   wordWrap="break-word"
                   mr={2}
-                  fontSize={{ base: "md", md: "md", lg: "lg" }}
+                  fontSize={{ base: "10px", md: "13px", lg: "15px" }}
                   fontWeight="bold"
                   color="#786fa6"
                   fontStyle="normal"
+                  fontSize={{ base: "12px", md: "15px", lg: "17px" }}
+                  onClick={() => {
+                    // dispatch(SendUserIdtoStore(users.UserDeatials[0]._id));
+                    dispatch(SendUserIdtoStore(users)); //sending the  details of users to stroe
+                  }}
                 >
                   {GetSenderName}
                 </Text>
                 <Text
-                  fontSize={{ base: "md", md: "md", lg: "lg" }}
+                  fontSize={{ base: "10px", md: "13px", lg: "15px" }}
                   color="222f3e"
                   fontStyle="italic"
                   fontWeight="bold"

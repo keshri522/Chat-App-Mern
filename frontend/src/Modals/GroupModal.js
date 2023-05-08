@@ -25,9 +25,10 @@ import React from "react";
 import { debounce } from "lodash"; //import debouncing from lodash library
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
-import { useEffect } from "react";
 
-const GroupModal = ({ children }) => {
+const GroupModal = ({ children, width }) => {
+  const UserId = useSelector((state) => state.SelectedUser); //taking the selected user or group id from  redux if some one click on the user then id of user will come otherwise group id will come on click
+
   //taking children as props from my chat.js to render the button of open the modal
   const UserDetails = useSelector((state) => state.USER); //getting token from redux store
   const [GroupName, setGroupName] = useState(); //for the group name
@@ -41,6 +42,8 @@ const GroupModal = ({ children }) => {
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group
   const [isloading, setIsloading] = useState(false);
   const [isSubmitting, SetisSubmitting] = useState(false);
+  // const UserId = useSelector((state) => state.SelectedUser.DATA);
+  // console.log("the id of users is", UserId);
   const inputRef = useRef();
   const upload = () => {};
   const resetForm = () => {
@@ -51,6 +54,7 @@ const GroupModal = ({ children }) => {
     Setfault({});
     setimageshow(null);
   };
+
   const handleCreate = async () => {
     if (!GroupName || !selectedUsers || selectedUsers.length < 2) {
       // toast({
@@ -87,8 +91,9 @@ const GroupModal = ({ children }) => {
         },
         config
       );
-      console.log(data);
+
       alert("Group Created Sucessfully");
+
       toast({
         //if no any users show  a toast message
         title: "Group Created SucessFully.",
@@ -117,7 +122,6 @@ const GroupModal = ({ children }) => {
     }
   };
 
-  console.log(imageshow);
   //creating a handle search function to searching a users through api call
   const handleSearch = async (e) => {
     setIsloading(true); //first make it true because i want to run the function only this is true
@@ -181,7 +185,10 @@ const GroupModal = ({ children }) => {
 
   return (
     <>
-      <span onClick={onOpen}>{children}</span>
+      {/* here width is  props whcih is coming from the MyChats  which takes the width="100%"" */}
+      <span style={{ width: width, marginRight: "10px" }} onClick={onOpen}>
+        {children}
+      </span>
       <Modal
         isOpen={isOpen}
         onClose={() => {

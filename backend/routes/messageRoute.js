@@ -196,13 +196,6 @@ router.get("/conversationList", async (req, res) => {
         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
       },
 
-      // {
-      //   $project: {
-      //     "groupDetails.password": 0, // exclude the password field
-      //     "groupDetails.email": 0, // exclude the password field
-      //   },
-      // },
-
       //getting more details of users like name pic and more..
       {
         $lookup: {

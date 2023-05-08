@@ -5,16 +5,14 @@ import SearchDrawer from "../AllChats/SearchDrawer";
 import MyChat from "../AllChats/MyChat";
 import ChatBox from "../AllChats/ChatBox";
 const ChatPage = () => {
-  // const gettingDatafromStore = useSelector((state) => state.DATA);
-  // console.log("the data is ", gettingDatafromStore);
   return (
-    <div style={{ width: "100%" }}>
-      {<SearchDrawer></SearchDrawer>}
+    <>
+      <Box borderRadius="none">{<SearchDrawer></SearchDrawer>}</Box>
       <Box className="box">
         {<MyChat></MyChat>}
         {<ChatBox></ChatBox>}
       </Box>
-    </div>
+    </>
   );
 };
 

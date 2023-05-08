@@ -1,18 +1,24 @@
 import React from "react";
 import { useState } from "react";
 import { Avatar, Box, Text } from "@chakra-ui/react";
-
+import { SendUserIdtoStore } from "../../Redux/selectedUser";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 const AllUser = ({ user, handleUser, ShowImage }) => {
   // taking as a props passing from SearchDrawer ...
   // Define state variable to keep track of selected chat ID
   const [selectedChatId, setSelectedChatId] = useState(null);
+  const dispatch = useDispatch();
 
   return (
     <>
       <Box
         onClick={() => {
           handleUser(user._id);
+
           setSelectedChatId(user._id); // Update selected chat ID on click
+          // dispatch(SendUserIdtoStore(user._id)); //sending the userid to store
+          dispatch(SendUserIdtoStore(user)); //sending the user to store
 
           // Reset selected chat ID for previous user
         }} //on click of users wwe bascially trigger the function which will executed on searchDrawer.js

@@ -225,6 +225,7 @@ router.get("/find", async (req, res) => {
                     email: { $regex: data, $options: "i" }, //same pattern just for email seaching
                   },
                 ],
+                name: { $ne: tokenVerified.name }, //exclude the logged person name
               },
             },
           ]).project({ name: 1, email: 1, pic: 1 }); // i want to show only the name of the user nothing more ...so use projects ..

@@ -40,10 +40,11 @@ text-decoration:underline;
 }
 .box{
     display: flex;
-    justify-content: space-between;
-    width: 100%;
+    justify-content: space-around;
+     background-color: #40739e;
     padding: 12px;
     height: 92vh;
+    
 }
 .spread{
     display: flex;
@@ -55,6 +56,21 @@ text-decoration:underline;
     align-items: center;
 
 }
+.overflow{
+overflow-y: scroll;
+overflow-x: hidden;
+width: 30%;
+
+}
+/* Change scrollbar color */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color:none;
+    /* background color of the scrollbar track */
+}
+
+
 
 
 .effect:hover{

@@ -55,9 +55,15 @@ const MyChat = () => {
   const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   const [Deleteuser, SetDeleteuser] = useState(false); //this will run in use effect
+  const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
+  console.log("The users  is ", SelectedUser);
+  const [lastClickedButton, setLastClickedButton] = useState("users"); //this is just for geeting like when i clcked on users then users show or i cliked n  my chats then mu  chats shows
+
+  const width = "100%"; //sending as a props  in GroupModal beacause we are wrapping the  button insde the  components
   const AllChat = () => {};
 
   const FetchAllConversation = async () => {
+    setLastClickedButton("chats"); //if this is ture then if i clicked on Mychats button then only show the users
     try {
       SetLoadingAPi(true);
       const config = {
@@ -92,7 +98,8 @@ const MyChat = () => {
   };
 
   const FetchUserAPi = async () => {
-    //this is api to fetch all the users except logged in user once user login into the my app/
+    setLastClickedButton("users"); // if i  clicked on the  users  button then  it added the value of users in lastclicked  button so we  can keep  track the button based on the  conditons
+    //this is api to fetch all the users  except logged in user once user login into the my app/
     SetsearchLoading(true);
 
     try {
@@ -144,6 +151,7 @@ const MyChat = () => {
       }
     }
   };
+
   const GetDetailsOfLoggedUser = async () => {
     //this api will give the basic details like pic or name of the logged user that can be aceess globally
     try {
@@ -208,12 +216,15 @@ const MyChat = () => {
   return (
     <>
       <Box
-        d={{ base: FetchUser ? "none" : "flex", md: "flex" }}
+        display={{
+          base: SelectedUser.DATA.length === 0 ? "flex" : "none ", //showing display of box based  on the condtions here based  on responsive ness
+          md: "flex",
+        }}
         flexDir="column"
         alignItems="center"
         p={3}
         bg={{ base: "#a29bfe", md: "#D6A2E8" }}
-        w={{ base: "100%", md: "31%" }}
+        w={{ base: "100%", md: "33%" }}
         borderRadius="lg"
         borderWidth="1px"
         overflowY="scroll"
@@ -223,126 +234,108 @@ const MyChat = () => {
             display: "none",
           },
         }}
-        // flexDirection={{ base: "column", md: "row" }} //for responsive screen based on break points
-        minW={40}
+        //     // flexDirection={{ base: "column", md: "row" }} //for responsive screen based on break points
       >
-        <Tabs
-          w="100%"
-          variant="line"
-          fontSize={{ base: "28px", md: "30px" }}
+        <Box
+          pb={3}
+          px={3}
+          fontSize={{ base: "15px", md: "25px" }}
           fontFamily="Work sans"
+          display="flex"
+          width="100%"
+          justifyContent="space-between"
           flexDirection={{ base: "column", md: "row" }}
           alignItems="center"
-          position="relative"
         >
-          <TabList display="flex" justifyContent="space-between">
-            <Tab
-              flexDirection={{ base: "column", md: "row" }}
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Button
-                fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                // mb={{ base: 2, md: 0 }}
-                // mx={{ base: 0, md: 1 }}
-                color={{ base: "teal", md: "black" }}
-                onClick={FetchUserAPi}
-              >
-                Users
-              </Button>
-            </Tab>
-            <Tab
-              flexDirection={{ base: "column", md: "row" }}
-              justifyContent="space-between"
-              alignItems="center"
-            >
-              <Button
-                fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                color={{ base: "teal", md: "black" }}
-                onClick={FetchAllConversation}
-              >
-                My Chat
-              </Button>
-            </Tab>
-            <Tab
-              flexDirection={{ base: "column", md: "row" }}
-              justifyContent="space-between"
-              alignItems="center"
+          <Button
+            // marginBottom={{ base: "5px", md: "5px" }}
+            // marginTop={{ base: "5px", md: "5px" }}
+            margin={{ base: "5px", md: "5px" }}
+            width={{ base: "100%" }}
+            fontSize={{ base: "15px", md: "12px", lg: "15px" }}
+            // mb={{ base: 2, md: 0 }}
+            // mx={{ base: 0, md: 1 }}
+            color={{ base: "teal", md: "black" }}
+            onClick={FetchUserAPi} //calling a api here for Users buttons
+          >
+            Users
+          </Button>
+
+          <Button
+            // marginBottom={{ base: "5px", md: "5px" }}
+            // marginTop={{ base: "5px", md: "5px" }}
+            margin={{ base: "5px", md: "5px" }}
+            color={{ base: "teal", md: "black" }}
+            onClick={FetchAllConversation} //calling a api for the My chats buttons
+            display="flex"
+            width={{ base: "100%" }}
+            fontSize={{ base: "15px", md: "12px", lg: "12px" }}
+          >
+            My Chats
+          </Button>
+          <GroupModal width={width}>
+            <Button
+              // marginBottom={{ base: "5px", md: "5px" }}
+              // marginTop={{ base: "5px", md: "5px" }}
+              margin={{ base: "5px", md: "5px" }}
+              color={{ base: "teal", md: "black" }}
+              display="flex"
+              fontSize={{ base: "15px", md: "12px", lg: "15px" }}
+              width={{ base: "100%" }}
+              rightIcon={<AddIcon />}
             >
               {/* here i am wrapping my Button of new gtroup to group modal which is creted in groupmodal.js and dsending the button as children */}
-              <GroupModal>
-                <Button
-                  fontSize={{ base: "17px", md: "10px", lg: "17px" }}
-                  color={{ base: "teal", md: "black" }}
-                >
-                  <AddIcon mx={2}></AddIcon>
-                  New Group
-                </Button>
-              </GroupModal>
-            </Tab>
-          </TabList>
-          <TabIndicator
-            mt="-1.5px"
-            height="2px"
-            bg="blue.500"
-            borderRadius="1px"
-          />
-          <TabPanels>
-            <TabPanel>
-              {searchLoading ? ( //if searchloading is ture then show Chatloading or else show all the users in a a singleChat compoonet that contains all the info of users to whom what i want to show
-                <ChatLoading></ChatLoading>
-              ) : (
-                FetchUser?.map(
-                  //just a opational channing if no user is find so do not trhwo any error simply undefined this
-                  (
-                    user,
-                    index //here if there is  no users come in search instead of giving errror it will undefined the things becasue i am using optional  channing here // it will map ecah and every user which will come inside the search options
-                  ) => (
-                    <AllUser
-                      key={index}
-                      user={user}
-                      ShowImage={(userId) => PicOpen(userId)} //coming from all components from Showimage function
-                      handleUser={(userid) => AllChat(user._id)} //coming from alluser compoents from handleuser function
-                    ></AllUser>
-                  )
-                )
-              )}
-            </TabPanel>
-
-            <TabPanel>
-              {LoadingAPi ? ( //if searchloading is ture then show Chatloading or else show all the users in a a singleChat compoonet that contains all the info of users to whom what i want to show
-                <ChatLoading></ChatLoading>
-              ) : (
-                ConversationUser?.map(
-                  //just a opational channing if no user is find so do not trhwo any error simply undefined this
-                  (
-                    users,
-                    index //here if there is  no users come in search instead of giving errror it will undefined the things becasue i am using optional  channing here // it will map ecah and every user which will come inside the search options
-                  ) => (
-                    <MyUserChat
-                      key={index}
-                      users={users}
-                      ShowImages={(userId) => PicOpen(userId)}
-                      handleUser={() => AllChat(users._id)}
-                      DeleteUser={() => DeleteUser(users._id)}
-                    ></MyUserChat>
-                  )
-                )
-              )}
-            </TabPanel>
-            <TabPanel></TabPanel>
-          </TabPanels>
-        </Tabs>
+              Create Group
+            </Button>
+          </GroupModal>
+          {/* here i am wrapping my button components insise the Groupmodal components to use the buttoons as children in other componetns */}
+        </Box>
+        <Box
+          display="flex"
+          flexDir="column"
+          p={3}
+          w="100%"
+          h="100%"
+          borderRadius="lg"
+        >
+          {lastClickedButton === "users" ? ( //here i am rendering the click of button based on the conditions
+            searchLoading ? ( //adding multiple  ternary operators here to renders the chats or users based on the condtions
+              <ChatLoading></ChatLoading>
+            ) : (
+              FetchUser?.map((user, index) => (
+                <AllUser
+                  key={index}
+                  user={user}
+                  ShowImage={(userId) => PicOpen(userId)}
+                  handleUser={(userid) => AllChat(user._id)}
+                ></AllUser>
+              ))
+            )
+          ) : lastClickedButton === "chats" ? ( //same here adding multipe rendering ternary operators
+            LoadingAPi ? (
+              <ChatLoading></ChatLoading>
+            ) : (
+              ConversationUser?.map((users, index) => (
+                <MyUserChat
+                  key={index}
+                  users={users}
+                  ShowImages={(userId) => PicOpen(userId)}
+                  handleUser={() => AllChat(users._id)}
+                  DeleteUser={() => DeleteUser(users._id)}
+                ></MyUserChat>
+              ))
+            )
+          ) : null}
+        </Box>
       </Box>
 
       {/* //creating a modal to show the image once user click on a particular user
-      image */}
+    //   image */}
       <Modal isOpen={openModal} onOverlayClick={() => SetopenModal(false)}>
         <ModalOverlay />
         <ModalContent minW="250px">
           {/* <ModalHeader
-          </ModalHeader> */}
-
+    //       </ModalHeader> */}
           <ModalBody>
             <Image
               borderRadius="full"
