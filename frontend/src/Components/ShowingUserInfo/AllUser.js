@@ -52,6 +52,9 @@ const AllUser = ({ user, handleUser, ShowImage }) => {
               mr={2}
               size="sm"
               cursor="pointer"
+              _hover={{
+                transform: "scale(1.2)",
+              }}
               src={user.pic}
             />
           </Box>

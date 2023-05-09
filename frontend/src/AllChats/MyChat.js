@@ -38,7 +38,6 @@ import { AddIcon } from "@chakra-ui/icons";
 const MyChat = ({ fetchAgain }) => {
   //when ever fetchAgain will change my usestate api will fetch me all the chats
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
-  const Display = useSelector((state) => state.DisplayCheck.DATA); //taking global state from the store to keep track of the display i  boths components
 
   const UserData = useSelector((state) => state.CREATECHATDATA.DATA); //getting data from redux stroe
 
@@ -58,7 +57,7 @@ const MyChat = ({ fetchAgain }) => {
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   const [Deleteuser, SetDeleteuser] = useState(false); //this will run in use effect
   const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
-  console.log("The users  is ", SelectedUser);
+
   const [lastClickedButton, setLastClickedButton] = useState("users"); //this is just for geeting like when i clcked on users then users show or i cliked n  my chats then mu  chats shows
 
   const width = "100%"; //sending as a props  in GroupModal beacause we are wrapping the  button insde the  components
@@ -169,7 +168,6 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
 
-      console.log(data);
       dispatch(SendUserDataToStore(data)); //dispatching all the details to redux that can be accessed globally in entire app
     } catch (error) {
       console.log(error);
@@ -276,7 +274,7 @@ const MyChat = ({ fetchAgain }) => {
             onClick={FetchAllConversation} //calling a api for the My chats buttons
             display="flex"
             width={{ base: "100%" }}
-            fontSize={{ base: "15px", md: "12px", lg: "12px" }}
+            fontSize={{ base: "15px", md: "12px", lg: "15px" }}
           >
             My Chats
           </Button>

@@ -28,7 +28,15 @@ const SearchUserChat = ({ user, handleUser, ShowImages }) => {
         mb={2}
         borderRadius="lg"
       >
-        <Avatar mr={2} size="sm" cursor="pointer" src={user.pic} />
+        <Avatar
+          _hover={{
+            transform: "scale(1.2)",
+          }}
+          mr={2}
+          size="sm"
+          cursor="pointer"
+          src={user.pic}
+        />
         <Box>
           <Text>{user.name}</Text>
           <Text fontSize="xs">

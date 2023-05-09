@@ -46,6 +46,7 @@ import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
 import FeedbackForm from "../Modals/feedbackmodal";
 import jwt_decode from "jwt-decode"; //for decoding the payload
 import { SendUserIdtoStore } from "../Redux/selectedUser";
+
 const SearchDrawer = () => {
   const [search, Setsearch] = useState(); //for the searching the users
   const [searchedResult, SetsearchedResult] = useState([]); // contains a lots of user coming from search ..
@@ -54,6 +55,7 @@ const SearchDrawer = () => {
   const [sideDrawer, SetsideDrawer] = useState(false); // just for opening or closing of SideDrawer on click of find user
   const UserDetails = useSelector((state) => state.USER); //getting token from redux store
   const [showHeading, setShowHeading] = useState(false);
+  const SelectedUser = useSelector((state) => state.SelectedUser); //it will give when i click on a user then it check whetehr the users is selcted or not
 
   const [storedUser, setStoredUser] = useState("");
   const [CreateChat, setChatCreate] = useState([{}]); //this is a global vvariable that can be access any everywhere in this component
@@ -152,9 +154,14 @@ const SearchDrawer = () => {
       //if ths is true then only run this ok unecessary ccalling the api we simply add a conmdtion to avoid redundancy
       RemovePic();
     }
+    if (SelectedUser.DATA.length === 1) {
+      //here whenever the length of Sleected user ===1 means i have selected or cliced on a users so it basically make setsidedrawer to false so we can close the side drawer
+      SetsideDrawer(false);
+      SetsearchedResult([]); //also remving the previous search in search drawer by users
+    }
 
     userSelected();
-  }, [dispatch]);
+  }, [dispatch, SelectedUser]); //when ever selected user changes it useeffect will run //
 
   const handleClick = async () => {
     //this function will handle our search User using get api when i click on go button it will search all the user in the app  basically we makeing a get request to show all the users ..

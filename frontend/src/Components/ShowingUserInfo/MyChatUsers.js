@@ -98,6 +98,9 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
               mr={2}
               size="sm"
               cursor="pointer"
+              _hover={{
+                transform: "scale(1.2)",
+              }}
               src={GetSenderPic} //showing the pic of users
             />
           ) : (
@@ -111,6 +114,9 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
               mr={2}
               size="sm"
               cursor="pointer"
+              _hover={{
+                transform: "scale(1.2)",
+              }}
               src={users.pic} //showing the pic of groups
             />
           )}
@@ -153,9 +159,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                   fontWeight="bold"
                   color="#786fa6"
                   fontStyle="normal"
-                  fontSize={{ base: "12px", md: "15px", lg: "17px" }}
                   onClick={() => {
-                    // dispatch(SendUserIdtoStore(users.UserDeatials[0]._id));
                     dispatch(SendUserIdtoStore(users)); //sending the  details of users to stroe
                   }}
                 >

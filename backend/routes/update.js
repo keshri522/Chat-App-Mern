@@ -85,6 +85,37 @@ router.put("/addUser", async (req, res) => {
     res.status(400).send(error);
   }
 });
+// router.put("/addUser", async (req, res) => {
+//   const { chatId, userIds } = req.body; //coming from the body of the request.
+//   const newId = new mongoose.Types.ObjectId(chatId); //converting into a Mongoose ObjectId.
+
+//   try {
+//     const chat = await Chat.findById(newId); //return an object
+//     if (!chat) {
+//       return res.status(404).send("Chat not found"); // if chat not found
+//     }
+
+//     const usersToAdd = userIds.filter((userId) => !chat.users.includes(userId)); // filter out users that are already in the chat
+//     if (usersToAdd.length === 0) {
+//       return res.status(400).send("All users already added");
+//     }
+
+//     const UserAdded = await Chat.findByIdAndUpdate(newId, {
+//       $push: { users: { $each: usersToAdd } }, // use $each to add multiple users at once
+//     });
+
+//     const adminDetails = await User.findOne({
+//       name: UserAdded.groupAdmin, //getting all the details of admin of the groups ..
+//     })
+//       .select("name")
+//       .select("email")
+//       .select("pic");
+
+//     res.status(200).send({ UserAdded, adminDetails });
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
 
 router.post("/update-profile-picture", async (req, res) => {
   //this api will update the user profiel picture from client side

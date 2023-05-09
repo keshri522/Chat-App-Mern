@@ -1,14 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
 
-// const getDataFromLocalStroage = () => {
-//   let localData = localStorage.getItem("FetchDetails");
-//   if (localData) {
-//     return JSON.parse(localData);
-//   } else {
-//     return;
-//   }
-// };
-
 const SelectedUser = createSlice({
   initialState: {
     DATA: [],

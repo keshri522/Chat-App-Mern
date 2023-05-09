@@ -36,7 +36,7 @@ const GroupModal = ({ children, width }) => {
   const [Search, setSearch] = useState(); //for seraching the users what we get from api search find user
 
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
-  const [fault, Setfault] = useState({}); //for the modal for group chat valiations
+
   const toast = useToast();
   const [imageshow, setimageshow] = useState("");
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group
@@ -51,7 +51,7 @@ const GroupModal = ({ children, width }) => {
     setGroupName("");
     setSearchResult([]); //same here close the modal will clear the searh history of previous users
     setSelectedUsers([]); //clear once i close the modal dont want to see previous selected users
-    Setfault({});
+
     setimageshow(null);
   };
 
@@ -160,8 +160,8 @@ const GroupModal = ({ children, width }) => {
     setIsloading(false);
   };
 
-  const UserRemoved = (users) => {
-    const DeltedUser = selectedUsers.filter((items) => items._id !== users._id); //return all the users except the clicked users to be delted
+  const UserRemoved = (user) => {
+    const DeltedUser = selectedUsers.filter((items) => items._id !== user._id); //return all the users except the clicked users to be delted
     setSelectedUsers(DeltedUser);
   };
 
@@ -233,20 +233,17 @@ const GroupModal = ({ children, width }) => {
                 my={3}
                 name={SearchResult}
               />
-              <Text color="red.500" fontSize="sm">
-                {fault.selectedUsers}
-              </Text>
             </FormControl>
             <Box>
               {selectedUsers?.map(
                 (
-                  users //rendering all the selected users
+                  user //rendering all the selected users
                 ) => (
                   //rendring throuhg map if selected users  is there then show all the users in ui
                   <UserAdded
-                    key={users._id}
-                    users={users}
-                    handleDelete={() => UserRemoved(users)}
+                    key={user._id}
+                    users={user}
+                    handleDelete={() => UserRemoved(user)}
                   ></UserAdded>
                 )
               )}

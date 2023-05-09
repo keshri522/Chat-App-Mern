@@ -2,7 +2,7 @@ import React, { useRef, useState } from "react";
 import { Box, Text } from "@chakra-ui/react";
 import { useSelector } from "react-redux";
 import { ArrowBackIcon, ViewIcon } from "@chakra-ui/icons";
-import { Isture } from "../Redux/GlobalState";
+import ProfileModal from "../Modals/View ProfileModal";
 import { useDispatch } from "react-redux";
 import { SendUserIdtoStore, ResetSelectedUser } from "../Redux/selectedUser";
 const SingleChat = () => {
@@ -42,11 +42,14 @@ const SingleChat = () => {
           </Box>
           <Box>
             {SelectedUser.DATA.length === 1 ? ( //rendering the buttons based on the conditons of box display
-              <ViewIcon
-                fontSize="25px"
-                color="black"
-                borderRadius="8px"
-              ></ViewIcon>
+              <ProfileModal>
+                <ViewIcon
+                  marginRight="5px"
+                  fontSize="25px"
+                  color="black"
+                  borderRadius="8px"
+                ></ViewIcon>
+              </ProfileModal>
             ) : (
               " "
             )}
