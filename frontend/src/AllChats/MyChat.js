@@ -35,8 +35,10 @@ import MyUserChat from "../Components/ShowingUserInfo/MyChatUsers";
 import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import { AddIcon } from "@chakra-ui/icons";
 
-const MyChat = () => {
+const MyChat = ({ fetchAgain }) => {
+  //when ever fetchAgain will change my usestate api will fetch me all the chats
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
+  const Display = useSelector((state) => state.DisplayCheck.DATA); //taking global state from the store to keep track of the display i  boths components
 
   const UserData = useSelector((state) => state.CREATECHATDATA.DATA); //getting data from redux stroe
 
@@ -211,13 +213,18 @@ const MyChat = () => {
     }
     // console.log("the data is", GetConversationList.DATA);
     FetchUserAPi(); //it will again and again if our pages refresh..
-  }, [MyChat]); // if whenever our dependency will change our useeffect code will run ////
+  }, [MyChat, fetchAgain]); // if whenever our dependency will change our useeffect code will run ////
 
   return (
     <>
       <Box
         display={{
-          base: SelectedUser.DATA.length === 0 ? "flex" : "none ", //showing display of box based  on the condtions here based  on responsive ness
+          base:
+            SelectedUser.DATA.length === 0
+              ? "flex"
+              : // : Display === "true"
+                // ? "flex"
+                "none", //showing display of box based  on the condtions here based  on responsive ness
           md: "flex",
         }}
         flexDir="column"
