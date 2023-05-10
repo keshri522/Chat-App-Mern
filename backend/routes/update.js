@@ -85,37 +85,6 @@ router.put("/addUser", async (req, res) => {
     res.status(400).send(error);
   }
 });
-// router.put("/addUser", async (req, res) => {
-//   const { chatId, userIds } = req.body; //coming from the body of the request.
-//   const newId = new mongoose.Types.ObjectId(chatId); //converting into a Mongoose ObjectId.
-
-//   try {
-//     const chat = await Chat.findById(newId); //return an object
-//     if (!chat) {
-//       return res.status(404).send("Chat not found"); // if chat not found
-//     }
-
-//     const usersToAdd = userIds.filter((userId) => !chat.users.includes(userId)); // filter out users that are already in the chat
-//     if (usersToAdd.length === 0) {
-//       return res.status(400).send("All users already added");
-//     }
-
-//     const UserAdded = await Chat.findByIdAndUpdate(newId, {
-//       $push: { users: { $each: usersToAdd } }, // use $each to add multiple users at once
-//     });
-
-//     const adminDetails = await User.findOne({
-//       name: UserAdded.groupAdmin, //getting all the details of admin of the groups ..
-//     })
-//       .select("name")
-//       .select("email")
-//       .select("pic");
-
-//     res.status(200).send({ UserAdded, adminDetails });
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
 
 router.post("/update-profile-picture", async (req, res) => {
   //this api will update the user profiel picture from client side
@@ -144,30 +113,6 @@ router.post("/update-profile-picture", async (req, res) => {
   }
 });
 
-//   //this api will update the user profiel picture from client side
-//   try {
-//     // Extract userId and profilePicture from request body
-//     const { userId, profilePicture } = req.body; //coming from client side in the body of request
-//     // Find user with the given userId in the database
-//     const user = await User.findById(userId);
-//     // Update the user's profile picture
-//     user.pic = profilePicture; //here changig the pic of particular user id
-//     await user.save(); //saving in the collection
-
-//     // givng a JWT token for each time when user sign up or sign in.
-
-//     // Send response
-//     res.json({
-//       success: true,
-//       message: "Profile picture updated successfully.",
-//     });
-//   } catch (err) {
-//     res.status(500).json({
-//       success: false,
-//       message: "Internal server error.",
-//     });
-//   }
-// });
 // generating a jwt token for each time when i upload a pic or delete ic
 
 // creating a api from removing the profile pictuer of logged in useers first it will verfy the jwt token which is applied by router.use middleware
@@ -198,32 +143,43 @@ router.put("/remove-profile-picture", async (req, res) => {
   }
 });
 
-//creating the remove the user from Group Chat.
-router.put("/remove", async (req, res) => {
-  const { chatId, UserId } = req.body; //coming from body of reqquest that are sent from the frontend by users.
-  let Id = new mongoose.Types.ObjectId(chatId); // this is chat Id of group chat on which users is removed .
+// DELETE /api/chat/:chatId/user/:userId
+router.post("/delete/user", async (req, res) => {
+  const chatId = new mongoose.Types.ObjectId(req.body.chatId);
+  const userId = req.body.userId;
+
   try {
-    const removeUser = await Chat.findByIdAndUpdate(Id, {
-      $pull: { users: UserId }, //removing a particular users from Group chat
-    });
-    console.log(removeUser);
-    if (!removeUser) {
-      // The chat document was not found, or the users array did not contain the UserId to be removed
-      return res.status(404).json({ message: "Chat or user not found" });
+    // Find the chat by ID
+    const chat = await Chat.findById(chatId);
+
+    // Check if the chat is a group and the user is a member
+    // if (!chat.isGroup) {
+    //   return res.status(400).json({ message: "Chat is not a group" });
+
+    if (!chat) {
+      res.status(400).send("chats not found");
     }
-    const adminDetails = await User.findOne({
-      name: removeUser.groupAdmin, //getting all the details of admin of the groups ..
-    })
-      .select("name") //want to show only some of the fields like name ,email,pic so put in select method
-      .select("email")
-      .select("pic");
-    // console.log(removeUser);
-    res.status(200).json({ removeUser, adminDetails });
-    // console.log(adminDetails);
+    // }
+    else if (userId.some((id) => !chat.users.includes(id))) {
+      return res
+        .status(400)
+        .json({ message: "One or more users are not members of the group" });
+    }
+
+    // Remove the users from the chat's user array
+
+    chat.users.pull(userId);
+
+    // Save the updated chat
+    await chat.save();
+
+    res.json({ message: "User removed from group" });
   } catch (error) {
-    res.status(400).json(error);
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 });
+
 //creating a api which will delete the users in the My chat session which will take a id coming from cleint side
 //creating a api for deleting of a chat
 router.post("/deleteUser", async (req, res) => {

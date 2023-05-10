@@ -14,13 +14,14 @@ import {
   Alert,
   AlertIcon,
   Avatar,
+  Button,
 } from "@chakra-ui/react";
 
 import axios from "axios";
 import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, useDisclosure } from "@chakra-ui/react";
-import GroupValidation from "../validation/GroupValidations";
+
 import React from "react";
 import { debounce } from "lodash"; //import debouncing from lodash library
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
@@ -267,17 +268,16 @@ const GroupModal = ({ children, width }) => {
               )
             )}
             <div style={{ marginTop: "5px" }}>
-              <button onClick={handleCreate} className="btn">
+              <button className="btns" onClick={handleCreate}>
                 {isSubmitting ? "Creating" : "Create Group"}
               </button>
-              <span
+              <button
+                className="btn"
                 onClick={() => inputRef.current.click()}
                 type="button"
-                className="btns"
               >
-                {" "}
-                Upload Group Image{" "}
-              </span>
+                Upload Group Image
+              </button>
               <input
                 type="file"
                 style={{ display: "none" }}

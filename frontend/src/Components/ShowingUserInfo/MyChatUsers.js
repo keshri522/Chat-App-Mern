@@ -27,15 +27,23 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [GroupImageStore, SetGroupImageStore] = useState(null);
   const [openModal, SetopenModal] = useState(false);
   const dispatch = useDispatch();
-  let GetSenderName = //this varaibe shows the name according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
-    Decode.id === users.userDetails[0]._id
-      ? users.userDetails[1].name
-      : users.userDetails[0].name;
 
-  const GetSenderPic = //this varaibe shows the pic according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
-    Decode.id === users.userDetails[0]._id
-      ? users.userDetails[1].pic
-      : users.userDetails[0].pic;
+  let GetSenderName = null;
+  let GetSenderPic = null;
+
+  if (users.userDetails.length === 2) {
+    //adding condtion if the lenght of the users ===2 otherwise it set to null
+    //this varaibe shows the pic according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
+    GetSenderName =
+      Decode.id === users.userDetails[0]._id
+        ? users.userDetails[1].name
+        : users.userDetails[0].name;
+
+    GetSenderPic = //this varaibe shows the pic according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
+      Decode.id === users.userDetails[0]._id
+        ? users.userDetails[1].pic
+        : users.userDetails[0].pic;
+  }
 
   //creating a function if group  is there then it return the igroup show the group image only
   const ShowGroupImage = async (id) => {

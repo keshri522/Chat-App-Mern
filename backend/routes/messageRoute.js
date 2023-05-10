@@ -438,7 +438,7 @@ router.post(
 //     res.status(400).send(error);
 //   }
 // });
-router.put("/rename", async (req, res) => {
+router.post("/rename", async (req, res) => {
   const { chatId, chatname } = req.body;
   let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
 
@@ -450,9 +450,9 @@ router.put("/rename", async (req, res) => {
       res.status(400).send("Chat not found");
     }
     const save = find.save();
-    res.status(400).send(find); //sending the updated chatName to frontend as response..
+    res.status(200).send("successfully Updated the name"); //sending the updated chatName to frontend as response..
   } catch (error) {
-    res.status(400).send(error);
+    res.status(400).send(error.message);
   }
 });
 

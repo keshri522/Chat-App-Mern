@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -29,10 +29,14 @@ import { useState } from "react";
 import { useSelector } from "react-redux";
 import { useDisclosure } from "@chakra-ui/react";
 import { Spinner } from "@chakra-ui/react";
-import { debounce } from "lodash"; //import debouncing from lodash library
+import { debounce, update } from "lodash"; //import debouncing from lodash library
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat"; //this is single search user chat resualble compoents
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
 import GroupUserProfile from "./GroupUserProfile";
+
+import { useDispatch } from "react-redux";
+import { SendUserIdtoStore } from "../Redux/selectedUser";
+import GroupUsers from "../Components/ShowingUserInfo/GroupUsers";
 const ProfileModal = ({ children }) => {
   //taking children  from Single Chat pass showing icons here when clicked a popup will open
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -43,19 +47,61 @@ const ProfileModal = ({ children }) => {
   const [searchResult, SetsearchResult] = useState([]); //storing all the searched value to manipulate with them once user search in input box
   const [isloading, setIsloading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group\
+  const [Update, setUpdate] = useState();
   const [isopen, setIsopen] = useState({});
+  const [Dataadded, SetDataadded] = useState([]);
 
   const toast = useToast();
-
+  const dispatch = useDispatch();
   const resetPreviouSearch = () => {
     setSelectedUsers([]);
     SetsearchResult([]);
     onClose();
   };
 
+  console.log(Update);
   //creating a function which will show the all the users pic in the group when anyone clicked on it
 
-  const UserAddedToGroup = () => {};
+  const UserAddedToGroup = async () => {
+    //this function wiill add the users into the group api call
+    if (selectedUsers.length === 0) {
+      //addiing some error validatioon if it is empty then show the message
+      toast({
+        title: "Fields Cannot be empty",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+    }
+    try {
+      const config = {
+        headers: {
+          "Content-type": "application/json",
+          token: Token.DATA, //token coming from redux store ..
+        },
+      };
+      const { data } = await axios.put(
+        "http://localhost:4000/api/update/addUser",
+        {
+          chatId: Data._id,
+          UserId: selectedUsers.map((users) => users._id), //send Id of users to backedn not the name of users becasue once if we have get the details of user if multiple users wwith same name so not easy so alsys send id to ayn one beccause it unique
+          //if user not added pic by defualt it has a pic here name shoud be same that defined in api liek GroupImage
+        },
+        config
+      );
+      toast({
+        title: "Users Sucesfully added",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      resetPreviouSearch();
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
 
   //creating a handle search function to searching a users through api call
 
@@ -121,8 +167,77 @@ const ProfileModal = ({ children }) => {
     }
   };
 
+  //Defining the Delete function for deleting the Users in the Groups
+  const DelteUser = async (id) => {
+    try {
+      const config = {
+        //calling a Delete api for the users only
+        headers: {
+          "Content-type": "application/json",
+          token: Token.DATA, //token for authorizations
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:4000/api/update/delete/user",
+
+        { userId: [id], chatId: UserDetails.DATA[0]._id }, //here [id ] is passed as array i use same ib backedn api array here must be same
+        //here chatId is the id of group from which group i want to deete the users
+        config
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const UpdateGroup = async (e) => {
+    if (Update.length === 0) {
+      toast({
+        //if users is alredy added in the grou
+        title: "Cannot Updated Empty Value.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    }
+
+    try {
+      const config = {
+        //this api will rename the Group  name of the group..
+        //calling a search api for the users only
+        headers: {
+          token: Token.DATA, //token for authorizations
+        },
+      };
+      const { data } = await axios.post(
+        "http://localhost:4000/api/message/rename",
+        {
+          chatId: Data._id,
+          chatname: Update,
+        },
+
+        config
+      );
+
+      console.log(data);
+      toast({
+        //if users is alredy added in the grou
+        title: "Sucessfully Updated.",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      onClose();
+      setUpdate(" ");
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const debouncedHandleSearch = debounce(handleSearch, 500); //this is just for making our api call at a given interval to avoid continu call api on handle search we basically use debouncing
-  console.log("the users", isopen);
+
   return (
     <>
       <Button onClick={onOpen}>{children}</Button>
@@ -183,6 +298,7 @@ const ProfileModal = ({ children }) => {
                   <Box width="30px">
                     <Box color="red" fontSize="sm">
                       <DeleteIcon
+                        onClick={() => DelteUser(users._id)} //taking the id of each users once anyone clicked on the  Delete buttons
                         _hover={{
                           fontSize: "25px",
                         }}
@@ -192,6 +308,9 @@ const ProfileModal = ({ children }) => {
                   <Box width="30px">
                     <Box color="green" fontSize="sm">
                       <ChatIcon
+                        onClick={() => {
+                          dispatch(SendUserIdtoStore(users)); //send the details of user to check whetehr is selcted or not
+                        }}
                         _hover={{
                           fontSize: "25px",
                         }}
@@ -204,7 +323,21 @@ const ProfileModal = ({ children }) => {
             ? " "
             : " "}
           <ModalCloseButton />
-          <ModalBody></ModalBody>
+          <ModalBody display="flex" justifyContent="space-between">
+            <Input
+              type="text"
+              onChange={(e) => setUpdate(e.target.value)}
+              placeholder="Change Group Name"
+            />
+            <Button
+              marginLeft="5px"
+              colorScheme="green"
+              mr={3}
+              onClick={UpdateGroup}
+            >
+              Update
+            </Button>
+          </ModalBody>
 
           <ModalFooter display="flex" justifyContent="space-between">
             {Data.isGroup ? (
@@ -252,13 +385,13 @@ const ProfileModal = ({ children }) => {
                 (
                   user //mapping through the search user
                 ) => (
-                  <SearchUserChat //in this component i have already created in search drawers same here to mapping each and every one by one
+                  <GroupUsers //in this component i have already created in search drawers same here to mapping each and every one by one
                     user={user} //props passing to seachuser chat
                     key={user._id} //props
                     handleUser={() => {
                       adduserinGroup(user);
                     }} //this function responsible when i clicked on a particuylar user from searchuer chat then the user came here the addinguseringroup will basically add the uswer in grup
-                  ></SearchUserChat>
+                  ></GroupUsers>
                 )
               )
             )}

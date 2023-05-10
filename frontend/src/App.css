@@ -100,10 +100,18 @@ width: 30%;
      
         flex-direction: column;
         width: 100%;
+      
+      
+
     }
     .responsive{
         flex-direction: column;
         width: 100%;
+        
+
+        
+ 
+       
     }
 }
 @media (min-width:300px) and (max-width:500px){
@@ -116,14 +124,17 @@ width: 30%;
     .btns{
         flex-direction: row;
         width: 100%;
-        margin-top: 5px;
+        margin-bottom: 5px;
+      
 
         
     }
           .btn {
               flex-direction: row;
               width: 100%;
-              margin-bottom: 5px;
+              margin-top: 5px;
+             
+             
              
           }
 }
