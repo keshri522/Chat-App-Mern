@@ -323,20 +323,26 @@ const ProfileModal = ({ children }) => {
             ? " "
             : " "}
           <ModalCloseButton />
-          <ModalBody display="flex" justifyContent="space-between">
-            <Input
-              type="text"
-              onChange={(e) => setUpdate(e.target.value)}
-              placeholder="Change Group Name"
-            />
-            <Button
-              marginLeft="5px"
-              colorScheme="green"
-              mr={3}
-              onClick={UpdateGroup}
-            >
-              Update
-            </Button>
+          <ModalBody>
+            {Data.isGroup ? ( //if  it is group then only showw input Update button otherwise show null because only group has the button to update
+              <Box display="flex" justifyContent="space-between">
+                <Input
+                  type="text"
+                  onChange={(e) => setUpdate(e.target.value)}
+                  placeholder="Change Group Name"
+                />
+                <Button
+                  marginLeft="5px"
+                  colorScheme="green"
+                  mr={3}
+                  onClick={UpdateGroup}
+                >
+                  Update
+                </Button>
+              </Box>
+            ) : (
+              " "
+            )}
           </ModalBody>
 
           <ModalFooter display="flex" justifyContent="space-between">
