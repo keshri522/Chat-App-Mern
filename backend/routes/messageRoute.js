@@ -124,7 +124,60 @@ router.post("/personal", async (req, res) => {
   }
 });
 
+//  creating a Api to send the message to post or send message in the group which will take chatId or message ...
+router.post("/groupMessage", async (req, res) => {
+  let from = new mongoose.Types.ObjectId(verfiedJToken.id);
+  const { chatId, message } = req.body; //destructing the req.body
+  let Id = new mongoose.Types.ObjectId(chatId); //converting id to object id in mongoose
+
+  try {
+    const FindGroup = await Chat.findByIdAndUpdate(
+      //finding the chat by id and update hte lastmessag :message it will return the updated chat as soon as users message into the chats
+      chatId,
+      { lastMessage: message },
+      { new: true } //it will return us a new updated documents each time as soon as lastMessage updated
+    );
+
+    // Populate the `from` field with the user document
+    const fromUser = await User.findById(from).select("name  pic"); //here i am taking only name email or pic of the logged in person to show on ui
+
+    //creating a new message and save the message in dagtabse in personal message schema
+    const newMessage = await new Message({
+      //adding all the field in the personal schema
+      from: from, //logged in user send the message in the group
+      TO: " ",
+      body: message,
+      chat: FindGroup._id, //this is just a chat ib in which we are getting all the message of a particular chats  if we do not write this
+    });
+
+    await newMessage.save(); //saving all the message into the personal Messsage schema
+
+    res.status(200).send({ FindGroup, fromUser });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error.message);
+  }
+});
+//creating api for getting all the message from a group ..
+router.get("/fetchGroupMessage", async (req, res) => {
+  const chatId = req.body.Id; //getting as a params or body also
+  try {
+    const fetchMessage = await Message.find({ chat: chatId }).populate({
+      //here i want to get more info about the sender person so populate using select method show only seelcted thing
+      path: "from", //i want from logged user to get more details
+      select: "name pic body ", //i want to show only name pic and body of message that i am used in clent isde show this
+    });
+
+    // .select("from");
+
+    res.status(200).json(fetchMessage);
+  } catch (error) {
+    res.status(400).send(error.message);
+  }
+});
+
 //creating a api which will create a chat betweeen two user when logged in user will click on search users it will create a chat between them..
+
 // router.post("/createChat", async (req, res) => {
 //   //api for sending one to one message ...
 //   let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
@@ -415,7 +468,7 @@ router.post(
             isGroup: true,
             users: USERS,
             pic: req.body.GroupImage,
-            lastMessage: req.body.message,
+            // lastMessage: req.body.message,
             groupAdmin: verfiedJToken.name,
           });
           const save = await newGroupChat.save(); //saving the documents

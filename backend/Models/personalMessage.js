@@ -19,7 +19,7 @@ const MessageSchema = mongoose.Schema(
       trim: true,
     },
     chat: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId, //thjis is just for getting all the message from a particular chat other wise its imposible to get all message we have reference so
       ref: "chatModel",
     },
   },
