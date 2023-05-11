@@ -31,6 +31,7 @@ const chatSchema = mongoose.Schema(
     groupAdmin: {
       type: String,
     },
+
     pic: {
       type: String,
       default:

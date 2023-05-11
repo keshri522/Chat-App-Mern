@@ -205,6 +205,15 @@ router.get("/conversationList", async (req, res) => {
           as: "userDetails",
         },
       },
+      {
+        $lookup: {
+          //geting details of Admin by using lookup or populate
+          from: "users",
+          localField: "groupAdmin",
+          foreignField: "name", //this is name field from which wer are searching admn details in user collections
+          as: "groupAdminDetails",
+        },
+      },
 
       {
         $project: {
@@ -212,6 +221,11 @@ router.get("/conversationList", async (req, res) => {
           "userDetails.name": 1, // exclude the password
           "userDetails.pic": 1,
           "userDetails._id": 1,
+          "groupAdminDetails.email": 1,
+          "groupAdminDetails._id": 1,
+          "groupAdminDetails.name": 1,
+          "groupAdminDetails.pic": 1,
+
           pic: 1, // include the pic field from chat details
           isGroup: 1,
           chatName: 1,
@@ -232,6 +246,7 @@ router.get("/conversationList", async (req, res) => {
     res.status(400).send(error);
   }
 });
+
 router.get("/getpic", async (req, res) => {
   //this api will get all pic based on Userid from frontedent
   const Id = new mongoose.Types.ObjectId(req.query.Id);
@@ -496,7 +511,7 @@ router.get("/GroupPic", async (req, res) => {
 router.get("/groupInfo", async (req, res) => {
   try {
     const groupId = new mongoose.Types.ObjectId(req.body.groupId);
-    console.log(groupId);
+
     const group = await Chat.findById(groupId)
       .populate("users", "-password -__v") // populate the user details but exclude the password and version fields
       .populate("groupAdmin", "-password -__v"); // populate the admin details but exclude the password and version fields

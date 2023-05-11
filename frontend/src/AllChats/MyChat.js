@@ -77,7 +77,7 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
       setConversationUser(data);
-
+      console.log("the list is", data);
       SetLoadingAPi(false);
       //once clicked i set ti to true shwow the bssed on conditons
     } catch (error) {

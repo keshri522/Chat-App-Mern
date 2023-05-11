@@ -7,7 +7,7 @@ import { useDispatch } from "react-redux";
 import { SendUserIdtoStore, ResetSelectedUser } from "../Redux/selectedUser";
 const SingleChat = () => {
   const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
-  console.log(SelectedUser.DATA[0]);
+
   const Data = SelectedUser.DATA[0]; //storing the data in to Data varaiball..
   const dispatch = useDispatch();
   return (

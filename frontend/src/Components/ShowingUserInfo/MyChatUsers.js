@@ -142,6 +142,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                     //sending users id to components as a props
                     // dispatch(SendUserIdtoStore(users._id)); //sending the id of selected users to store
                     dispatch(SendUserIdtoStore(users)); //sending the details  of users when users  cliced on particular group
+
                     //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
                   }}
                 >

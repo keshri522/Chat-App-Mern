@@ -9,18 +9,11 @@ import {
   ModalFooter,
   ModalBody,
   ModalCloseButton,
-  VStack,
-  FormControl,
-  FormLabel,
   Input,
   useToast,
   Textarea,
   Select,
   Button,
-  AlertDescription,
-  Alert,
-  AlertIcon,
-  AlertTitle,
   Toast,
 } from "@chakra-ui/react";
 import { DeleteIcon, ChatIcon } from "@chakra-ui/icons";
@@ -32,8 +25,7 @@ import { Spinner } from "@chakra-ui/react";
 import { debounce, update } from "lodash"; //import debouncing from lodash library
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat"; //this is single search user chat resualble compoents
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
-import GroupUserProfile from "./GroupUserProfile";
-
+import jwt_decode from "jwt-decode";
 import { useDispatch } from "react-redux";
 import { SendUserIdtoStore } from "../Redux/selectedUser";
 import GroupUsers from "../Components/ShowingUserInfo/GroupUsers";
@@ -47,9 +39,10 @@ const ProfileModal = ({ children }) => {
   const [searchResult, SetsearchResult] = useState([]); //storing all the searched value to manipulate with them once user search in input box
   const [isloading, setIsloading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group\
-  const [Update, setUpdate] = useState();
+  const [input, Setinput] = useState();
   const [isopen, setIsopen] = useState({});
   const [Dataadded, SetDataadded] = useState([]);
+  const LoggedInUserId = jwt_decode(Token.DATA); //logged user id coming from jwt token
 
   const toast = useToast();
   const dispatch = useDispatch();
@@ -59,10 +52,11 @@ const ProfileModal = ({ children }) => {
     onClose();
   };
 
-  console.log(Update);
+  // console.log(UserDetails.DATA[0].groupAdminDetails[0]._id);
+  // console.log(UserDetails.DATA[0]);
   //creating a function which will show the all the users pic in the group when anyone clicked on it
 
-  const UserAddedToGroup = async () => {
+  const UserAddedToGroup = async (e) => {
     //this function wiill add the users into the group api call
     if (selectedUsers.length === 0) {
       //addiing some error validatioon if it is empty then show the message
@@ -73,6 +67,7 @@ const ProfileModal = ({ children }) => {
         isClosable: true,
         position: "top",
       });
+      return;
     }
     try {
       const config = {
@@ -153,6 +148,7 @@ const ProfileModal = ({ children }) => {
     //this function will handle the user to be added in the group
 
     if (selectedUsers.includes(addUserToGroup)) {
+      //here we can aslo use find functions
       //checking if users is already present in selecteduser if present thrwo a errors
       toast({
         //if users is alredy added in the grou
@@ -162,10 +158,24 @@ const ProfileModal = ({ children }) => {
         isClosable: true,
         position: "top",
       });
+      return;
+    } else if (
+      UserDetails.DATA[0].groupAdminDetails[0]._id !== LoggedInUserId.id
+    ) {
+      toast({
+        //if users is alredy added in the grou
+        title: "Only Admin Can add or remove the users",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
     } else {
       setSelectedUsers([...selectedUsers, addUserToGroup]); //simple adding new one using spread operator return all  the previous users and add a new one if availballe
     }
   };
+  console.log("the users is", selectedUsers);
 
   //Defining the Delete function for deleting the Users in the Groups
   const DelteUser = async (id) => {
@@ -189,11 +199,23 @@ const ProfileModal = ({ children }) => {
     }
   };
 
-  const UpdateGroup = async (e) => {
-    if (Update.length === 0) {
+  const UpdateGroup = async () => {
+    if (input.length === 0) {
       toast({
         //if users is alredy added in the grou
         title: "Cannot Updated Empty Value.",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    } else if (
+      UserDetails.DATA[0].groupAdminDetails[0]._id !== LoggedInUserId.id
+    ) {
+      toast({
+        //if users is alredy added in the grou
+        title: "Only Admin Can add or remove the users",
         status: "error",
         duration: 2000,
         isClosable: true,
@@ -214,13 +236,12 @@ const ProfileModal = ({ children }) => {
         "http://localhost:4000/api/message/rename",
         {
           chatId: Data._id,
-          chatname: Update,
+          chatname: input,
         },
 
         config
       );
 
-      console.log(data);
       toast({
         //if users is alredy added in the grou
         title: "Sucessfully Updated.",
@@ -230,7 +251,7 @@ const ProfileModal = ({ children }) => {
         position: "top",
       });
       onClose();
-      setUpdate(" ");
+      Setinput(" ");
     } catch (error) {
       console.log(error);
     }
@@ -263,6 +284,7 @@ const ProfileModal = ({ children }) => {
               </Box> //adding pic or name of group if it is group
             )}
           </ModalHeader>
+
           {Data.isGroup //here adding some ternary operator to show the name of users based on the is grpup or user or chat basically i am filtering the users name or group based on the click of users
             ? Data.userDetails.map((users) => (
                 <Box
@@ -328,7 +350,7 @@ const ProfileModal = ({ children }) => {
               <Box display="flex" justifyContent="space-between">
                 <Input
                   type="text"
-                  onChange={(e) => setUpdate(e.target.value)}
+                  onChange={(e) => Setinput(e.target.value)}
                   placeholder="Change Group Name"
                 />
                 <Button
