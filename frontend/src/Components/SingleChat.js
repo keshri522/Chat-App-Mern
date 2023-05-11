@@ -5,11 +5,29 @@ import { ArrowBackIcon, ViewIcon } from "@chakra-ui/icons";
 import ProfileModal from "../Modals/View ProfileModal";
 import { useDispatch } from "react-redux";
 import { SendUserIdtoStore, ResetSelectedUser } from "../Redux/selectedUser";
+
+import jwt_decode from "jwt-decode";
 const SingleChat = () => {
+  const UserDeatials = useSelector((state) => state.USER); //coming from redux store
+
   const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
 
   const Data = SelectedUser.DATA[0]; //storing the data in to Data varaiball..
+
   const dispatch = useDispatch();
+  const LoggedUserId = jwt_decode(UserDeatials.DATA);
+
+  // const GetSenderName =
+  //   LoggedUserId.id === Data.userDetails[0]?._id
+  //     ? Data.userDetails[1]?.name
+  //     : Data.userDetails[0]?.name;
+  const GetSenderName = //this will show the name of user according to logged in user id like if a is send msg to be in b the naem fo a is display or in a the nane of b is displayed
+    Data && Data.userDetails //here defining that if data && Data.userdetails is thente then run this if it is not there then show empty string
+      ? LoggedUserId.id === Data.userDetails[0]?._id
+        ? Data.userDetails[1]?.name
+        : Data.userDetails[0]?.name
+      : "";
+
   return (
     <>
       {SelectedUser.DATA.length === 0 ? (
@@ -38,7 +56,7 @@ const SingleChat = () => {
                 borderRadius="8px"
               ></ArrowBackIcon>
             ) : (
-              " "
+              GetSenderName
             )}
           </Box>
           <Box
@@ -52,7 +70,7 @@ const SingleChat = () => {
             ) : Data.name ? (
               <Text>{Data.name}</Text>
             ) : (
-              <Text>{Data.userDetails[0].name}</Text>
+              GetSenderName
             )}
           </Box>
           <Box>

@@ -36,9 +36,11 @@ import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import { AddIcon } from "@chakra-ui/icons";
 import selectedUser from "../Redux/selectedUser";
 import { ResetSelectedUser } from "../Redux/selectedUser";
+
 const MyChat = ({ fetchAgain }) => {
   //when ever fetchAgain will change my usestate api will fetch me all the chats
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
+  const AdminLoggedUserId = useSelector((state) => state.AdminDetails.DATA); //takin looged user id from local strogage to verfiy thant only admin can delte or update
 
   const UserData = useSelector((state) => state.CREATECHATDATA.DATA); //getting data from redux stroe
 
@@ -79,7 +81,7 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
       setConversationUser(data);
-      console.log("the list is", data);
+
       SetLoadingAPi(false);
       //once clicked i set ti to true shwow the bssed on conditons
     } catch (error) {
@@ -178,7 +180,7 @@ const MyChat = ({ fetchAgain }) => {
 
   //creatif a function which will deelte the users from my chats
   const DeleteUser = async (users) => {
-    if (SelectedUser.DATA[0].groupAdminDetails[0]._id !== LoggedInuserId.id) {
+    if (AdminLoggedUserId[0] !== LoggedInuserId.id) {
       toast({
         title: "Groups Can be Deleted by Admin only",
         status: "error",

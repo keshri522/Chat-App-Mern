@@ -45,6 +45,8 @@ const ProfileModal = ({ children }) => {
   const [GroupImage, SetGroupImage] = useState();
   const [isImageChanged, setIsImageChanged] = useState(false); //to keeep the trakc of the image is changed or not based on upload new picture  in profile grop modal
   const LoggedInUserId = jwt_decode(Token.DATA); //logged user id coming from jwt token
+  const AdminDetaills = useSelector((state) => state.AdminDetails.DATA);
+  console.log(AdminDetaills[0]);
   const inputRef = useRef();
   const toast = useToast();
   const dispatch = useDispatch();
@@ -271,7 +273,7 @@ const ProfileModal = ({ children }) => {
   };
 
   const debouncedHandleSearch = debounce(handleSearch, 500); //this is just for making our api call at a given interval to avoid continu call api on handle search we basically use debouncing
-  console.log(UserDetails);
+
   return (
     <>
       <Button onClick={onOpen}>{children}</Button>
@@ -331,8 +333,7 @@ const ProfileModal = ({ children }) => {
                     {users.name}
                   </Box>
                   <Box width="30px">
-                    {UserDetails.DATA[0].groupAdminDetails[0]._id ===
-                    LoggedInUserId.id ? (
+                    {AdminDetaills && AdminDetaills[0] === LoggedInUserId.id ? (
                       <Box color="red" fontSize="sm">
                         <DeleteIcon
                           onClick={() => DelteUser(users)} //taking the id of each users once anyone clicked on the  Delete buttons
@@ -364,9 +365,8 @@ const ProfileModal = ({ children }) => {
             : " "}
           <ModalCloseButton />
           <ModalBody>
-            {/* {Data.isGroup ? ( //if  it is group then only showw input Update button otherwise show null because only group has the button to update */}
-            {UserDetails.DATA[0].groupAdminDetails &&
-            UserDetails.DATA[0].groupAdminDetails[0]._id === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
+            {AdminDetaills &&
+            AdminDetaills[0] === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
               LoggedInUserId.id ? (
               <Box display="flex" justifyContent="space-between">
                 <Input
@@ -390,8 +390,8 @@ const ProfileModal = ({ children }) => {
 
           <ModalFooter display="flex" justifyContent="space-between">
             {/* {Data.isGroup ? ( */}
-            {UserDetails.DATA[0].groupAdminDetails && //adding if UserDetails.DATA[0].groupAdminDetails is present or UserDetails.DATA[0].groupAdminDetails is presnet any one there then show other wise not to show
-            UserDetails.DATA[0].groupAdminDetails[0]._id === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
+            {AdminDetaills && //adding if UserDetails.DATA[0].groupAdminDetails is present or UserDetails.DATA[0].groupAdminDetails is presnet any one there then show other wise not to show
+            AdminDetaills[0] === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
               LoggedInUserId.id ? (
               <Box width="100%" display="flex" justifyContent="space-between">
                 <Input

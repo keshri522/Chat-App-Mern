@@ -19,6 +19,7 @@ import { useDisclosure } from "@chakra-ui/react";
 import axios from "axios";
 import { SendUserIdtoStore } from "../../Redux/selectedUser";
 import { useDispatch } from "react-redux";
+import { SendAdminDetails } from "../../Redux/StoreAdminDetails";
 const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [selectedChatId, setSelectedChatId] = useState(null);
   const [showDeleteButton, setShowDeleteButton] = useState(false);
@@ -142,6 +143,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                     //sending users id to components as a props
                     // dispatch(SendUserIdtoStore(users._id)); //sending the id of selected users to store
                     dispatch(SendUserIdtoStore(users)); //sending the details  of users when users  cliced on particular group
+                    dispatch(SendAdminDetails(users.groupAdminDetails[0]._id)); // only sending the id of logied in user to verfiy and show  sending and hold it from a separate state to use it later for show condtional rendering on profle modal
 
                     //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
                   }}
@@ -154,7 +156,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                     fontStyle="italic"
                     fontWeight="bold"
                   >
-                    {users.name} {users.lastMessage}
+                    {users.lastMessage}
                   </Text>
                 </Text>
               </Box>
