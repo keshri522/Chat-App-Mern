@@ -14,7 +14,7 @@ const GroupUsers = ({ user, handleUser, ShowImages }) => {
         bg="#dff9fb"
         _hover={{
           background: "#8854d0",
-          color: "#ea8685",
+          color: "white",
         }}
         w="100%"
         d="flex"
@@ -24,6 +24,7 @@ const GroupUsers = ({ user, handleUser, ShowImages }) => {
         py={2}
         mb={2}
         borderRadius="lg"
+        bg="silver"
       >
         <Avatar
           _hover={{

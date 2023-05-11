@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   Avatar,
   Box,
@@ -16,7 +16,7 @@ import {
   Button,
   Toast,
 } from "@chakra-ui/react";
-import { DeleteIcon, ChatIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ChatIcon, AddIcon, CheckIcon } from "@chakra-ui/icons";
 import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -27,7 +27,7 @@ import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat"; //thi
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
 import jwt_decode from "jwt-decode";
 import { useDispatch } from "react-redux";
-import { SendUserIdtoStore } from "../Redux/selectedUser";
+import { ResetSelectedUser, SendUserIdtoStore } from "../Redux/selectedUser";
 import GroupUsers from "../Components/ShowingUserInfo/GroupUsers";
 const ProfileModal = ({ children }) => {
   //taking children  from Single Chat pass showing icons here when clicked a popup will open
@@ -42,8 +42,10 @@ const ProfileModal = ({ children }) => {
   const [input, Setinput] = useState();
   const [isopen, setIsopen] = useState({});
   const [Dataadded, SetDataadded] = useState([]);
+  const [GroupImage, SetGroupImage] = useState();
+  const [isImageChanged, setIsImageChanged] = useState(false); //to keeep the trakc of the image is changed or not based on upload new picture  in profile grop modal
   const LoggedInUserId = jwt_decode(Token.DATA); //logged user id coming from jwt token
-
+  const inputRef = useRef();
   const toast = useToast();
   const dispatch = useDispatch();
   const resetPreviouSearch = () => {
@@ -175,10 +177,20 @@ const ProfileModal = ({ children }) => {
       setSelectedUsers([...selectedUsers, addUserToGroup]); //simple adding new one using spread operator return all  the previous users and add a new one if availballe
     }
   };
-  console.log("the users is", selectedUsers);
 
   //Defining the Delete function for deleting the Users in the Groups
-  const DelteUser = async (id) => {
+  const DelteUser = async (users) => {
+    if (UserDetails.DATA[0].groupAdminDetails[0]._id !== LoggedInUserId.id) {
+      toast({
+        //if users is alredy added in the grou
+        title: "Only Admin Can Delete the Users",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      return; //so that no any api request will go if it is true
+    }
     try {
       const config = {
         //calling a Delete api for the users only
@@ -190,7 +202,7 @@ const ProfileModal = ({ children }) => {
       const { data } = await axios.post(
         "http://localhost:4000/api/update/delete/user",
 
-        { userId: [id], chatId: UserDetails.DATA[0]._id }, //here [id ] is passed as array i use same ib backedn api array here must be same
+        { userId: [users._id], chatId: UserDetails.DATA[0]._id }, //here [id ] is passed as array i use same ib backedn api array here must be same
         //here chatId is the id of group from which group i want to deete the users
         config
       );
@@ -252,13 +264,14 @@ const ProfileModal = ({ children }) => {
       });
       onClose();
       Setinput(" ");
+      dispatch(ResetSelectedUser()); //here also make it selected user to emptry to see no name else where
     } catch (error) {
       console.log(error);
     }
   };
 
   const debouncedHandleSearch = debounce(handleSearch, 500); //this is just for making our api call at a given interval to avoid continu call api on handle search we basically use debouncing
-
+  console.log(UserDetails);
   return (
     <>
       <Button onClick={onOpen}>{children}</Button>
@@ -271,7 +284,7 @@ const ProfileModal = ({ children }) => {
               <Box display="flex" justifyContent="space-around">
                 {Data.chatName}
                 <Avatar size="2xl" src={Data.pic}></Avatar>
-              </Box> //adding pic or name of group if it is group
+              </Box>
             ) : Data.name ? (
               <Box display="flex" justifyContent="space-around">
                 {Data.name}
@@ -318,14 +331,19 @@ const ProfileModal = ({ children }) => {
                     {users.name}
                   </Box>
                   <Box width="30px">
-                    <Box color="red" fontSize="sm">
-                      <DeleteIcon
-                        onClick={() => DelteUser(users._id)} //taking the id of each users once anyone clicked on the  Delete buttons
-                        _hover={{
-                          fontSize: "25px",
-                        }}
-                      ></DeleteIcon>
-                    </Box>
+                    {UserDetails.DATA[0].groupAdminDetails[0]._id ===
+                    LoggedInUserId.id ? (
+                      <Box color="red" fontSize="sm">
+                        <DeleteIcon
+                          onClick={() => DelteUser(users)} //taking the id of each users once anyone clicked on the  Delete buttons
+                          _hover={{
+                            fontSize: "25px",
+                          }}
+                        ></DeleteIcon>
+                      </Box>
+                    ) : (
+                      " "
+                    )}
                   </Box>
                   <Box width="30px">
                     <Box color="green" fontSize="sm">
@@ -346,7 +364,10 @@ const ProfileModal = ({ children }) => {
             : " "}
           <ModalCloseButton />
           <ModalBody>
-            {Data.isGroup ? ( //if  it is group then only showw input Update button otherwise show null because only group has the button to update
+            {/* {Data.isGroup ? ( //if  it is group then only showw input Update button otherwise show null because only group has the button to update */}
+            {UserDetails.DATA[0].groupAdminDetails &&
+            UserDetails.DATA[0].groupAdminDetails[0]._id === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
+              LoggedInUserId.id ? (
               <Box display="flex" justifyContent="space-between">
                 <Input
                   type="text"
@@ -368,7 +389,10 @@ const ProfileModal = ({ children }) => {
           </ModalBody>
 
           <ModalFooter display="flex" justifyContent="space-between">
-            {Data.isGroup ? (
+            {/* {Data.isGroup ? ( */}
+            {UserDetails.DATA[0].groupAdminDetails && //adding if UserDetails.DATA[0].groupAdminDetails is present or UserDetails.DATA[0].groupAdminDetails is presnet any one there then show other wise not to show
+            UserDetails.DATA[0].groupAdminDetails[0]._id === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
+              LoggedInUserId.id ? (
               <Box width="100%" display="flex" justifyContent="space-between">
                 <Input
                   type="text"

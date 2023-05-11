@@ -34,7 +34,8 @@ import AllUser from "../Components/ShowingUserInfo/AllUser";
 import MyUserChat from "../Components/ShowingUserInfo/MyChatUsers";
 import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import { AddIcon } from "@chakra-ui/icons";
-
+import selectedUser from "../Redux/selectedUser";
+import { ResetSelectedUser } from "../Redux/selectedUser";
 const MyChat = ({ fetchAgain }) => {
   //when ever fetchAgain will change my usestate api will fetch me all the chats
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
@@ -42,6 +43,7 @@ const MyChat = ({ fetchAgain }) => {
   const UserData = useSelector((state) => state.CREATECHATDATA.DATA); //getting data from redux stroe
 
   const GetConversationList = useSelector((state) => state.FetchDetails); //return all the conversation list of users chats to any one
+  const LoggedInuserId = jwt_decode(DataToken.DATA); //getting logged in user id
 
   const toast = useToast();
   const DecodeToken = jwt_decode(DataToken.DATA); //deconding the token so we can get all the details like pic name to show on ui ibased on user dynamic
@@ -175,23 +177,35 @@ const MyChat = ({ fetchAgain }) => {
   };
 
   //creatif a function which will deelte the users from my chats
-  const DeleteUser = async (id) => {
-    //calling a api fro deelteing a particular user from my chats based on ids
-    try {
-      SetDeleteuser(true);
-      const config = {
-        headers: {
-          token: DataToken.DATA,
-        },
-      };
-      const { data } = await axios.post(
-        //this is the api for deleting the particular chats of users
-        "http://localhost:4000/api/update/deleteUser",
-        { chatId: id },
-        config
-      );
-    } catch (error) {
-      console.log(error);
+  const DeleteUser = async (users) => {
+    if (SelectedUser.DATA[0].groupAdminDetails[0]._id !== LoggedInuserId.id) {
+      toast({
+        title: "Groups Can be Deleted by Admin only",
+        status: "error",
+        duration: 2000,
+        isClosable: true,
+        position: "top",
+      });
+      return;
+    } else {
+      //calling a api fro deelteing a particular user from my chats based on ids
+      try {
+        SetDeleteuser(true);
+        const config = {
+          headers: {
+            token: DataToken.DATA,
+          },
+        };
+        const { data } = await axios.post(
+          //this is the api for deleting the particular chats of users
+          "http://localhost:4000/api/update/deleteUser",
+          { chatId: users._id },
+          config
+        );
+        dispatch(ResetSelectedUser()); //dispatching an action to reset the selected users first so everywhere group  it empty
+      } catch (error) {
+        console.log(error);
+      }
     }
   };
 
@@ -326,7 +340,7 @@ const MyChat = ({ fetchAgain }) => {
                   users={users}
                   ShowImages={(userId) => PicOpen(userId)}
                   handleUser={() => AllChat(users._id)}
-                  DeleteUser={() => DeleteUser(users._id)}
+                  DeleteUser={() => DeleteUser(users)}
                 ></MyUserChat>
               ))
             )

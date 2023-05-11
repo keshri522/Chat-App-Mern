@@ -190,7 +190,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
               <DeleteIcon
                 color="Red"
                 onClick={() => {
-                  DeleteUser(users._id); //sending the conversation id here not the user id it will delte a conversation from myb chats that why i am sending the conversation id
+                  DeleteUser(users); //sending the conversation id here not the user id it will delte a conversation from myb chats that why i am sending the conversation id
                 }}
                 h="20px"
               />

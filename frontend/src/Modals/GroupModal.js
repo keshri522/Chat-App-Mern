@@ -21,12 +21,12 @@ import axios from "axios";
 import { useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import { Box, useDisclosure } from "@chakra-ui/react";
-
+import { useDispatch } from "react-redux";
 import React from "react";
 import { debounce } from "lodash"; //import debouncing from lodash library
-import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
+import { ResetSelectedUser } from "../Redux/selectedUser";
 import UserAdded from "../Components/ShowingUserInfo/UserAdded";
-
+import GroupUsers from "../Components/ShowingUserInfo/GroupUsers";
 const GroupModal = ({ children, width }) => {
   const UserId = useSelector((state) => state.SelectedUser); //taking the selected user or group id from  redux if some one click on the user then id of user will come otherwise group id will come on click
 
@@ -43,9 +43,9 @@ const GroupModal = ({ children, width }) => {
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group
   const [isloading, setIsloading] = useState(false);
   const [isSubmitting, SetisSubmitting] = useState(false);
-  // const UserId = useSelector((state) => state.SelectedUser.DATA);
-  // console.log("the id of users is", UserId);
+  const dispatch = useDispatch();
   const inputRef = useRef();
+
   const upload = () => {};
   const resetForm = () => {
     //this is when i close the modal i want to empty all the things
@@ -105,7 +105,9 @@ const GroupModal = ({ children, width }) => {
       });
 
       SetisSubmitting(false);
+
       onClose();
+      dispatch(ResetSelectedUser()); //dispatching the selected user to empty to not see samee user name again and again that why
       resetForm(); //clearing all the previous usersearch or user selected once group created
     } catch (error) {
       if (error && error.response && error.response.status === 401) {
@@ -257,13 +259,13 @@ const GroupModal = ({ children, width }) => {
                 (
                   user //mapping through the search user
                 ) => (
-                  <SearchUserChat //in this component i have already created in search drawers same here to mapping each and every one by one
+                  <GroupUsers //in this component i have already created in search drawers same here to mapping each and every one by one
                     user={user} //props passing to seachuser chat
                     key={user._id} //props
                     handleUser={() => {
                       adduserinGroup(user);
                     }} //this function responsible when i clicked on a particuylar user from searchuer chat then the user came here the addinguseringroup will basically add the uswer in grup
-                  ></SearchUserChat>
+                  ></GroupUsers>
                 )
               )
             )}
@@ -273,7 +275,9 @@ const GroupModal = ({ children, width }) => {
               </button>
               <button
                 className="btn"
-                onClick={() => inputRef.current.click()}
+                onClick={() => {
+                  inputRef.current.click();
+                }}
                 type="button"
               >
                 Upload Group Image
@@ -283,14 +287,43 @@ const GroupModal = ({ children, width }) => {
                 style={{ display: "none" }}
                 ref={inputRef}
                 onChange={(event) => {
-                  // this is function of getting url image into string or url
                   const file = event.target.files[0];
                   const reader = new FileReader();
                   reader.readAsDataURL(file);
-                  reader.onload = () => {
-                    // 'base64Image' will contain the image as a Base64 encoded string
-                    // you can now save this string to your database
-                    setimageshow(reader.result);
+
+                  reader.onload = (e) => {
+                    //this is just for resizing the image frist then send to server while uploading
+                    const img = new Image();
+                    img.src = e.target.result;
+
+                    img.onload = () => {
+                      const canvas = document.createElement("canvas");
+                      const MAX_WIDTH = 700;
+                      const MAX_HEIGHT = 500;
+                      let width = img.width;
+                      let height = img.height;
+
+                      if (width > height) {
+                        if (width > MAX_WIDTH) {
+                          height *= MAX_WIDTH / width;
+                          width = MAX_WIDTH;
+                        }
+                      } else {
+                        if (height > MAX_HEIGHT) {
+                          width *= MAX_HEIGHT / height;
+                          height = MAX_HEIGHT;
+                        }
+                      }
+
+                      canvas.width = width;
+                      canvas.height = height;
+                      const ctx = canvas.getContext("2d");
+                      ctx.drawImage(img, 0, 0, width, height);
+                      const resizedDataUrl = canvas.toDataURL(file.type);
+
+                      // You can now save the resized image to the state or upload it to the server
+                      setimageshow(resizedDataUrl);
+                    };
                   };
                 }}
               ></input>
