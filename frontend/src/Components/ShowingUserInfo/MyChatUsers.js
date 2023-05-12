@@ -21,7 +21,9 @@ import { SendUserIdtoStore } from "../../Redux/selectedUser";
 import { useDispatch } from "react-redux";
 import { SendAdminDetails } from "../../Redux/StoreAdminDetails";
 const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
+  //taking all  the props form Mychat.js
   const [selectedChatId, setSelectedChatId] = useState(null);
+
   const [showDeleteButton, setShowDeleteButton] = useState(false);
   const UserDeatials = useSelector((state) => state.USER); //coming from redux store
   const Decode = jwt_decode(UserDeatials.DATA); //it gives the logged in user id coming from jwt token dynamicslly
@@ -31,6 +33,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
 
   let GetSenderName = null;
   let GetSenderPic = null;
+  let GetSenderId = null;
 
   if (users.userDetails.length === 2) {
     //adding condtion if the lenght of the users ===2 otherwise it set to null
@@ -44,8 +47,15 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
       Decode.id === users.userDetails[0]._id
         ? users.userDetails[1].pic
         : users.userDetails[0].pic;
+
+    // same as passing the  id to show  the pics alternatively to each of the users
+    GetSenderId = //this varaibe shows the pic according to user login like if logied peson_id===first array of user conversation then show 2nd array of user name and vice versa
+      Decode.id === users.userDetails[0]._id
+        ? users.userDetails[1]._id
+        : users.userDetails[0]._id;
   }
 
+  console.log(users);
   //creating a function if group  is there then it return the igroup show the group image only
   const ShowGroupImage = async (id) => {
     try {
@@ -67,7 +77,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
       console.log(error);
     }
   };
-
+  console.log(users);
   return (
     <>
       <Box
@@ -100,8 +110,8 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
           {!users.isGroup ? (
             <Avatar
               onClick={() => {
-                ShowImages(users.userDetails[0]._id); //sending users id to components as a props
-                //sending the id of selected users to store
+                ShowImages(GetSenderId); //it will the pic of oppostise person passing the id of oppistie person
+
                 //sending the id of pic when user on a particular pic id of pic is sent to parent component and add some functionality with this id dynamic
               }}
               mr={2}
@@ -135,7 +145,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                 <Text
                   flexWrap="wrap"
                   mr={2}
-                  fontSize={{ base: "12px", md: "15px", lg: "17px" }}
+                  fontSize={{ base: "12px", md: "15px", lg: "15px" }}
                   color="#786fa6"
                   fontStyle="italic"
                   fontWeight="bold"
@@ -151,12 +161,15 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                   {users.chatName}
 
                   <Text
-                    fontSize={{ base: "10px", md: "13px", lg: "15px" }}
+                    fontSize={{ base: "12px", md: "11px", lg: "15px" }}
                     color="#222f3e"
                     fontStyle="italic"
                     fontWeight="bold"
                   >
-                    {users.lastMessage}
+                    {users.lastMessage && ( //adding if here last message is there then only show this other wise show only Group name
+                      <b style={{ color: "brown" }}>{users.sender} : </b>
+                    )}
+                    <small>{users.lastMessage}</small>
                   </Text>
                 </Text>
               </Box>
@@ -166,10 +179,10 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                 <Text
                   wordWrap="break-word"
                   mr={2}
-                  fontSize={{ base: "10px", md: "13px", lg: "15px" }}
+                  fontSize={{ base: "12px", md: "13px", lg: "15px" }}
                   fontWeight="bold"
                   color="#786fa6"
-                  fontStyle="normal"
+                  fontStyle="italic"
                   onClick={() => {
                     dispatch(SendUserIdtoStore(users)); //sending the  details of users to stroe
                   }}
@@ -177,12 +190,12 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                   {GetSenderName}
                 </Text>
                 <Text
-                  fontSize={{ base: "10px", md: "13px", lg: "15px" }}
+                  fontSize={{ base: "12px", md: "13px", lg: "15px" }}
                   color="222f3e"
                   fontStyle="italic"
                   fontWeight="bold"
                 >
-                  {users.lastMessage}
+                  <small>{users.lastMessage}</small>
                 </Text>
               </Box>
             )}

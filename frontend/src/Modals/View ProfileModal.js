@@ -46,7 +46,7 @@ const ProfileModal = ({ children }) => {
   const [isImageChanged, setIsImageChanged] = useState(false); //to keeep the trakc of the image is changed or not based on upload new picture  in profile grop modal
   const LoggedInUserId = jwt_decode(Token.DATA); //logged user id coming from jwt token
   const AdminDetaills = useSelector((state) => state.AdminDetails.DATA);
-  console.log(AdminDetaills[0]);
+
   const inputRef = useRef();
   const toast = useToast();
   const dispatch = useDispatch();
@@ -418,11 +418,12 @@ const ProfileModal = ({ children }) => {
           <Box>
             {selectedUsers?.map(
               (
-                user //rendering all the selected users
+                user,
+                index //rendering all the selected users
               ) => (
                 //rendring throuhg map if selected users  is there then show all the users in ui
                 <UserAdded
-                  key={user._id}
+                  key={index}
                   users={user}
                   handleDelete={() => UserRemoved(user)}
                 ></UserAdded>
@@ -435,11 +436,12 @@ const ProfileModal = ({ children }) => {
             ) : (
               searchResult?.slice(0, 8).map(
                 (
-                  user //mapping through the search user
+                  user,
+                  index //mapping through the search user
                 ) => (
                   <GroupUsers //in this component i have already created in search drawers same here to mapping each and every one by one
                     user={user} //props passing to seachuser chat
-                    key={user._id} //props
+                    key={index} //props
                     handleUser={() => {
                       adduserinGroup(user);
                     }} //this function responsible when i clicked on a particuylar user from searchuer chat then the user came here the addinguseringroup will basically add the uswer in grup

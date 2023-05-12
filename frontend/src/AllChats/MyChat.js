@@ -81,8 +81,10 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
       setConversationUser(data);
+      console.log("the old data", data);
 
       SetLoadingAPi(false);
+
       //once clicked i set ti to true shwow the bssed on conditons
     } catch (error) {
       if (error && error.response && error.response.status === 401) {
@@ -179,18 +181,69 @@ const MyChat = ({ fetchAgain }) => {
   };
 
   //creatif a function which will deelte the users from my chats
+  // const DeleteUser = async (users) => {
+  //   if (
+  //     SelectedUser.DATA[0] &&
+  //     SelectedUser.DATA[0].isGroup === true &&
+  //     AdminLoggedUserId[0] !== LoggedInuserId.id
+  //   ) {
+  //     toast({
+  //       title: "Groups Can be Deleted by Admin only",
+  //       status: "error",
+  //       duration: 2000,
+  //       isClosable: true,
+  //       position: "top",
+  //     });
+  //     return;
+  //   } else if (
+  //     SelectedUser.DATA[0] &&
+  //     SelectedUser.DATA[0].isGroup === false &&
+  //     AdminLoggedUserId[0] !== LoggedInuserId.id
+  //   ) {
+  //     toast({
+  //       title: "Groups Can be Deleted by Admin only",
+  //       status: "error",
+  //       duration: 2000,
+  //       isClosable: true,
+  //       position: "top",
+  //     });
+  //   } else {
+  //     //calling a api fro deelteing a particular user from my chats based on ids
+  //     console.log("yor are not a admin");
+  //     try {
+  //       SetDeleteuser(true);
+  //       const config = {
+  //         headers: {
+  //           token: DataToken.DATA,
+  //         },
+  //       };
+  //       const { data } = await axios.post(
+  //         //this is the api for deleting the particular chats of users
+  //         "http://localhost:4000/api/update/deleteUser",
+  //         { chatId: users._id },
+  //         config
+  //       );
+  //       dispatch(ResetSelectedUser()); //dispatching an action to reset the selected users first so everywhere group  it empty
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //     // }
+  //   }
+  // };
   const DeleteUser = async (users) => {
-    if (AdminLoggedUserId[0] !== LoggedInuserId.id) {
-      toast({
-        title: "Groups Can be Deleted by Admin only",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top",
-      });
-      return;
-    } else {
-      //calling a api fro deelteing a particular user from my chats based on ids
+    if (SelectedUser.DATA[0] && SelectedUser.DATA[0].isGroup === true) {
+      // Check if user is admin of group
+      if (AdminLoggedUserId[0] !== LoggedInuserId.id) {
+        toast({
+          title: "Groups Can only be Deleted by Admins",
+          status: "error",
+          duration: 2000,
+          isClosable: true,
+          position: "top",
+        });
+        return;
+      }
+      // Delete group
       try {
         SetDeleteuser(true);
         const config = {
@@ -199,12 +252,30 @@ const MyChat = ({ fetchAgain }) => {
           },
         };
         const { data } = await axios.post(
-          //this is the api for deleting the particular chats of users
           "http://localhost:4000/api/update/deleteUser",
           { chatId: users._id },
           config
         );
-        dispatch(ResetSelectedUser()); //dispatching an action to reset the selected users first so everywhere group  it empty
+        dispatch(ResetSelectedUser());
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      //if not a grup chat users can delte the chat if he/she wants
+      // Delete chat
+      try {
+        SetDeleteuser(true);
+        const config = {
+          headers: {
+            token: DataToken.DATA,
+          },
+        };
+        const { data } = await axios.post(
+          "http://localhost:4000/api/update/deleteUser",
+          { chatId: users._id },
+          config
+        );
+        dispatch(ResetSelectedUser());
       } catch (error) {
         console.log(error);
       }
@@ -215,7 +286,7 @@ const MyChat = ({ fetchAgain }) => {
 
   useEffect(() => {
     //to render only one time once our componets mount in the recct virtual dom.
-    if (LoadingAPi) {
+    if (LoadingAPi && ConversationUser) {
       FetchAllConversation(); //calling the api here it will run only one if loding api is treu it will not run  once pages is refresh agan and again
     }
     if (openModal) {

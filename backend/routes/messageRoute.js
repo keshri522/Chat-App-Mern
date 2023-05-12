@@ -129,17 +129,18 @@ router.post("/groupMessage", async (req, res) => {
   let from = new mongoose.Types.ObjectId(verfiedJToken.id);
   const { chatId, message } = req.body; //destructing the req.body
   let Id = new mongoose.Types.ObjectId(chatId); //converting id to object id in mongoose
-
+  const fromUser = await User.findById(from).select("name  pic"); //here i am taking only name email or pic of the logged in person to show on ui
   try {
     const FindGroup = await Chat.findByIdAndUpdate(
       //finding the chat by id and update hte lastmessag :message it will return the updated chat as soon as users message into the chats
       chatId,
-      { lastMessage: message },
+      { lastMessage: message, sender: fromUser.name },
+
       { new: true } //it will return us a new updated documents each time as soon as lastMessage updated
     );
 
     // Populate the `from` field with the user document
-    const fromUser = await User.findById(from).select("name  pic"); //here i am taking only name email or pic of the logged in person to show on ui
+    // const fromUser = await User.findById(from).select("name  pic"); //here i am taking only name email or pic of the logged in person to show on ui
 
     //creating a new message and save the message in dagtabse in personal message schema
     const newMessage = await new Message({
@@ -159,7 +160,7 @@ router.post("/groupMessage", async (req, res) => {
   }
 });
 //creating api for getting all the message from a group ..
-router.get("/fetchGroupMessage", async (req, res) => {
+router.post("/fetchAllMessage", async (req, res) => {
   const chatId = req.body.Id; //getting as a params or body also
   try {
     const fetchMessage = await Message.find({ chat: chatId }).populate({
@@ -236,10 +237,75 @@ router.get("/fetchGroupMessage", async (req, res) => {
 // 3=>matching in database or Chat collection inside users if the logged user has a conversation between any of the users..
 // 4=> using project to see what we want to see or send to server..
 
+// router.get("/conversationList", async (req, res) => {
+//   // this will givee you whole information of users  from or to also included the details of users
+//   //it gives the conversation bewtween looged in user or other users..
+//   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
+//   if (!mongoose.Types.ObjectId.isValid(loggedInUser)) {
+//     return res.status(400).send("Invalid ObjectId");
+//   }
+//   try {
+//     const conversationList = await Chat.aggregate([
+//       {
+//         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
+//       },
+
+//       //getting more details of users like name pic and more..
+//       {
+//         $lookup: {
+//           from: "users", //getting details from user collection
+//           localField: "users", //in the chat collection i want to get the details of users key..
+//           foreignField: "_id",
+//           as: "userDetails",
+//         },
+//       },
+//       {
+//         $lookup: {
+//           //geting details of Admin by using lookup or populate
+//           from: "users",
+//           localField: "groupAdmin",
+//           foreignField: "name", //this is name field from which wer are searching admn details in user collections
+//           as: "groupAdminDetails",
+//         },
+//       },
+
+//       {
+//         $project: {
+//           "userDetails.email": 1, // exclude the password field
+//           "userDetails.name": 1, // exclude the password
+//           "userDetails.pic": 1,
+//           "userDetails._id": 1,
+//           "groupAdminDetails.email": 1,
+//           "groupAdminDetails._id": 1,
+//           "groupAdminDetails.name": 1,
+//           "groupAdminDetails.pic": 1,
+
+//           pic: 1, // include the pic field from chat details
+//           isGroup: 1,
+//           chatName: 1,
+//           users: 1,
+//           lastMessage: 1,
+//         },
+//       },
+//     ]);
+
+//     if (conversationList.length === 0) {
+//       //if no any conversation is found then throw a error or response to frontend
+//       res.status(401).json("No Chats Founded");
+//     } else {
+//       //sending response to frontend..
+//       res.status(200).json(conversationList);
+//     }
+//   } catch (error) {
+//     res.status(400).send(error);
+//   }
+// });
+
 router.get("/conversationList", async (req, res) => {
   // this will givee you whole information of users  from or to also included the details of users
   //it gives the conversation bewtween looged in user or other users..
   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
+
   if (!mongoose.Types.ObjectId.isValid(loggedInUser)) {
     return res.status(400).send("Invalid ObjectId");
   }
@@ -284,6 +350,7 @@ router.get("/conversationList", async (req, res) => {
           chatName: 1,
           users: 1,
           lastMessage: 1,
+          sender: 1,
         },
       },
     ]);
@@ -306,60 +373,16 @@ router.get("/getpic", async (req, res) => {
   if (!mongoose.Types.ObjectId.isValid(Id)) {
     return res.status(400).send("Invalid user ID");
   }
-  console.log(Id);
+
   try {
     const Getpic = await User.findOne({ _id: Id }).select("pic name email"); //it will return only pic we can also use agregate function here to get
 
     res.status(200).send(Getpic);
-    console.log(Getpic);
   } catch (error) {
     console.log(error);
     res.status(400).send("User Pic not found");
   }
 });
-
-// router.get("/conversationList", async (req, res) => {
-//   try {
-//     const loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id);
-
-//     const conversationList = await Chat.find({
-//       users: {
-//         $all: [{ $elemMatch: { $eq: loggedInUser } }],
-//         $not: { $elemMatch: { $eq: loggedInUser } },
-//       },
-//     })
-//       .populate("users", "-password -email")
-//       .populate("groupAdmin", "-password -email")
-//       .select("isGroup chatName lastMessage users groupAdmin");
-//     if (conversationList.length === 0) {
-//       //if no any users found then reponse a error
-
-//       return res.status(404).json({ error: "No conversations found." });
-//     }
-
-//     res.status(200).json(conversationList);
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
-//creating api to return all the pics of users that are present in database
-// router.get("/getpic/:Id", async (req, res) => {
-//   //this api will get all pic based on Userid from frontedent
-//   const Id = new mongoose.Types.ObjectId(req.params.Id);
-
-//   try {
-//     const Getpic = await User.findOne({ _id: Id }).select("pic"); //it will return only pic we can also use agregate function here to get
-
-//     res.status(200).send(Getpic);
-//     if (!Getpic) {
-//       res.status(401).send("Sorry no pic founds");
-//       res.end;
-//     }
-//   } catch (error) {
-//     console.log(error);
-//     res.status(400).send("User Pic not found");
-//   }
-// });
 
 //creating api for getting all the personal message when user send a personal message to some other use we have get the message in both user..
 // 1=> logged in person when click on some other users.(from).
@@ -470,6 +493,7 @@ router.post(
             pic: req.body.GroupImage,
             // lastMessage: req.body.message,
             groupAdmin: verfiedJToken.name,
+            sender: verfiedJToken.name,
           });
           const save = await newGroupChat.save(); //saving the documents
           const adminDetails = await User.findOne({
@@ -535,7 +559,7 @@ router.post("/feedback", async (req, res) => {
       feedback: feedback,
       rating: rating,
     });
-    console.log(FeedbackItems.rating);
+
     await FeedbackItems.save(); //saving to feedback collections all the feedbacck
     res.status(200).json("Sucessfully submitted");
   } catch (error) {
