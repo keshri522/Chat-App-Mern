@@ -51,6 +51,7 @@ const ProfileModal = ({ children }) => {
   const toast = useToast();
   const dispatch = useDispatch();
   const resetPreviouSearch = () => {
+    //reseting all the searched and selected  user once i close the popup so it will not show previous search or selected users
     setSelectedUsers([]);
     SetsearchResult([]);
     onClose();
@@ -273,6 +274,7 @@ const ProfileModal = ({ children }) => {
   };
 
   const debouncedHandleSearch = debounce(handleSearch, 500); //this is just for making our api call at a given interval to avoid continu call api on handle search we basically use debouncing
+  // console.log("the  old selected users is", Data.userDetails);
 
   return (
     <>
@@ -336,7 +338,16 @@ const ProfileModal = ({ children }) => {
                     {AdminDetaills && AdminDetaills[0] === LoggedInUserId.id ? (
                       <Box color="red" fontSize="sm">
                         <DeleteIcon
-                          onClick={() => DelteUser(users)} //taking the id of each users once anyone clicked on the  Delete buttons
+                          onClick={() => {
+                            DelteUser(users);
+                            const updatedData = { ...Data }; //taking all the previous data and insdie the date i want to filter userdetails so it will return the all the data except the delted data
+                            updatedData.userDetails =
+                              updatedData.userDetails.filter(
+                                //it will return me all the data exclude the deleted data with the help of filter
+                                (u) => u._id !== users._id
+                              );
+                            dispatch(SendUserIdtoStore(updatedData)); //then dispatching the filterd data in global store of the application then rendering on ui
+                          }} //taking the id of each users once anyone clicked on the  Delete buttons
                           _hover={{
                             fontSize: "25px",
                           }}
@@ -366,6 +377,7 @@ const ProfileModal = ({ children }) => {
           <ModalCloseButton />
           <ModalBody>
             {AdminDetaills &&
+            Data.isGroup &&
             AdminDetaills[0] === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
               LoggedInUserId.id ? (
               <Box display="flex" justifyContent="space-between">
@@ -390,7 +402,8 @@ const ProfileModal = ({ children }) => {
 
           <ModalFooter display="flex" justifyContent="space-between">
             {/* {Data.isGroup ? ( */}
-            {AdminDetaills && //adding if UserDetails.DATA[0].groupAdminDetails is present or UserDetails.DATA[0].groupAdminDetails is presnet any one there then show other wise not to show
+            {AdminDetaills &&
+            Data.isGroup && //adding if UserDetails.DATA[0].groupAdminDetails is present or UserDetails.DATA[0].groupAdminDetails is presnet any one there then show other wise not to show
             AdminDetaills[0] === //here adding condtional redering if this is logged in user then omly show this other side not to show this thing to normal usrs
               LoggedInUserId.id ? (
               <Box width="100%" display="flex" justifyContent="space-between">

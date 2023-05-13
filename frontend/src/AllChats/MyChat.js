@@ -257,6 +257,10 @@ const MyChat = ({ fetchAgain }) => {
           config
         );
         dispatch(ResetSelectedUser());
+        setConversationUser(
+          //here updating the state means if users  deleted the chat they instant deleted from ui and rendering again and again
+          ConversationUser.filter((items) => items._id !== users._id)
+        );
       } catch (error) {
         console.log(error);
       }
@@ -276,12 +280,16 @@ const MyChat = ({ fetchAgain }) => {
           config
         );
         dispatch(ResetSelectedUser());
+        setConversationUser(
+          ConversationUser.filter((items) => items._id !== users._id)
+        ); //here updating the state means if users  deleted the chat they instant deleted from ui and rendering again and again
       } catch (error) {
         console.log(error);
       }
     }
   };
 
+  console.log(ConversationUser);
   //creating a api which will get the name emial or profile picture of looged in users
 
   useEffect(() => {
