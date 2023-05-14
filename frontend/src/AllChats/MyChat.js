@@ -36,7 +36,7 @@ import { SendUserDataToStore } from "../Redux/UserDataSlice";
 import { AddIcon } from "@chakra-ui/icons";
 import selectedUser from "../Redux/selectedUser";
 import { ResetSelectedUser } from "../Redux/selectedUser";
-
+import SingleChat from "../Components/SingleChat";
 const MyChat = ({ fetchAgain }) => {
   //when ever fetchAgain will change my usestate api will fetch me all the chats
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
@@ -81,7 +81,6 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
       setConversationUser(data);
-      console.log("the old data", data);
 
       SetLoadingAPi(false);
 
@@ -289,7 +288,6 @@ const MyChat = ({ fetchAgain }) => {
     }
   };
 
-  console.log(ConversationUser);
   //creating a api which will get the name emial or profile picture of looged in users
 
   useEffect(() => {

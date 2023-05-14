@@ -55,7 +55,6 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
         : users.userDetails[0]._id;
   }
 
-  console.log(users);
   //creating a function if group  is there then it return the igroup show the group image only
   const ShowGroupImage = async (id) => {
     try {
@@ -77,7 +76,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
       console.log(error);
     }
   };
-  console.log(users);
+
   return (
     <>
       <Box

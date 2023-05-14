@@ -7,17 +7,16 @@ const asyncHandler = require("express-async-handler"); // for checking any error
 const User = require("../Models/User/userSchema");
 const Message = require("../Models/personalMessage");
 const crypto = require("crypto");
-const { route } = require("./update");
+
 const Feeback = require("../Models/Feeback");
 const bodyParser = require("body-parser");
 const jsonParser = bodyParser.json({ limit: "50mb" }); // set the limit to 50mb or as needed
 
-const FeedbackForm = require("../Models/Feeback");
-const { group } = require("console");
 // now creating a global middle ware for verifying JWT token in each and every api means no need to verify jwt token at the time of creating each api using router.use
 // when ever wwe hit api first router.use middleware will be executed so put our jwt token auth in this..
 let verfiedJToken; //globally declared
 router.use(express.json({ limit: "50mb" }));
+
 router.use((req, res, next) => {
   //this is global middleware apply before server sent the response or after client make a request
   //this is the global middle ware for the autorization of jwt token .
@@ -165,7 +164,7 @@ router.post("/fetchAllMessage", async (req, res) => {
   try {
     const fetchMessage = await Message.find({ chat: chatId }).populate({
       //here i want to get more info about the sender person so populate using select method show only seelcted thing
-      path: "from", //i want from logged user to get more details
+      path: "from To", //i want from logged user to get more details
       select: "name pic body ", //i want to show only name pic and body of message that i am used in clent isde show this
     });
 
@@ -439,26 +438,114 @@ router.get("/getpic", async (req, res) => {
 //     res.status(400).send(error);
 //   }
 // });
-router.get("/conversationByUser/query", async (req, res) => {
-  let user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
-  let user2 = new mongoose.Types.ObjectId(req.query.userId);
+// router.get("/conversationByUser/query", async (req, res) => {
+//   let user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
+//   let user2 = new mongoose.Types.ObjectId(req.query.userId);
+
+//   try {
+//     let conversationList = await Message.find({
+//       $or: [
+//         { $and: [{ from: user1 }, { To: user2 }] },
+//         { $and: [{ from: user2 }, { To: user1 }] },
+//       ],
+//     })
+//       .populate("from", "-password -email")
+//       .populate("To", "-password -email")
+
+//       .exec();
+
+//     res.json(conversationList);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
+// router.get("/conversationByUser/query", async (req, res) => {
+//   const user1 = new mongoose.Types.ObjectId(verfiedJToken.id);
+//   const user2 = new mongoose.Types.ObjectId(req.query.userId);
+
+//   try {
+//     // First, find the chat that has both users as participants
+//     const chat = await Chat.findOne({
+//       users: { $all: [user1, user2] },
+//     });
+
+//     // Then, find all messages that belong to that chat
+//     const conversationList = await Message.find({
+//       chat: chat._id,
+//     })
+//       .populate("from", "-password -email")
+//       .populate("To", "-password -email")
+//       .exec();
+
+//     res.json(conversationList);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).send("Internal Server Error");
+//   }
+// });
+
+//creating a chat between tow person
+router.post("/ChatCreate", async (req, res) => {
+  const from = new mongoose.Types.ObjectId(verfiedJToken.id);
+  const To = new mongoose.Types.ObjectId(req.body.userId);
+  const body = req.body.message;
+
+  if (!body) {
+    return res.status(400).json({
+      message: "Message is required to create a chat.",
+    });
+  }
+  const userIds = [from.toString(), To.toString()].sort();
+  const chatNameString = userIds.join("");
+
+  // Hash the chatNameString to create a unique chatName
+  const hash = crypto.createHash("md5").update(chatNameString).digest("hex");
+  const chatName = `chat_${hash}`;
 
   try {
-    let conversationList = await Message.find({
-      $or: [
-        { $and: [{ from: user1 }, { To: user2 }] },
-        { $and: [{ from: user2 }, { To: user1 }] },
-      ],
-    })
-      .populate("from", "-password -email")
-      .populate("To", "-password -email")
+    // Check if a chat already exists between the two users
+    let existingChat = await Chat.findOne({
+      users: { $all: [from, To] },
+    });
 
-      .exec();
+    if (existingChat) {
+      return res.status(400).json({
+        //if chat is there then throw a errro which i will show on the ui if chat is created already
+        message: "A chat already exists between these two users.",
+      });
+    }
 
-    res.json(conversationList);
-  } catch (err) {
-    console.error(err);
-    res.status(500).send("Internal Server Error");
+    // Create a new chat with the two users as participants
+    let chat = new Chat({
+      chatName: chatName,
+      users: [from, To],
+      isGroup: false,
+      lastMessage: body,
+      groupAdmin: verfiedJToken.name,
+      sender: from,
+    });
+    await chat.save();
+
+    // Create a new message in the chat with the provided message text
+    let message = new Message({
+      //creating a caht between two persons
+      chat: chat._id,
+      from: from,
+      to: To,
+      body: body,
+    });
+    await message.save(); //saving in message schema
+
+    res.status(200).json({
+      message: "Chat created successfully.",
+      chatId: chat._id,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      message: "Internal server error.",
+    });
   }
 });
 

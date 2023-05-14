@@ -6,6 +6,7 @@ const Chat = require("../Models/chat");
 const Personal = require("../Models/personalMessage");
 const asyncHandler = require("express-async-handler"); // for checking any error in backed
 const User = require("../Models/User/userSchema");
+const Message = require("../Models/personalMessage");
 
 router.use((req, res, next) => {
   //this is global middleware apply before server sent the response or after client make a request
@@ -188,7 +189,8 @@ router.post("/deleteUser", async (req, res) => {
   try {
     // Find the chat by ID and delete it
     const find = await Chat.findByIdAndDelete({ _id: chatId });
-
+    // Delete all messages associated with the chat
+    const Delete = await Message.deleteMany({ chat: chatId });
     res.status(200).send("Conversation deleted successfully");
   } catch (error) {
     res.status(500).send("Error deleting conversation");

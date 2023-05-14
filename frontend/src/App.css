@@ -5,6 +5,33 @@ background-color: #D9AFD9;
     min-width: 100%
    
 }
+
+
+.styles {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    width: 100%;
+    
+  
+  
+}
+
+
+/* for the spinerrs  */
+ .spinner-container { 
+ 
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+      /* position: fixed;
+     top: 50%;
+     left: 50%;
+
+     transform: translate(-50%, -50%);  */
+ } 
 .btn{
     background-color:#718093;
     border-radius: 10px;
@@ -69,6 +96,8 @@ width: 30%;
     background-color:none;
     /* background color of the scrollbar track */
 }
+
+
 
 
 

@@ -1,11 +1,11 @@
 import { Spinner } from "@chakra-ui/react";
 import React from "react";
 
-const spinner = () => {
+const Spinners = () => {
   return (
     <div>
       <Spinner
-        thickness="4px"
+        thickness="5px"
         speed="0.65s"
         emptyColor="gray.200"
         color="blue.500"
@@ -15,4 +15,4 @@ const spinner = () => {
   );
 };
 
-export default spinner;
+export default Spinners;
