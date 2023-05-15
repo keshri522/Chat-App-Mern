@@ -140,7 +140,11 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
           )}
           <Box>
             {users.isGroup ? ( //cehcking whethere it is  group chat or single user chat by adding ternary operators
-              <Box>
+              <Box
+                display="flex"
+                flexWrap="wrap"
+                width="100%" // set a specific width value for the parent container
+              >
                 <Text
                   flexWrap="wrap"
                   mr={2}
@@ -160,6 +164,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
                   {users.chatName}
 
                   <Text
+                    wordBreak="break-word"
                     fontSize={{ base: "12px", md: "11px", lg: "15px" }}
                     color="#222f3e"
                     fontStyle="italic"
