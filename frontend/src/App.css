@@ -1,0 +1,170 @@
+.App{
+background-color: #D9AFD9;
+    background-image: linear-gradient(0deg, #D9AFD9 0%, #97D9E1 100%); 
+    min-height: 100vh;
+    min-width: 100%
+   
+}
+
+
+.styles {
+    display: flex;
+    flex-direction: column;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    width: 100%;
+    
+  
+  
+}
+
+
+/* for the spinerrs  */
+ .spinner-container { 
+ 
+    margin-right: auto;
+    margin-left: auto;
+    margin-top: 0;
+    margin-bottom: 0;
+      /* position: fixed;
+     top: 50%;
+     left: 50%;
+
+     transform: translate(-50%, -50%);  */
+ } 
+.btn{
+    background-color:#718093;
+    border-radius: 10px;
+        margin-left: 5px;
+        margin-right: 5px;
+        min-width: 130px;
+        padding: 8px;
+        color: white;
+        
+    
+}
+.btns{
+    background-color: #40739e;
+    border-radius: 10px;
+    margin-left: 5px;
+    margin-right: 5px;
+    min-width: 130px;
+    padding: 8px;
+    color: white;
+}
+.btns:hover{
+    border-radius: 15px;
+
+}
+.btn:hover {
+    border-radius: 15px;
+
+}
+.design:hover{
+text-decoration:underline;
+    text-decoration-color: red;
+    text-underline-offset: 3px;
+}
+.box{
+    display: flex;
+    justify-content: space-around;
+     background-color: #40739e;
+    padding: 12px;
+    height: 92vh;
+    
+}
+.spread{
+    display: flex;
+    justify-content: space-between;
+    background-color: #D9AFD9;
+    width: 100%;
+    padding: 5px 10px 5px 10px;
+    border-width: 3px;
+    align-items: center;
+
+}
+.overflow{
+overflow-y: scroll;
+overflow-x: hidden;
+width: 30%;
+
+}
+/* Change scrollbar color */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color:none;
+    /* background color of the scrollbar track */
+}
+
+
+
+
+
+
+.effect:hover{
+    
+   font-size: 29px;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    
+}
+.slide-in {
+    animation: slide-in 2s ease-out;
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.5);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0%) scale(1);
+    }
+}
+@media  (min-width:100px) and (max-width:250px){
+    .name{
+     
+        flex-direction: column;
+        width: 100%;
+      
+      
+
+    }
+    .responsive{
+        flex-direction: column;
+        width: 100%;
+        
+
+        
+ 
+       
+    }
+}
+@media (min-width:300px) and (max-width:500px){
+.wide:{
+    width: "100%";
+}
+}
+
+@media (min-width:100px) and (max-width:340px) {
+    .btns{
+        flex-direction: row;
+        width: 100%;
+        margin-bottom: 5px;
+      
+
+        
+    }
+          .btn {
+              flex-direction: row;
+              width: 100%;
+              margin-top: 5px;
+             
+             
+             
+          }
+}
+
