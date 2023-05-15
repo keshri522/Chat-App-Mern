@@ -68,23 +68,14 @@ const PersonalMessage = ({ newMessageData }) => {
                   m.from._id &&
                   LoggedUserId.id &&
                   m.from._id === LoggedUserId.id
-                    ? "silver"
-                    : "tan"
+                    ? "#0fb9b1"
+                    : "#8395a7"
                 }`,
                 borderRadius: " 25px",
                 padding: "8px 18px",
                 maxWidth: "70%",
                 margin: "5px",
                 fontFamily: "sans-serif",
-
-                // marginLeft: `${
-                //   m.from &&
-                //   m.from._id &&
-                //   LoggedUserId.id &&
-                //   m.from._id === LoggedUserId.id
-                //     ? "auto"
-                //     : "0px"
-                // }`,
               }}
             >
               {m.body}
