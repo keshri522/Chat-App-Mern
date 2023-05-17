@@ -13,17 +13,19 @@ import jwt_decode from "jwt-decode";
 import axios from "axios";
 import PersonalMessage from "./PersonalMessage";
 import GroupMessage from "./GroupMessage";
+import io from "socket.io-client";
 const SingleChat = () => {
   // console.log(Deleteuser);
   const Toekn = useSelector((state) => state.USER); //coming from redux store as token  jwt
   const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
   const Data = SelectedUser.DATA[0]; //storing the data in to Data varaiball..
   const toast = useToast();
-  const [newMessage, SetnewMessage] = useState(); //for  the input field on the input onchange
+  const [newMessage, SetnewMessage] = useState([]); //for  the input field on the input onchange
   const [newMessageData, SetnewMessageData] = useState([]); //for storig and rendering all the messages on ui
   const dispatch = useDispatch();
   const LoggedUserId = jwt_decode(Toekn.DATA);
   const [show, setshow] = useState(false);
+  const [soketConnected, SetsocketConnected] = useState(false);
 
   const GetSenderName = //this will show the name of user according to logged in user id like if a is send msg to be in b the naem fo a is display or in a the nane of b is displayed
     Data && Data.userDetails //here defining that if data && Data.userdetails is thente then run this if it is not there then show empty string
@@ -31,66 +33,42 @@ const SingleChat = () => {
         ? Data.userDetails[1]?.name
         : Data.userDetails[0]?.name
       : "";
-
-  // const PersonPic =
-  //   newMessageData && newMessageData.To && newMessageData.To._id
-  //     ? LoggedUserId.id === newMessageData.To._id
-  //       ? newMessageData.from.pic
-  //       : newMessageData.To.pic
-  //     : " ";
-  // console.log(PersonPic);
-  // console.log(newMessageData[0].To.name, newMessageData[0].body);
-  // console.log(newMessageData[0].from.name, newMessageData[0].body);
-  // console.log(Data);
-  if (Data && Data.isGroup) {
-    //just for seeing what is coming or why my data is undefined weith thhe help of this i have dome easily
-    console.log(Data._id);
-  } else {
-    if (Data && Data.userDetails && Data.userDetails.length > 0) {
-      // console.log(Data.userDetails[0]._id);
-      console.log(Data._id);
-    } else if (Data && Data.name) {
-      console.log("the user id is", Data._id);
-      console.log(Data);
-    } else {
-      console.log("Sorry no Data is available");
-    }
-  }
-
-  //creating a api function to get the conversation betweeen twon person if person clicked on users or search then all the message is show on ui
-  // const ClickUserMessage = async () => {
-  //   try {
-  //     if (Data && Data.name && newMessage && newMessage.length > 1) {
-  //       //aading some condtion if all the fields is there then only create the chats other wise returvn
-  //       const config = {
-  //         //note this is group message api is grouMessge we have send the message on group api
-  //         headers: {
-  //           "Content-type": "application/json",
-  //           token: Toekn.DATA,
-  //         },
-  //       };
-  //       const { data } = await axios.post(
-  //         //it is return all the chats between two person if users clicked on users from search or users firled then all the chat is already populated and showns
-  //         "http://localhost:4000/api/message/ChatCreate",
-  //         { userId: Data._id, message: newMessage },
-  //         config
-  //       );
-
-  //       console.log("the Created chat is is", data);
-  //     }
-  //   } catch (error) {
-  //     if (error && error.response && error.response.status === 400) {
-  //       // setChatError(true); //bascailly added to true so based on that is redner my side box display not to show scrren of input or button
-  //       // toast({
-  //       //   title: "Chat Already Created Go to My Chats",
-  //       //   status: "error",
-  //       //   duration: 4000,
-  //       //   isClosable: true,
-  //       //   position: "top",
-  //       // });
-  //     }
+  const ENDPOINT = "http://localhost:4000";
+  var socket;
+  // if (Data && Data.isGroup) {
+  //   //just for seeing what is coming or why my data is undefined weith thhe help of this i have dome easily
+  //   console.log(Data._id);
+  // } else {
+  //   if (Data && Data.userDetails && Data.userDetails.length > 0) {
+  //     // console.log(Data.userDetails[0]._id);
+  //     console.log(Data._id);
+  //   } else if (Data && Data.name) {
+  //     console.log("the user id is", Data._id);
+  //     console.log(Data);
+  //   } else {
+  //     console.log("Sorry no Data is available");
   //   }
-  // };
+  // }
+  socket = io(ENDPOINT); //connecting to backend socket io
+
+  //coneecting our frontend to backend with the soket.io
+
+  useEffect(() => {
+    // sending the id based on the either it is a groupor one to one chat or personal chats
+
+    if (Data && Data.isGroup) {
+      socket.emit("setup", { Id: Data._id });
+      socket.on("connection", () => SetsocketConnected(true));
+    } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
+      socket.emit("setup", { Id: Data.userDetails[0]._id });
+      socket.on("connection", () => SetsocketConnected(true));
+    } else if (Data && Data.name) {
+      socket.emit("setup", { Id: Data._id });
+      socket.on("connection", () => SetsocketConnected(true));
+    } else {
+      console.log("Sorry, no valid data is available");
+    }
+  }, [Data]);
 
   //creating a api function which will fetch all the messsage..
   const FetchAllMessage = async () => {
@@ -112,6 +90,7 @@ const SingleChat = () => {
           config
         );
         SetnewMessageData(data); //adding all response from server
+        socket.emit("joinng chat", Data._id); //here am trigger a event when user clciked on any of the users then a room is created
         console.log("the  group response is", data);
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         SetnewMessageData([]); //setting this field to empty because it will return all the previous message of others users
@@ -129,6 +108,7 @@ const SingleChat = () => {
           config
         );
         SetnewMessageData(data); //adding all response from server
+        socket.emit("joinng chat", Data._id); //here am trigger a event when user clciked on any of the users then a room is created
         console.log("The chat between two person is", data);
       }
     } catch (error) {
@@ -137,6 +117,7 @@ const SingleChat = () => {
   };
 
   useEffect(() => {
+    
     //here i am adding in the useeffect becasue whenever my data is change or selected users is chnged then my use effect will to fetch all the new chats so i put it in the dependency to run again and again
     FetchAllMessage();
     // ClickUserMessage();
@@ -145,6 +126,9 @@ const SingleChat = () => {
       SetnewMessage(" ");
     }
   }, [Data]);
+
+
+
 
   //creting a Api function to post or send a message in a group or a one to one message ..by adding some condtional rendering operators
   const HandleSendmessage = async () => {
@@ -167,8 +151,13 @@ const SingleChat = () => {
           config
         );
         console.log(data);
-        const newMessageData = data;
-        SetnewMessageData((prevMessages) => [...prevMessages, newMessageData]); //taking all the previus message and appending the newer message to that message
+        
+  
+        socket.emit("GetMessage", data); //sending thr message to the backend
+
+        // const newMessageData = data;
+
+        // SetnewMessageData((prevMessages) => [...prevMessages, newMessageData]); //taking all the previus message and appending the newer message to that message
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         //this is not a group chat this is one to one personal chat so sedning message on personal api
         const config = {
@@ -183,9 +172,14 @@ const SingleChat = () => {
           { sender: Data.userDetails[0]._id, message: newMessage },
           config
         );
-        const newMessageData = data;
-        SetnewMessageData((prevMessages) => [...prevMessages, newMessageData]); //taking all the previus message and appending the newer message to that message
+
+         console.log(Data)
+        socket.emit("GetMessage", data);
+      //  const NewData=data
+      //   SetnewMessageData([...newMessageData ,NewData]) //taking all the previus message and appending the newer message to that message
         console.log("the one to one message is", data);
+        // const updatedMessage = { body: data[0].lastMessage };
+        // SetnewMessageData([...newMessageData, updatedMessage]);
       } else if (Data && Data.name && newMessage && newMessage.length > 1) {
         const config = {
           //note this is group message api is grouMessge we have send the message on group api
@@ -211,26 +205,8 @@ const SingleChat = () => {
 
         console.log("the Created chat is is", data);
       }
-      //  else if (Data && Data.name) {
-      //   //this is not a group chat this is one to one personal chat so sedning message on personal api
-      //   const config = {
-      //     headers: {
-      //       "Content-type": "application/json",
-      //       token: Toekn.DATA,
-      //     },
-      //   };
-      //   SetnewMessage(" "); //empty all the input fields after sending the message
-      //   const { data } = await axios.post(
-      //     "http://localhost:4000/api/message/personal", //this is also personal mesage api to send a message to one to one user
-      //     { sender: Data._id, message: newMessage },
-      //     config
-      //   );
-      //   const newMessageData = data;
-      //   SetnewMessageData((prevMessages) => [...prevMessages, newMessageData]); //taking all the previus message and appending the newer message to that message
-      //   console.log("the user message is", data);
-      // }
     } catch (error) {
-      if (error && error.response && error.response.status === 400) {
+      if (error && error.response && error.response.status === 500) {
         toast({
           title: "Chat Already Created Go to My Chats",
           status: "error",
@@ -238,10 +214,52 @@ const SingleChat = () => {
           isClosable: true,
           position: "top",
         });
+        SetnewMessage(" ");
       }
       console.log(error);
     }
   };
+
+
+
+  // useEffect(() => {
+  //   socket.on("message received", (TakeMessage) => {
+  //     console.log(TakeMessage);
+  
+  //     if (
+  //       !Data ||
+  //       !TakeMessage.FindGroup ||
+  //       Data._id !== TakeMessage.FindGroup._id
+  //     ) {
+  //       // Give notifications
+  //     }
+  //      else {
+  //       const updatedMessage = { body: TakeMessage };
+  //       SetnewMessageData([...newMessageData, updatedMessage]);
+  //     }
+  //   });
+  // });
+  useEffect(() => {
+    socket.on("message received", (TakeMessage) => {
+      console.log(TakeMessage);
+  
+      if (
+        !Data ||
+        !TakeMessage.FindGroup ||
+        Data._id !== TakeMessage.FindGroup._id
+      ) {
+        // Give notifications
+      } else {
+        SetnewMessageData((prevMessages) => [
+          ...prevMessages,
+          { body: TakeMessage }
+        ]);
+      }
+    });
+  });
+  
+  
+  console.log(newMessageData)
 
   const HandleClick = (e) => {
     if (e.key === "Enter") {

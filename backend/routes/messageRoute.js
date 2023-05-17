@@ -486,6 +486,69 @@ router.get("/getpic", async (req, res) => {
 // });
 
 //creating a chat between tow person
+// router.post("/ChatCreate", async (req, res) => {
+//   const from = new mongoose.Types.ObjectId(verfiedJToken.id);
+//   const To = new mongoose.Types.ObjectId(req.body.userId);
+//   const body = req.body.message;
+
+//   if (!body) {
+//     return res.status(400).json({
+//       message: "Message is required to create a chat.",
+//     });
+//   }
+//   const userIds = [from.toString(), To.toString()].sort();
+//   const chatNameString = userIds.join("");
+
+//   // Hash the chatNameString to create a unique chatName
+//   const hash = crypto.createHash("md5").update(chatNameString).digest("hex");
+//   const chatName = `chat_${hash}`;
+
+//   try {
+//     // Check if a chat already exists between the two users
+//     let existingChat = await Chat.findOne({
+//       users: { $all: [from, To] },
+//     });
+
+//     if (existingChat) {
+//       return res.status(400).json({
+//         //if chat is there then throw a errro which i will show on the ui if chat is created already
+//         message: "A chat already exists between these two users.",
+//       });
+//     }
+
+//     // Create a new chat with the two users as participants
+//     let chat = new Chat({
+//       chatName: chatName,
+//       users: [from, To],
+//       isGroup: false,
+//       lastMessage: body,
+//       groupAdmin: verfiedJToken.name,
+//       sender: from,
+//     });
+//     await chat.save();
+
+//     // Create a new message in the chat with the provided message text
+//     let message = new Message({
+//       //creating a caht between two persons
+//       chat: chat._id,
+//       from: from,
+//       to: To,
+//       body: body,
+//     });
+//     await message.save(); //saving in message schema
+
+//     res.status(200).json({
+//       message: "Chat created successfully.",
+//       chatId: chat._id,
+//     });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({
+//       message: "Internal server error.",
+//     });
+//   }
+// });
+//creating a chat between tow person
 router.post("/ChatCreate", async (req, res) => {
   const from = new mongoose.Types.ObjectId(verfiedJToken.id);
   const To = new mongoose.Types.ObjectId(req.body.userId);
@@ -505,16 +568,16 @@ router.post("/ChatCreate", async (req, res) => {
 
   try {
     // Check if a chat already exists between the two users
-    let existingChat = await Chat.findOne({
-      users: { $all: [from, To] },
-    });
+    // let existingChat = await Chat.findOne({
+    //   users: { $all: [from, To] },
+    // });
 
-    if (existingChat) {
-      return res.status(400).json({
-        //if chat is there then throw a errro which i will show on the ui if chat is created already
-        message: "A chat already exists between these two users.",
-      });
-    }
+    // if (existingChat) {
+    //   return res.status(400).json({
+    //     //if chat is there then throw a errro which i will show on the ui if chat is created already
+    //     message: "A chat already exists between these two users.",
+    //   });
+    // }
 
     // Create a new chat with the two users as participants
     let chat = new Chat({
@@ -544,7 +607,7 @@ router.post("/ChatCreate", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({
-      message: "Internal server error.",
+      message: "Chat already created.",
     });
   }
 });
