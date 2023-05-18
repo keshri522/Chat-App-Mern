@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/Chat-App-Mern/static/css/main.17e63703.css",
+    "main.js": "/Chat-App-Mern/static/js/main.efa4b458.js",
+    "index.html": "/Chat-App-Mern/index.html",
+    "main.17e63703.css.map": "/Chat-App-Mern/static/css/main.17e63703.css.map",
+    "main.efa4b458.js.map": "/Chat-App-Mern/static/js/main.efa4b458.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.17e63703.css",
+    "static/js/main.efa4b458.js"
+  ]
+}
