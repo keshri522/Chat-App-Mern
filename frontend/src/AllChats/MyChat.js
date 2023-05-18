@@ -56,8 +56,8 @@ const MyChat = ({ fetchAgain }) => {
   const [ConversationUser, setConversationUser] = useState([]); //it handles all the user whom has a conversation between logged user ...giving all users who had a takl between logged in user
   const [ImageData, setImageData] = useState([]);
   const [openModal, SetopenModal] = useState(false); //just for opening and closing of modal which contain Image data
-  const [userDetails, SetuserDetails] = useState({});
-  const navigate = useNavigate();
+  // const [userDetails, SetuserDetails] = useState({});
+  // const navigate = useNavigate();
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
   const [Deleteuser, SetDeleteuser] = useState(false); //this will run in use effect
   const SelectedUser = useSelector((state) => state.SelectedUser); // this is the id of seelcted user who will clikc on the msg or group
@@ -81,8 +81,7 @@ const MyChat = ({ fetchAgain }) => {
         config
       );
       setConversationUser(data);
-    
-console.log("the updated data is",data)
+
       SetLoadingAPi(false);
       
 
@@ -181,56 +180,7 @@ console.log("the updated data is",data)
     }
   };
 
-  //creatif a function which will deelte the users from my chats
-  // const DeleteUser = async (users) => {
-  //   if (
-  //     SelectedUser.DATA[0] &&
-  //     SelectedUser.DATA[0].isGroup === true &&
-  //     AdminLoggedUserId[0] !== LoggedInuserId.id
-  //   ) {
-  //     toast({
-  //       title: "Groups Can be Deleted by Admin only",
-  //       status: "error",
-  //       duration: 2000,
-  //       isClosable: true,
-  //       position: "top",
-  //     });
-  //     return;
-  //   } else if (
-  //     SelectedUser.DATA[0] &&
-  //     SelectedUser.DATA[0].isGroup === false &&
-  //     AdminLoggedUserId[0] !== LoggedInuserId.id
-  //   ) {
-  //     toast({
-  //       title: "Groups Can be Deleted by Admin only",
-  //       status: "error",
-  //       duration: 2000,
-  //       isClosable: true,
-  //       position: "top",
-  //     });
-  //   } else {
-  //     //calling a api fro deelteing a particular user from my chats based on ids
-  //     console.log("yor are not a admin");
-  //     try {
-  //       SetDeleteuser(true);
-  //       const config = {
-  //         headers: {
-  //           token: DataToken.DATA,
-  //         },
-  //       };
-  //       const { data } = await axios.post(
-  //         //this is the api for deleting the particular chats of users
-  //         "http://localhost:4000/api/update/deleteUser",
-  //         { chatId: users._id },
-  //         config
-  //       );
-  //       dispatch(ResetSelectedUser()); //dispatching an action to reset the selected users first so everywhere group  it empty
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //     // }
-  //   }
-  // };
+  
   const DeleteUser = async (users) => {
     if (SelectedUser.DATA[0] && SelectedUser.DATA[0].isGroup === true) {
       // Check if user is admin of group
@@ -338,8 +288,8 @@ console.log("the updated data is",data)
       >
         <Box
           pb={3}
-          px={3}
-          fontSize={{ base: "15px", md: "25px" }}
+          px={2}
+          // fontSize={{ base: "15px", md: "25px",lg:"25px" }}
           fontFamily="Work sans"
           display="flex"
           width="100%"
@@ -367,9 +317,10 @@ console.log("the updated data is",data)
             margin={{ base: "5px", md: "5px" }}
             color={{ base: "teal", md: "black" }}
             onClick={FetchAllConversation} //calling a api for the My chats buttons
-            display="flex"
+            // display="flex"
             width={{ base: "100%" }}
-            fontSize={{ base: "15px", md: "12px", lg: "15px" }}
+            fontSize={{ base: "15px", md: "10px", lg: "15px" }}
+           
           >
             My Chats
           </Button>
@@ -379,7 +330,7 @@ console.log("the updated data is",data)
               // marginTop={{ base: "5px", md: "5px" }}
               margin={{ base: "5px", md: "5px" }}
               color={{ base: "teal", md: "black" }}
-              display="flex"
+              // display="flex"
               fontSize={{ base: "15px", md: "12px", lg: "15px" }}
               width={{ base: "100%" }}
               rightIcon={<AddIcon />}

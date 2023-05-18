@@ -24,8 +24,6 @@ const SingleChat = () => {
   const [newMessageData, SetnewMessageData] = useState([]); //for storig and rendering all the messages on ui
   const dispatch = useDispatch();
   const LoggedUserId = jwt_decode(Toekn.DATA);
-  const [show, setshow] = useState(false);
-  const [soketConnected, SetsocketConnected] = useState(false);
 
   const GetSenderName = //this will show the name of user according to logged in user id like if a is send msg to be in b the naem fo a is display or in a the nane of b is displayed
     Data && Data.userDetails //here defining that if data && Data.userdetails is thente then run this if it is not there then show empty string
@@ -35,40 +33,26 @@ const SingleChat = () => {
       : "";
   const ENDPOINT = "http://localhost:4000";
   var socket;
-  // if (Data && Data.isGroup) {
-  //   //just for seeing what is coming or why my data is undefined weith thhe help of this i have dome easily
-  //   console.log(Data._id);
-  // } else {
-  //   if (Data && Data.userDetails && Data.userDetails.length > 0) {
-  //     // console.log(Data.userDetails[0]._id);
-  //     console.log(Data._id);
-  //   } else if (Data && Data.name) {
-  //     console.log("the user id is", Data._id);
-  //     console.log(Data);
-  //   } else {
-  //     console.log("Sorry no Data is available");
-  //   }
-  // }
+
   socket = io(ENDPOINT); //connecting to backend socket io
 
   //coneecting our frontend to backend with the soket.io
-
+  //this is for the one to one perosonbal chat socket.io
   useEffect(() => {
-    // sending the id based on the either it is a groupor one to one chat or personal chats
+    //connecting to socket io taking all the evernts that are emitted in backend
+    socket.on("Send Message", (data) => {
+      console.log(data)
+      SetnewMessageData([...newMessageData, data]); //updating our new message to this
+    });
+  });
+  //this is for the group chat Socket.io
+  useEffect(() => {
+    //connecting to socket io taking all the evernts that are emitted in
 
-    if (Data && Data.isGroup) {
-      socket.emit("setup", { Id: Data._id });
-      socket.on("connection", () => SetsocketConnected(true));
-    } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
-      socket.emit("setup", { Id: Data.userDetails[0]._id });
-      socket.on("connection", () => SetsocketConnected(true));
-    } else if (Data && Data.name) {
-      socket.emit("setup", { Id: Data._id });
-      socket.on("connection", () => SetsocketConnected(true));
-    } else {
-      console.log("Sorry, no valid data is available");
-    }
-  }, [Data]);
+    socket.on("Group Message", (data) => {
+      SetnewMessageData([...newMessageData, data]); //updating our new message to this
+    });
+  });
 
   //creating a api function which will fetch all the messsage..
   const FetchAllMessage = async () => {
@@ -90,8 +74,6 @@ const SingleChat = () => {
           config
         );
         SetnewMessageData(data); //adding all response from server
-        socket.emit("joinng chat", Data._id); //here am trigger a event when user clciked on any of the users then a room is created
-        console.log("the  group response is", data);
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         SetnewMessageData([]); //setting this field to empty because it will return all the previous message of others users
         //if it isnot a grup chat it return the the conversation between two person as a message
@@ -108,8 +90,6 @@ const SingleChat = () => {
           config
         );
         SetnewMessageData(data); //adding all response from server
-        socket.emit("joinng chat", Data._id); //here am trigger a event when user clciked on any of the users then a room is created
-        console.log("The chat between two person is", data);
       }
     } catch (error) {
       console.log(error.message);
@@ -117,7 +97,6 @@ const SingleChat = () => {
   };
 
   useEffect(() => {
-    
     //here i am adding in the useeffect becasue whenever my data is change or selected users is chnged then my use effect will to fetch all the new chats so i put it in the dependency to run again and again
     FetchAllMessage();
     // ClickUserMessage();
@@ -126,9 +105,6 @@ const SingleChat = () => {
       SetnewMessage(" ");
     }
   }, [Data]);
-
-
-
 
   //creting a Api function to post or send a message in a group or a one to one message ..by adding some condtional rendering operators
   const HandleSendmessage = async () => {
@@ -150,14 +126,6 @@ const SingleChat = () => {
           { chatId: Data._id, message: newMessage },
           config
         );
-        console.log(data);
-        
-  
-        socket.emit("GetMessage", data); //sending thr message to the backend
-
-        // const newMessageData = data;
-
-        // SetnewMessageData((prevMessages) => [...prevMessages, newMessageData]); //taking all the previus message and appending the newer message to that message
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         //this is not a group chat this is one to one personal chat so sedning message on personal api
         const config = {
@@ -172,14 +140,6 @@ const SingleChat = () => {
           { sender: Data.userDetails[0]._id, message: newMessage },
           config
         );
-
-         console.log(Data)
-        socket.emit("GetMessage", data);
-      //  const NewData=data
-      //   SetnewMessageData([...newMessageData ,NewData]) //taking all the previus message and appending the newer message to that message
-        console.log("the one to one message is", data);
-        // const updatedMessage = { body: data[0].lastMessage };
-        // SetnewMessageData([...newMessageData, updatedMessage]);
       } else if (Data && Data.name && newMessage && newMessage.length > 1) {
         const config = {
           //note this is group message api is grouMessge we have send the message on group api
@@ -202,8 +162,6 @@ const SingleChat = () => {
           isClosable: true,
           position: "top",
         });
-
-        console.log("the Created chat is is", data);
       }
     } catch (error) {
       if (error && error.response && error.response.status === 500) {
@@ -219,47 +177,6 @@ const SingleChat = () => {
       console.log(error);
     }
   };
-
-
-
-  // useEffect(() => {
-  //   socket.on("message received", (TakeMessage) => {
-  //     console.log(TakeMessage);
-  
-  //     if (
-  //       !Data ||
-  //       !TakeMessage.FindGroup ||
-  //       Data._id !== TakeMessage.FindGroup._id
-  //     ) {
-  //       // Give notifications
-  //     }
-  //      else {
-  //       const updatedMessage = { body: TakeMessage };
-  //       SetnewMessageData([...newMessageData, updatedMessage]);
-  //     }
-  //   });
-  // });
-  useEffect(() => {
-    socket.on("message received", (TakeMessage) => {
-      console.log(TakeMessage);
-  
-      if (
-        !Data ||
-        !TakeMessage.FindGroup ||
-        Data._id !== TakeMessage.FindGroup._id
-      ) {
-        // Give notifications
-      } else {
-        SetnewMessageData((prevMessages) => [
-          ...prevMessages,
-          { body: TakeMessage }
-        ]);
-      }
-    });
-  });
-  
-  
-  console.log(newMessageData)
 
   const HandleClick = (e) => {
     if (e.key === "Enter") {

@@ -102,6 +102,7 @@ router.post("/personal", async (req, res) => {
           as: "userDeatails", //just a alias name any name here
         },
       },
+      
     ]).project({
       "userDeatails.password": 0,
       "__v:": 0,
@@ -113,9 +114,20 @@ router.post("/personal", async (req, res) => {
       To: To,
       body: req.body.message,
       chat: Find._id,
-    });
-    // console.log(UserDetials);
+    }); 
+
     message.save(); //saving the message to personal Schema collection..
+    const fromUser = await User.findOne({ _id: from }).select("name pic ");  //finding addtional info of the logged in user to match the sokets io condtions
+   
+   let NewMessage=await new Message({    //this is the message that i emit from the backend to frontend using sockets .io which will receive from the frontend
+    from:fromUser,
+    To:To,
+    body:req.body.message,
+    chat:Find._id
+   })
+
+    req.io.sockets.emit("Send Message",NewMessage)  //emitting the messages from backend to frontend
+
     res.status(200).json(UserDetials);
   } catch (error) {
     console.log(error);
@@ -130,6 +142,7 @@ router.post("/groupMessage", async (req, res) => {
   let Id = new mongoose.Types.ObjectId(chatId); //converting id to object id in mongoose
   const fromUser = await User.findById(from).select("name  pic"); //here i am taking only name email or pic of the logged in person to show on ui
   try {
+  
     const FindGroup = await Chat.findByIdAndUpdate(
       //finding the chat by id and update hte lastmessag :message it will return the updated chat as soon as users message into the chats
       chatId,
@@ -149,14 +162,31 @@ router.post("/groupMessage", async (req, res) => {
       body: message,
       chat: FindGroup._id, //this is just a chat ib in which we are getting all the message of a particular chats  if we do not write this
     });
-
     await newMessage.save(); //saving all the message into the personal Messsage schema
+    const FromUser = await User.findOne({ _id: from }).select("name pic ");  //finding addtional info of the logged in user to match the sokets io condtions
+   
 
-    res.status(200).send({ FindGroup, fromUser });
+    //creating the instance of Message for the socket io to emit these thing in the frntend
+   let NewMessage=await new Message({    //this is the message that i emit from the backend to frontend using sockets .io which will receive from the frontend
+    from:FromUser,
+    To:" ",
+    body:req.body.message,
+    chat:FindGroup._id,
+   })
+
+
+// const Room=FindGroup.users
+
+// Room.forEach((items)=>{
+//   req.io.sockets.in(items).emit("Group Message",NewMessage);  
+//   // req.io.sockets.to(items).emit("Group Message",NewMessage)
+// })
+   req.io.sockets.emit("Group Message",NewMessage);   //emitting the evernts from server side to client side using emit methods and in client side i take the even using on methhod to show real time communctations
   } catch (error) {
     console.log(error);
     res.status(400).send(error.message);
   }
+
 });
 //creating api for getting all the message from a group ..
 router.post("/fetchAllMessage", async (req, res) => {
@@ -176,129 +206,7 @@ router.post("/fetchAllMessage", async (req, res) => {
   }
 });
 
-//creating a api which will create a chat betweeen two user when logged in user will click on search users it will create a chat between them..
 
-// router.post("/createChat", async (req, res) => {
-//   //api for sending one to one message ...
-//   let from = new mongoose.Types.ObjectId(verfiedJToken.id); //he is sending the message becasue he is logged or verifed person
-//   let To = new mongoose.Types.ObjectId(req.body.UserId); // to whom to be sent //onc the click of user we get the id send to that id
-//   try {
-//     const Find = await Chat.findOneAndUpdate(
-//       {
-//         isGroup: false,
-//         users: {
-//           $all: [{ $elemMatch: { $eq: from } }, { $elemMatch: { $eq: To } }], //matching all the  fields in the users
-//         },
-//       },
-//       // then creating a converstation between to and from.
-//       {
-//         users: [from, To], //then create a new conversation bewtween to and from
-//       },
-//       {
-//         upsert: true, //if from and to is already present then we simply udate the last message with the help of upsert:true.
-//         new: true, //new:true=if there is no Conversation between to and from then create a new converstation to and from ..
-//         setDefaultsOnInsert: true, //setDefaultsOnInsert:true=if you create a new conversation so use she same schema that are defiend in  the convetsation schema not others
-
-//         //here if from and is presend or not all the thing are save or updated inside the Conversation model..
-//       }
-//     );
-
-//     const UserDetials = await Chat.aggregate([
-//       //this will give me  more infromation about sender or receviers
-//       {
-//         $match: { _id: Find._id },
-//       },
-//       //now using lookup we get the userdatias  of smae Find>-id users
-//       {
-//         $lookup: {
-//           from: "users", //from where we want the details...
-//           localField: "users", //in CHat collection what key i want the  get the details here users is array of object it will show me from as well as to  uservdetails boths
-//           foreignField: "_id", // what users._id is named in our UsersCollection users._id is called _id in users.
-//           as: "userDeatails", //just a alias name any name here
-//         },
-//       },
-//     ]).project({
-//       "userDeatails.password": 0,
-//       "__v:": 0,
-//     });
-
-//     // console.log(UserDetials);
-
-//     res.status(200).json(UserDetials);
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
-
-// creating Conversation list of user all the user to whom logged users had a conversation ...
-// 1=> whom conversation list to find logged in uuser.
-// 2=> finding all the deatisl of logged in users using lookup
-// 3=>matching in database or Chat collection inside users if the logged user has a conversation between any of the users..
-// 4=> using project to see what we want to see or send to server..
-
-// router.get("/conversationList", async (req, res) => {
-//   // this will givee you whole information of users  from or to also included the details of users
-//   //it gives the conversation bewtween looged in user or other users..
-//   let loggedInUser = new mongoose.Types.ObjectId(verfiedJToken.id); //this is logged in person who had conversation of the  users
-//   if (!mongoose.Types.ObjectId.isValid(loggedInUser)) {
-//     return res.status(400).send("Invalid ObjectId");
-//   }
-//   try {
-//     const conversationList = await Chat.aggregate([
-//       {
-//         $match: { users: { $all: [{ $elemMatch: { $eq: loggedInUser } }] } }, //matcching loggedinuser in all the useres array
-//       },
-
-//       //getting more details of users like name pic and more..
-//       {
-//         $lookup: {
-//           from: "users", //getting details from user collection
-//           localField: "users", //in the chat collection i want to get the details of users key..
-//           foreignField: "_id",
-//           as: "userDetails",
-//         },
-//       },
-//       {
-//         $lookup: {
-//           //geting details of Admin by using lookup or populate
-//           from: "users",
-//           localField: "groupAdmin",
-//           foreignField: "name", //this is name field from which wer are searching admn details in user collections
-//           as: "groupAdminDetails",
-//         },
-//       },
-
-//       {
-//         $project: {
-//           "userDetails.email": 1, // exclude the password field
-//           "userDetails.name": 1, // exclude the password
-//           "userDetails.pic": 1,
-//           "userDetails._id": 1,
-//           "groupAdminDetails.email": 1,
-//           "groupAdminDetails._id": 1,
-//           "groupAdminDetails.name": 1,
-//           "groupAdminDetails.pic": 1,
-
-//           pic: 1, // include the pic field from chat details
-//           isGroup: 1,
-//           chatName: 1,
-//           users: 1,
-//           lastMessage: 1,
-//         },
-//       },
-//     ]);
-
-//     if (conversationList.length === 0) {
-//       //if no any conversation is found then throw a error or response to frontend
-//       res.status(401).json("No Chats Founded");
-//     } else {
-//       //sending response to frontend..
-//       res.status(200).json(conversationList);
-//     }
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
 
 router.get("/conversationList", async (req, res) => {
   // this will givee you whole information of users  from or to also included the details of users
@@ -567,17 +475,7 @@ router.post("/ChatCreate", async (req, res) => {
   const chatName = `chat_${hash}`;
 
   try {
-    // Check if a chat already exists between the two users
-    // let existingChat = await Chat.findOne({
-    //   users: { $all: [from, To] },
-    // });
-
-    // if (existingChat) {
-    //   return res.status(400).json({
-    //     //if chat is there then throw a errro which i will show on the ui if chat is created already
-    //     message: "A chat already exists between these two users.",
-    //   });
-    // }
+   
 
     // Create a new chat with the two users as participants
     let chat = new Chat({
@@ -662,25 +560,8 @@ router.post(
   })
 );
 
-// creating route for updating the group name ...
-// router.put("/rename", async (req, res) => {
-//   const { chatId, chatname } = req.body;
-//   let newId = new mongoose.Types.ObjectId(chatId); //coming from frontend or http server or body of request
-//   try {
-//     const userDetails = await Chat.aggregate([
-//       {
-//         $match: { _id: newId },
-//       },
-//       {
-//         $set: { chatName: chatname },
-//       },
-//     ]);
-//     res.send(userDetails);
-//   } catch (error) {
-//     res.status(400).send(error);
-//   }
-// });
-router.post("/rename", async (req, res) => {
+
+router.post("/rename", async (req, res) => { 
   const { chatId, chatname } = req.body;
   let newId = new mongoose.Types.ObjectId(chatId); //converting _id to mogoose object Id..
 

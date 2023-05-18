@@ -79,7 +79,7 @@ const SearchDrawer = () => {
     localStorage.removeItem("userData"); //cearing all the details of user that is saved to localstroage
 
     navigate("/"); //navigate to chat page
-    window.location.reload();
+  
   };
 
   useEffect(() => {
@@ -92,33 +92,7 @@ const SearchDrawer = () => {
     return () => clearTimeout(timeout);
   }, []);
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
-  // const userSelected = async (id) => {
 
-  //   //this is function when user click on particular user chat to what will happen which takes a user_id comme from SingleUsers as a props
-  //   try {
-  //     SetsearchLoading(true);
-  //     const config = {
-  //       headers: {
-  //         "Content-type": "application/json",
-  //         token: UserDetails.DATA,
-  //       },
-  //     };
-  //     const { data } = await axios.post(
-  //       "http://localhost:4000/api/message/createChat",
-  //       { UserId: id },
-
-  //       config
-  //     );
-  //     console.log(data);
-  //     dispatch(setSendingItemToStoreFromResponse({ data }));
-  //     // setSendingItemToStoreFromResponse({ data });
-  //     SetsearchLoading(false);
-  //     console.log("the store data is", items);
-  //     // dispatch(SendUserDataToStore(sendingItemToStoreFromResponse)); //seding only necessary data to redux from the response coming from backend
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
 
   // creating a function to remove the Users profile pictures from Dp
   const RemovePic = async (userid) => {
@@ -295,7 +269,7 @@ const SearchDrawer = () => {
         <div>
           <Menu>
             <MenuButton p={1} rightIcon={<ChevronDownIcon />}>
-              <BellIcon fontSize="2xl" m={1}></BellIcon>
+              {/* <BellIcon fontSize="2xl" m={1}></BellIcon> */}
             </MenuButton>
             <Menu>
               <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
@@ -385,7 +359,7 @@ const SearchDrawer = () => {
               </Button>
             ) : null}
 
-            <Button
+            {/* <Button
               w={{ base: "100%", md: "" }}
               mb={{ base: "10px", md: "0" }}
               mx={1}
@@ -396,8 +370,8 @@ const SearchDrawer = () => {
               }}
             >
               Change
-            </Button>
-            <input
+            </Button> */}
+            {/* <input
               type="file"
               style={{ display: "none" }}
               ref={inputRef}
@@ -413,7 +387,7 @@ const SearchDrawer = () => {
                   console.log(imagestore);
                 };
               }}
-            ></input>
+            ></input> */}
             {/* // handle file upload here } /> */}
           </ModalFooter>
         </ModalContent>

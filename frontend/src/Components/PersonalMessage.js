@@ -1,23 +1,13 @@
 import React from "react";
 import { useSelector } from "react-redux";
 import ScrollableFeed from "react-scrollable-feed";
-import { isLastMessage, isSameSender } from "../Logic/chatLogic";
+
 import { Avatar, Tooltip } from "@chakra-ui/react";
 import jwt_decode from "jwt-decode";
 const PersonalMessage = ({ newMessageData }) => {
 
-  console.log("the new is", newMessageData);
-
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
   const LoggedUserId = jwt_decode(DataToken.DATA); //this is logged user id coming from jwt token i headers
-  console.log(LoggedUserId.id);
-
-  // {newMessageData && newMessageData.map((m)=>{
-  //   console.log(  m.from && m.from._id &&    m.from._id)
-  //   console.log(LoggedUserId && LoggedUserId.id);
-    
-  // })}
-
 
   return (
     <ScrollableFeed>
@@ -86,6 +76,7 @@ const PersonalMessage = ({ newMessageData }) => {
                 maxWidth: "70%",
                 margin: "5px",
                 fontFamily: "sans-serif",
+                fontSize:"15px"
               }}
             >
               {m.body}

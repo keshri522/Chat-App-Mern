@@ -5,6 +5,7 @@ import ScrollableFeed from "react-scrollable-feed";
 import { Text, Avatar, Tooltip } from "@chakra-ui/react";
 import jwt_decode from "jwt-decode";
 const GroupMessage = ({ newMessageData }) => {
+  console.log("the group is",newMessageData)
   const DataToken = useSelector((state) => state.USER); // getting the JWt token from redux to verify the users logged in users on each request
   const LoggedUserId = jwt_decode(DataToken.DATA); //this is logged user id coming from jwt token i headers
 
@@ -45,11 +46,11 @@ const GroupMessage = ({ newMessageData }) => {
               }}
             >
               {m.from && m.from.name && (
-                <Text color="#130f40" fontWeight="bold">
+                <Text color="#130f40" fontWeight="bold" fontSize={{base:"13px",md:"15px" ,lg:"13px"}}>
                   {m.from.name}
                 </Text>
               )}
-              <p>{m.body}</p>
+              <Text fontSize={{base:"13px",md:"15px" ,lg:"13px"}}>{m.body}</Text>
             </div>
           </div>
         ))}
