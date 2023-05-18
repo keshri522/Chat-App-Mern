@@ -4,7 +4,8 @@
   "description": "This is mern stack chatting app",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon backend/server.js"
+    "start": "node backend/server.js"
+
   },
   "author": "Rahul keshri",
   "license": "ISC",
