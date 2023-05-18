@@ -4,7 +4,8 @@
   "description": "This is mern stack chatting app",
   "main": "index.js",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "build":"npm install"
 
   },
   "author": "Rahul keshri",
