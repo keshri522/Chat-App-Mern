@@ -88,6 +88,25 @@
   animation: slide-in 2s ease-out;
 }
 
+
+/* icons class  */
+.linkdin{
+  font-size: 25px;
+  color: blue;
+
+}
+.github{
+  font-size: 25px;
+  color: black
+  
+}
+/* hovering effect */
+.linkdin:hover{
+  font-size: 30px;
+}
+.github:hover{
+  font-size: 30px;
+}
 @keyframes slide-in {
   from {
     opacity: 0;

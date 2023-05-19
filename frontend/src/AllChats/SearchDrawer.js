@@ -39,7 +39,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { sendDetailTOStore } from "../Redux/CreateSlice";
 import { SendUserDataToStore } from "../Redux/UserDataSlice";
-
+import { NavLink } from "react-router-dom";
 import axios from "axios";
 import ChatLoading from "./ChatLoading";
 import SearchUserChat from "../Components/ShowingUserInfo/SearchUserChat";
@@ -259,13 +259,18 @@ const SearchDrawer = () => {
           fontFamily="monospace"
           fontSize="25px"
         >
+        
           {/* here we wrapping out button to the feedback componets and passing the button to feebackmodal.js as a props */}
           <FeedbackForm>
             <button className="effect">
               <i class="fa-solid fa-comment"></i>
             </button>
           </FeedbackForm>
+        
         </Text>
+        <NavLink to="https://www.linkedin.com/in/rahul-keshri-814bb8221" target="_main"><i class="fa-brands fa-linkedin linkdin"></i></NavLink>
+        
+        <NavLink to="https://github.com/keshri522" target="_main"><i class="fa-brands fa-github github "></i></NavLink>
         <div>
           <Menu>
             <MenuButton p={1} rightIcon={<ChevronDownIcon />}>
