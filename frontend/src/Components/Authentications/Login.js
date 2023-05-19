@@ -51,6 +51,7 @@ const Login = () => {
           { email, password }, //what we are sending from frontend login page
           config //what type of data we are seding in headers file we have alredy define in config
         );
+        console.log(data.token)
         // Store the token in local storage because we have verify this token in each of request so i have save but once user logout it will be deleted automatcially
         // localStorage.setItem("token", JSON.stringify(data.token));
 
