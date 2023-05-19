@@ -33,6 +33,7 @@ const SingleChat = () => {
         : Data.userDetails[0]?.name
       : "";
   const ENDPOINT = "http://localhost:4000";
+  // const ENDPOINT="https://appchat-5e9e.onrender.com"
   var socket;
 
   socket = io(ENDPOINT); //connecting to backend socket io
