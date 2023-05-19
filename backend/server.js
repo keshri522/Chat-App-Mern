@@ -50,7 +50,8 @@ const io = require("socket.io")(Server, {
   //here using soket .io for the server side  wrapping soket.io with the Server
   PingTimeout: 60000, // IN MILISECONDS  means if users will not send any message in the 60 seconds then it will closed the connection to save the bandwidth
   cors: {
-    origin: "http://localhost:3000", //here our frontend app is running
+    // origin: "http://localhost:3000", //here our frontend app is running
+    origin: "*", //here our frontend app is running
   },
 });
 // On the server-side
