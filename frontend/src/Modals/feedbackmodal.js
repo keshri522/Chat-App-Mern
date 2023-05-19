@@ -35,6 +35,8 @@ const FeedbackForm = ({ children }) => {
   const [feedback, setFeedback] = useState("");
   const [rating, setRating] = useState("");
   const toast = useToast();
+
+  const Myhost="https://appchat-5e9e.onrender.com" //host name
   const handleSubmit = async (event) => {
     SetsubmitSucess(true);
     //api calling to send all the feedback to server
@@ -47,7 +49,7 @@ const FeedbackForm = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        "http://localhost:4000/api/message/feedback",
+        `${Myhost}/api/message/feedback`,
         { name, email, feedback, rating },
         config
       );
