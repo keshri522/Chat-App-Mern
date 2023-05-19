@@ -116,7 +116,7 @@ const Signup = () => {
         };
         //now using axiox send all the form data to backend/server
         const { data } = await axios.post(
-          "http://localhost:4000/api/user/registration", //endpoint where we send the data api..
+          "https://rahulmernapp.onrender.com/api/user/registration", //endpoint where we send the data api..
           { name, email, password, pic }, //what are data we are sending to particular api..
           config //content-tpye
         );

@@ -32,7 +32,7 @@ const SingleChat = () => {
         ? Data.userDetails[1]?.name
         : Data.userDetails[0]?.name
       : "";
-  const ENDPOINT = "http://localhost:4000";
+  const ENDPOINT = "https://rahulmernapp.onrender.com";
 
   var socket;
 
@@ -73,7 +73,7 @@ const SingleChat = () => {
         };
         const { data } = await axios.post(
           //here i it is a group chat then it return all the mesage of group
-          "http://localhost:4000/api/message/fetchAllMessage",
+          "https://rahulmernapp.onrender.com/api/message/fetchAllMessage",
           { Id: Data._id },
           config
         );
@@ -91,7 +91,7 @@ const SingleChat = () => {
           },
         };
         const { data } = await axios.post(
-          "http://localhost:4000/api/message/fetchAllMessage",
+          "https://rahulmernapp.onrender.com/api/message/fetchAllMessage",
           { Id: Data._id },
           config
         );
@@ -128,7 +128,7 @@ const SingleChat = () => {
         };
         SetnewMessage(" "); //empty all the input fields after sending the message
         const { data } = await axios.post(
-         "http://localhost:4000/api/message/groupMessage", //sending messge on group api because this is group chat
+         "https://rahulmernapp.onrender.com/api/message/groupMessage", //sending messge on group api because this is group chat
           { chatId: Data._id, message: newMessage },
           config
         );
@@ -146,7 +146,7 @@ const SingleChat = () => {
         };
         SetnewMessage(" "); //empty all the input fields after sending the message
         const { data } = await axios.post(
-          "http://localhost:4000/api/message/personal", //personal api function heree
+          "https://rahulmernapp.onrender.com/api/message/personal", //personal api function heree
           { sender: Data.userDetails[0]._id, message: newMessage },
           config
         );
@@ -160,7 +160,7 @@ const SingleChat = () => {
         };
         const { data } = await axios.post(
           //it is return all the chats between two person if users clicked on users from search or users firled then all the chat is already populated and showns
-          "http://localhost:4000/api/message/ChatCreate",
+          "https://rahulmernapp.onrender.com/api/message/ChatCreate",
           { userId: Data._id, message: newMessage },
           config
         );

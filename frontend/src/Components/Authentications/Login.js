@@ -47,7 +47,7 @@ const Login = () => {
           },
         };
         const { data } = await axios.post(
-          "http://localhost:4000/api/user/login", //api endpoint where to send the data
+          "https://rahulmernapp.onrender.com/api/user/login", //api endpoint where to send the data
           { email, password }, //what we are sending from frontend login page
           config //what type of data we are seding in headers file we have alredy define in config
         );

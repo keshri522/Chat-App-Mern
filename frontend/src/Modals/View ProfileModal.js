@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+
 import {
   Avatar,
   Box,
@@ -11,12 +11,11 @@ import {
   ModalCloseButton,
   Input,
   useToast,
-  Textarea,
-  Select,
+
   Button,
-  Toast,
+
 } from "@chakra-ui/react";
-import { DeleteIcon, ChatIcon, AddIcon, CheckIcon } from "@chakra-ui/icons";
+import { DeleteIcon, ChatIcon,  } from "@chakra-ui/icons";
 import axios from "axios";
 import { useState } from "react";
 import { useSelector } from "react-redux";
@@ -40,14 +39,10 @@ const ProfileModal = ({ children }) => {
   const [isloading, setIsloading] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState([]); //for the selected user in the group\
   const [input, Setinput] = useState();
-  const [isopen, setIsopen] = useState({});
-  const [Dataadded, SetDataadded] = useState([]);
-  const [GroupImage, SetGroupImage] = useState();
-  const [isImageChanged, setIsImageChanged] = useState(false); //to keeep the trakc of the image is changed or not based on upload new picture  in profile grop modal
+ 
   const LoggedInUserId = jwt_decode(Token.DATA); //logged user id coming from jwt token
   const AdminDetaills = useSelector((state) => state.AdminDetails.DATA);
 
-  const inputRef = useRef();
   const toast = useToast();
   const dispatch = useDispatch();
   const resetPreviouSearch = () => {
@@ -78,7 +73,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.put(
-        "http://localhost:4000/api/update/addUser",
+        "https://rahulmernapp.onrender.com/api/update/addUser",
         {
           chatId: Data._id,
           UserId: selectedUsers.map((users) => users._id), //send Id of users to backedn not the name of users becasue once if we have get the details of user if multiple users wwith same name so not easy so alsys send id to ayn one beccause it unique
@@ -117,7 +112,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/api/user/find?search=${e.target.value}`, //calling our backend api
+        `https://rahulmernapp.onrender.com/api/user/find?search=${e.target.value}`, //calling our backend api
         config
       ); //calling our api to get all the details of users who is in my application
 
@@ -199,7 +194,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        "http://localhost:4000/api/update/delete/user",
+        "https://rahulmernapp.onrender.com/api/update/delete/user",
 
         { userId: [users._id], chatId: UserDetails.DATA[0]._id }, //here [id ] is passed as array i use same ib backedn api array here must be same
         //here chatId is the id of group from which group i want to deete the users
@@ -244,7 +239,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        "http://localhost:4000/api/message/rename",
+        "https://rahulmernapp.onrender.com/api/message/rename",
         {
           chatId: Data._id,
           chatname: input,

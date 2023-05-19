@@ -3,7 +3,7 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
+
   ModalBody,
   ModalCloseButton,
   VStack,
@@ -14,10 +14,7 @@ import {
   Textarea,
   Select,
   Button,
-  AlertDescription,
-  Alert,
-  AlertIcon,
-  AlertTitle,
+
 } from "@chakra-ui/react";
 import axios from "axios";
 import { useState } from "react";
@@ -49,7 +46,7 @@ const FeedbackForm = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        "http://localhost:4000/api/message/feedback",
+        "https://rahulmernapp.onrender.com/api/message/feedback",
         { name, email, feedback, rating },
         config
       );

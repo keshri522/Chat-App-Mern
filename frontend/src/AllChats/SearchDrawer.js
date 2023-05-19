@@ -108,7 +108,7 @@ const SearchDrawer = () => {
       };
       const { data } = await axios.put(
         //this api will remove the profile picture of logged in person at a given endpoints
-        "http://localhost:4000/api/update/remove-profile-picture",
+        "https://rahulmernapp.onrender.com/api/update/remove-profile-picture",
         { userId: userid },
         config
       );
@@ -158,7 +158,7 @@ const SearchDrawer = () => {
           },
         };
         const { data } = await axios.get(
-          `http://localhost:4000/api/user/find?search=${search}`, //calling our backend api
+          `https://rahulmernapp.onrender.com/api/user/find?search=${search}`, //calling our backend api
           config
         ); //calling our api to get all the details of users who is in my application
         SetsearchLoading(false);
@@ -195,7 +195,7 @@ const SearchDrawer = () => {
       };
 
       const { data } = await axios.post(
-        "http://localhost:4000/api/update/update-profile-picture",
+        "https://rahulmernapp.onrender.com/api/update/update-profile-picture",
 
         formData,
 

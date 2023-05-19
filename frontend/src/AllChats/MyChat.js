@@ -66,7 +66,7 @@ const MyChat = ({ fetchAgain }) => {
 
   const width = "100%"; //sending as a props  in GroupModal beacause we are wrapping the  button insde the  components
   const AllChat = () => {};
-
+  
 
 
   const FetchAllConversation = async () => {
@@ -79,7 +79,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        "http://localhost:4000/api/message/conversationList",
+        "https://rahulmernapp.onrender.com/api/message/conversationList",
         config
       );
       setConversationUser(data);
@@ -119,7 +119,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        "http://localhost:4000/api/user/FetchUsers", //sending request to that apii to get all the users in my applicati`n
+        "https://rahulmernapp.onrender.com/api/user/FetchUsers", //sending request to that apii to get all the users in my applicati`n
 
         config
       );
@@ -144,7 +144,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const response = await axios.get(
-        `http://localhost:4000/api/message/getpic?Id=${ids}`, //api for getting all the piics from backend or serv`r
+        `https://rahulmernapp.onrender.com/api/message/getpic?Id=${ids}`, //api for getting all the piics from backend or serv`r
         config
       );
       setImageData(response.data.pic);
@@ -172,7 +172,7 @@ const MyChat = ({ fetchAgain }) => {
       };
       const LoggedUserId = DecodeToken.id;
       const { data } = await axios.get(
-        `http://localhost:4000/api/message/getpic?Id=${LoggedUserId}`,
+        `https://rahulmernapp.onrender.com/api/message/getpic?Id=${LoggedUserId}`,
         config
       );
 
@@ -205,7 +205,7 @@ const MyChat = ({ fetchAgain }) => {
           },
         };
         const { data } = await axios.post(
-          `http://localhost:4000/api/update/deleteUser`,
+          `https://rahulmernapp.onrender.com/api/update/deleteUser`,
           { chatId: users._id },
           config
         );
@@ -228,7 +228,7 @@ const MyChat = ({ fetchAgain }) => {
           },
         };
         const { data } = await axios.post(
-          "http://localhost:4000/api/update/deleteUser",
+          "https://rahulmernapp.onrender.com/api/update/deleteUser",
           { chatId: users._id },
           config
         );

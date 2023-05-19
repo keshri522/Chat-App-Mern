@@ -65,7 +65,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/api/message/GroupPic?Id=${id}`,
+        `https://rahulmernapp.onrender.com/api/message/GroupPic?Id=${id}`,
         config
         // "http://localhost:4000/api/message/GroupPic",
         // { groupId: id, config }

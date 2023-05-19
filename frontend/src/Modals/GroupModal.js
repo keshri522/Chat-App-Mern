@@ -3,18 +3,18 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
+
   ModalBody,
   ModalCloseButton,
   FormControl,
   Input,
   useToast,
-  Text,
+
   Spinner,
-  Alert,
-  AlertIcon,
+
+
   Avatar,
-  Button,
+
 } from "@chakra-ui/react";
 
 import axios from "axios";
@@ -83,7 +83,7 @@ const GroupModal = ({ children, width }) => {
         },
       };
       const { data } = await axios.post(
-        "http://localhost:4000/api/message/createGroupChat",
+        "https://rahulmernapp.onrender.com/api/message/createGroupChat",
         {
           chatname: GroupName,
           users: selectedUsers.map((users) => users._id), //send Id of users to backedn not the name of users becasue once if we have get the details of user if multiple users wwith same name so not easy so alsys send id to ayn one beccause it unique
@@ -142,7 +142,7 @@ const GroupModal = ({ children, width }) => {
         },
       };
       const { data } = await axios.get(
-        `http://localhost:4000/api/user/find?search=${e.target.value}`, //calling our backend api
+        `https://rahulmernapp.onrender.com/api/user/find?search=${e.target.value}`, //calling our backend api
         config
       ); //calling our api to get all the details of users who is in my application
 
