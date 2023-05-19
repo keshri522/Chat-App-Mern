@@ -123,6 +123,7 @@ const Login = () => {
               placeholder="Enter your Email"
               onChange={(e) => Setemail(e.target.value)}
               value={email}
+              autoComplete="off"
             ></Input>
             {/* if email is not write then server will send a code of 400 and we handle the errro in catch if code==400  then email error is invaild credentials */}
             <Text color="red.500" fontSize="sm">

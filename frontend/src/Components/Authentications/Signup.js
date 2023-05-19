@@ -184,6 +184,7 @@ const Signup = () => {
             <Input
               placeContent="Enter your name"
               onChange={(e) => Setname(e.target.value)}
+              autoComplete="off"
             ></Input>
             {/* display the error message for the Name field */}
             {/* using in build method like Text and name of the error */}
@@ -196,7 +197,8 @@ const Signup = () => {
             <FormLabel>Email</FormLabel>
             <Input
               placeContent="Enter your Email"
-              onChange={(e) => Setemail(e.target.value.toLowerCase())}
+              onChange={(e) => Setemail(e.target.value.toLowerCase())} //adding all the emial to lower case
+              autoComplete="off"
             ></Input>
             {/* display the error message for the Name field */}
             {/* <Text color="red.500" fontSize="sm">
