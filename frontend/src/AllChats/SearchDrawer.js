@@ -93,7 +93,7 @@ const SearchDrawer = () => {
   }, []);
   const { isOpen, onOpen, onClose } = useDisclosure(); //just for closing or opening of modal in build in chakra ui
 
-  const Myhost="https://appchat-5e9e.onrender.com"
+
   // creating a function to remove the Users profile pictures from Dp
   const RemovePic = async (userid) => {
     console.log("the user id is", userid);
@@ -108,7 +108,7 @@ const SearchDrawer = () => {
       };
       const { data } = await axios.put(
         //this api will remove the profile picture of logged in person at a given endpoints
-        `${Myhost}/api/update/remove-profile-picture`,
+        "http://localhost:4000/api/update/remove-profile-picture",
         { userId: userid },
         config
       );
@@ -158,7 +158,7 @@ const SearchDrawer = () => {
           },
         };
         const { data } = await axios.get(
-          `${Myhost}/api/user/find?search=${search}`, //calling our backend api
+          `http://localhost:4000/api/user/find?search=${search}`, //calling our backend api
           config
         ); //calling our api to get all the details of users who is in my application
         SetsearchLoading(false);
@@ -195,7 +195,7 @@ const SearchDrawer = () => {
       };
 
       const { data } = await axios.post(
-        `${Myhost}/api/update/update-profile-picture`,
+        "http://localhost:4000/api/update/update-profile-picture",
 
         formData,
 

@@ -41,7 +41,7 @@ app.use("/api/update", UpdateRoute); //this route is for updating
  
 
 //creating a server.
-const Port = process.env.Port || 5000;
+const Port = process.env.PORT || 4000;
 const Server = app.listen(Port, () => {
   console.log(`Server is running at the Port ${Port}`);
 });

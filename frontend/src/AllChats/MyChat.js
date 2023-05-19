@@ -67,7 +67,7 @@ const MyChat = ({ fetchAgain }) => {
   const width = "100%"; //sending as a props  in GroupModal beacause we are wrapping the  button insde the  components
   const AllChat = () => {};
 
-  const Myhost="https://appchat-5e9e.onrender.com"
+
 
   const FetchAllConversation = async () => {
     setLastClickedButton("chats"); //if this is ture then if i clicked on Mychats button then only show the users
@@ -79,7 +79,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        `${Myhost}/api/message/conversationList`,
+        "http://localhost:4000/api/message/conversationList",
         config
       );
       setConversationUser(data);
@@ -119,7 +119,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const { data } = await axios.get(
-        `${Myhost}/api/user/FetchUsers`, //sending request to that apii to get all the users in my applicati`n
+        "http://localhost:4000/api/user/FetchUsers", //sending request to that apii to get all the users in my applicati`n
 
         config
       );
@@ -144,7 +144,7 @@ const MyChat = ({ fetchAgain }) => {
         },
       };
       const response = await axios.get(
-        `${Myhost}/api/message/getpic?Id=${ids}`, //api for getting all the piics from backend or serv`r
+        `http://localhost:4000/api/message/getpic?Id=${ids}`, //api for getting all the piics from backend or serv`r
         config
       );
       setImageData(response.data.pic);
@@ -172,7 +172,7 @@ const MyChat = ({ fetchAgain }) => {
       };
       const LoggedUserId = DecodeToken.id;
       const { data } = await axios.get(
-        `${Myhost}/api/message/getpic?Id=${LoggedUserId}`,
+        `http://localhost:4000/api/message/getpic?Id=${LoggedUserId}`,
         config
       );
 
@@ -205,7 +205,7 @@ const MyChat = ({ fetchAgain }) => {
           },
         };
         const { data } = await axios.post(
-          `${Myhost}/api/update/deleteUser`,
+          `http://localhost:4000/api/update/deleteUser`,
           { chatId: users._id },
           config
         );
@@ -228,7 +228,7 @@ const MyChat = ({ fetchAgain }) => {
           },
         };
         const { data } = await axios.post(
-          `${Myhost}/api/update/deleteUser`,
+          "http://localhost:4000/api/update/deleteUser",
           { chatId: users._id },
           config
         );

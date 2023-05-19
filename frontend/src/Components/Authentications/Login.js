@@ -30,7 +30,7 @@ const Login = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const Myhost="https://appchat-5e9e.onrender.com" //host name
+  
   const handleSubmit = async () => {
     let obj = {
       email,
@@ -47,7 +47,7 @@ const Login = () => {
           },
         };
         const { data } = await axios.post(
-          `${Myhost}/api/user/login`, //api endpoint where to send the data
+          "http://localhost:4000/api/user/login", //api endpoint where to send the data
           { email, password }, //what we are sending from frontend login page
           config //what type of data we are seding in headers file we have alredy define in config
         );

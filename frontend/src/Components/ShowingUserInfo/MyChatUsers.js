@@ -30,7 +30,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
   const [GroupImageStore, SetGroupImageStore] = useState(null);
   const [openModal, SetopenModal] = useState(false);
   const dispatch = useDispatch();
-  const Myhost="https://appchat-5e9e.onrender.com" //host name
+  
   let GetSenderName = null;
   let GetSenderPic = null;
   let GetSenderId = null;
@@ -65,7 +65,7 @@ const MyUserChat = ({ users, handleUser, DeleteUser, ShowImages }) => {
         },
       };
       const { data } = await axios.get(
-        `${Myhost}/api/message/GroupPic?Id=${id}`,
+        `http://localhost:4000/api/message/GroupPic?Id=${id}`,
         config
         // "http://localhost:4000/api/message/GroupPic",
         // { groupId: id, config }

@@ -33,7 +33,7 @@ const Signup = () => {
   const toast = useToast();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const Myhost="https://appchat-5e9e.onrender.com" //host name
+  
   const getDataFromReduxStore = useSelector((state) => state.USER); //getting all the data coming from response from Global state of the apllication from combine reducer  SignUpData state
   
   const ImageUploader = (event) => {
@@ -116,7 +116,7 @@ const Signup = () => {
         };
         //now using axiox send all the form data to backend/server
         const { data } = await axios.post(
-          `${Myhost}/api/user/registration`, //endpoint where we send the data api..
+          "http://localhost:4000/api/user/registration", //endpoint where we send the data api..
           { name, email, password, pic }, //what are data we are sending to particular api..
           config //content-tpye
         );

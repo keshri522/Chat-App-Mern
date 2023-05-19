@@ -56,7 +56,7 @@ const ProfileModal = ({ children }) => {
     SetsearchResult([]);
     onClose();
   };
-  const Myhost="https://appchat-5e9e.onrender.com" //host name
+
   const UserAddedToGroup = async (e) => {
     //this function wiill add the users into the group api call
     if (selectedUsers.length === 0) {
@@ -78,7 +78,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.put(
-        `${Myhost}/api/update/addUser`,
+        "http://localhost:4000/api/update/addUser",
         {
           chatId: Data._id,
           UserId: selectedUsers.map((users) => users._id), //send Id of users to backedn not the name of users becasue once if we have get the details of user if multiple users wwith same name so not easy so alsys send id to ayn one beccause it unique
@@ -117,7 +117,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.get(
-        `${Myhost}/api/user/find?search=${e.target.value}`, //calling our backend api
+        `http://localhost:4000/api/user/find?search=${e.target.value}`, //calling our backend api
         config
       ); //calling our api to get all the details of users who is in my application
 
@@ -199,7 +199,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        `${Myhost}/api/update/delete/user`,
+        "http://localhost:4000/api/update/delete/user",
 
         { userId: [users._id], chatId: UserDetails.DATA[0]._id }, //here [id ] is passed as array i use same ib backedn api array here must be same
         //here chatId is the id of group from which group i want to deete the users
@@ -244,7 +244,7 @@ const ProfileModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        `${Myhost}/api/message/rename`,
+        "http://localhost:4000/api/message/rename",
         {
           chatId: Data._id,
           chatname: input,
