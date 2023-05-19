@@ -136,13 +136,14 @@ router.post("/login", async (req, res) => {
               } else {
                 // after provindg the jwt auth token i basically send all the respone to severs ..
 
-                res.status(200).json({
-                  Success: true,
-                  name: user.name,
-                  Id: user._id,
-                  email: user.email,
-                  token: "Bearer " + token,
-                });
+                // res.status(200).json({
+                //   Success: true,
+                //   name: user.name,
+                //   Id: user._id,
+                //   email: user.email,
+                //   token: "Bearer " + token,
+                // });
+                res.status(200).send("Login Sucessfully")
               }
             }
           );
