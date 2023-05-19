@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/Chat-App-Mern/static/css/main.17e63703.css",
-    "main.js": "/Chat-App-Mern/static/js/main.efa4b458.js",
+    "main.js": "/Chat-App-Mern/static/js/main.693370bd.js",
     "index.html": "/Chat-App-Mern/index.html",
     "main.17e63703.css.map": "/Chat-App-Mern/static/css/main.17e63703.css.map",
-    "main.efa4b458.js.map": "/Chat-App-Mern/static/js/main.efa4b458.js.map"
+    "main.693370bd.js.map": "/Chat-App-Mern/static/js/main.693370bd.js.map"
   },
   "entrypoints": [
     "static/css/main.17e63703.css",
-    "static/js/main.efa4b458.js"
+    "static/js/main.693370bd.js"
   ]
 }
