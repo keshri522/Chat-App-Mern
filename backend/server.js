@@ -53,4 +53,6 @@ const io = require("socket.io")(Server, {
     origin: "http://localhost:3000", //here our frontend app is running
   },
 });
+// On the server-side
+
 

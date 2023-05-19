@@ -14,6 +14,7 @@ import axios from "axios";
 import PersonalMessage from "./PersonalMessage";
 import GroupMessage from "./GroupMessage";
 import io from "socket.io-client";
+import { forEach } from "lodash";
 const SingleChat = () => {
   // console.log(Deleteuser);
   const Toekn = useSelector((state) => state.USER); //coming from redux store as token  jwt
@@ -41,7 +42,7 @@ const SingleChat = () => {
   useEffect(() => {
     //connecting to socket io taking all the evernts that are emitted in backend
     socket.on("Send Message", (data) => {
-      console.log(data)
+      console.log(data);
       SetnewMessageData([...newMessageData, data]); //updating our new message to this
     });
   });
@@ -50,9 +51,19 @@ const SingleChat = () => {
     //connecting to socket io taking all the evernts that are emitted in
 
     socket.on("Group Message", (data) => {
+      console.log("the data is",data)
       SetnewMessageData([...newMessageData, data]); //updating our new message to this
     });
   });
+ 
+  
+
+
+
+
+ 
+  
+
 
   //creating a api function which will fetch all the messsage..
   const FetchAllMessage = async () => {
@@ -74,6 +85,8 @@ const SingleChat = () => {
           config
         );
         SetnewMessageData(data); //adding all response from server
+        // On the client-side
+    
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         SetnewMessageData([]); //setting this field to empty because it will return all the previous message of others users
         //if it isnot a grup chat it return the the conversation between two person as a message
@@ -126,6 +139,10 @@ const SingleChat = () => {
           { chatId: Data._id, message: newMessage },
           config
         );
+      
+      
+      
+   
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
         //this is not a group chat this is one to one personal chat so sedning message on personal api
         const config = {

@@ -173,14 +173,10 @@ router.post("/groupMessage", async (req, res) => {
     body:req.body.message,
     chat:FindGroup._id,
    })
+   res.status(200).json("Message sent sucessfully")
 
 
-// const Room=FindGroup.users
-
-// Room.forEach((items)=>{
-//   req.io.sockets.in(items).emit("Group Message",NewMessage);  
-//   // req.io.sockets.to(items).emit("Group Message",NewMessage)
-// })
+ 
    req.io.sockets.emit("Group Message",NewMessage);   //emitting the evernts from server side to client side using emit methods and in client side i take the even using on methhod to show real time communctations
   } catch (error) {
     console.log(error);
@@ -188,6 +184,13 @@ router.post("/groupMessage", async (req, res) => {
   }
 
 });
+
+// const Room=FindGroup.users
+
+// Room.forEach((items)=>{
+//   req.io.sockets.in(items).emit("Group Message",NewMessage);  
+//   // req.io.sockets.to(items).emit("Group Message",NewMessage)
+// })
 //creating api for getting all the message from a group ..
 router.post("/fetchAllMessage", async (req, res) => {
   const chatId = req.body.Id; //getting as a params or body also
