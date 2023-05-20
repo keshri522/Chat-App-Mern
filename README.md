@@ -49,6 +49,8 @@
 - Click on the user profile or Group profile to see the profile picture..
 - All the Message is coming from Direct DataBase
  
+ 
+ ## render.com server is slow so my api is little bit slow it depends on the servers...
 
 ## Deployment
 
