@@ -267,13 +267,20 @@ const SingleChat = () => {
   };
   
 
+  // const HandleClick = (e) => {
+  //   if (e.key === "Enter") {
+  //     //checking if key ==="enter then move forward"
+  //     e.preventDefault(); //preventing defualt submit
+  //     HandleSendmessage(); //once user press the enter then call the api function
+  //   }
+  // };
   const HandleClick = (e) => {
-    if (e.key === "Enter") {
-      //checking if key ==="enter then move forward"
-      e.preventDefault(); //preventing defualt submit
-      HandleSendmessage(); //once user press the enter then call the api function
+    if (e.key === "Enter" && newMessage.length > 1) {
+      e.preventDefault();
+      HandleSendmessage();
     }
   };
+  
 
   return (
     <>
