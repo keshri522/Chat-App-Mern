@@ -113,60 +113,138 @@ const SingleChat = () => {
   }, [Data]);
 
   //creting a Api function to post or send a message in a group or a one to one message ..by adding some condtional rendering operators
-  const HandleSendmessage = async () => {
-    //this is api call function to handle all the post message in a group or one to one
+  // const HandleSendmessage = async () => {
+  //   //this is api call function to handle all the post message in a group or one to one
 
-    try {
-      if (Data && Data.isGroup) {
-        //means it is a grpup chat to send the id of group chat to api ..
-        const config = {
-          //note this is group message api is grouMessge we have send the message on group api
-          headers: {
-            "Content-type": "application/json",
-            token: Toekn.DATA,
-          },
-        };
-        SetnewMessage(" "); //empty all the input fields after sending the message
-        const { data } = await axios.post(
-         "https://rahulmernapp.onrender.com/api/message/groupMessage", //sending messge on group api because this is group chat
-          { chatId: Data._id, message: newMessage },
-          config
-        );
+  //   try {
+  //     if (Data && Data.isGroup) {
+  //       //means it is a grpup chat to send the id of group chat to api ..
+  //       const config = {
+  //         //note this is group message api is grouMessge we have send the message on group api
+  //         headers: {
+  //           "Content-type": "application/json",
+  //           token: Toekn.DATA,
+  //         },
+  //       };
+  //       SetnewMessage(" "); //empty all the input fields after sending the message
+  //       const { data } = await axios.post(
+  //        "https://rahulmernapp.onrender.com/api/message/groupMessage", //sending messge on group api because this is group chat
+  //         { chatId: Data._id, message: newMessage },
+  //         config
+  //       );
       
       
       
    
+  //     } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
+  //       //this is not a group chat this is one to one personal chat so sedning message on personal api
+  //       const config = {
+  //         headers: {
+  //           "Content-type": "application/json",
+  //           token: Toekn.DATA,
+  //         },
+  //       };
+  //       SetnewMessage(" "); //empty all the input fields after sending the message
+  //       const { data } = await axios.post(
+  //         "https://rahulmernapp.onrender.com/api/message/personal", //personal api function heree
+  //         { sender: Data.userDetails[0]._id, message: newMessage },
+  //         config
+  //       );
+  //     } else if (Data && Data.name && newMessage && newMessage.length > 1) {
+  //       const config = {
+  //         //note this is group message api is grouMessge we have send the message on group api
+  //         headers: {
+  //           "Content-type": "application/json",
+  //           token: Toekn.DATA,
+  //         },
+  //       };
+  //       const { data } = await axios.post(
+  //         //it is return all the chats between two person if users clicked on users from search or users firled then all the chat is already populated and showns
+  //         "https://rahulmernapp.onrender.com/api/message/ChatCreate",
+  //         { userId: Data._id, message: newMessage },
+  //         config
+  //       );
+  //       SetnewMessage(" ");
+  //       toast({
+  //         title: "Chat Created go to MyChats",
+  //         status: "error",
+  //         duration: 3000,
+  //         isClosable: true,
+  //         position: "top",
+  //       });
+  //     }
+  //   } catch (error) {
+  //     if (error && error.response && error.response.status === 500) {
+  //       toast({
+  //         title: "Chat Already Created Go to My Chats",
+  //         status: "error",
+  //         duration: 4000,
+  //         isClosable: true,
+  //         position: "top",
+  //       });
+  //       SetnewMessage(" ");
+  //     }
+  //     console.log(error);
+  //   }
+  // };
+
+
+  const HandleSendMessage = async () => {
+    // This is the API call function to handle all the post messages in a group or one-to-one
+  
+    try {
+      if (Data && Data.isGroup) {
+        // Means it is a group chat, send the ID of the group chat to the API
+        const config = {
+          // Note: This is the group message API, we are sending the message on the group API
+          headers: {
+            "Content-type": "application/json",
+            token: Toekn.DATA,
+          },
+        };
+        SetnewMessage(" "); // Empty all the input fields after sending the message
+        
+        if (newMessage.length > 1) {
+          const { data } = await axios.post(
+            "https://rahulmernapp.onrender.com/api/message/groupMessage",
+            { chatId: Data._id, message: newMessage },
+            config
+          );
+        }
       } else if (Data && Data.userDetails && Data.userDetails.length > 0) {
-        //this is not a group chat this is one to one personal chat so sedning message on personal api
+        // This is not a group chat, it is a one-to-one personal chat, so sending the message on the personal API
         const config = {
           headers: {
             "Content-type": "application/json",
             token: Toekn.DATA,
           },
         };
-        SetnewMessage(" "); //empty all the input fields after sending the message
-        const { data } = await axios.post(
-          "https://rahulmernapp.onrender.com/api/message/personal", //personal api function heree
-          { sender: Data.userDetails[0]._id, message: newMessage },
-          config
-        );
+        SetnewMessage(" "); // Empty all the input fields after sending the message
+        
+        if (newMessage.length > 1) {
+          const { data } = await axios.post(
+            "https://rahulmernapp.onrender.com/api/message/personal",
+            { sender: Data.userDetails[0]._id, message: newMessage },
+            config
+          );
+        }
       } else if (Data && Data.name && newMessage && newMessage.length > 1) {
         const config = {
-          //note this is group message api is grouMessge we have send the message on group api
+          // Note: This is the group message API, we have to send the message on the group API
           headers: {
             "Content-type": "application/json",
             token: Toekn.DATA,
           },
         };
+  
         const { data } = await axios.post(
-          //it is return all the chats between two person if users clicked on users from search or users firled then all the chat is already populated and showns
           "https://rahulmernapp.onrender.com/api/message/ChatCreate",
           { userId: Data._id, message: newMessage },
           config
         );
         SetnewMessage(" ");
         toast({
-          title: "Chat Created go to MyChats",
+          title: "Chat Created, go to MyChats",
           status: "error",
           duration: 3000,
           isClosable: true,
@@ -176,7 +254,7 @@ const SingleChat = () => {
     } catch (error) {
       if (error && error.response && error.response.status === 500) {
         toast({
-          title: "Chat Already Created Go to My Chats",
+          title: "Chat Already Created, Go to My Chats",
           status: "error",
           duration: 4000,
           isClosable: true,
@@ -187,6 +265,7 @@ const SingleChat = () => {
       console.log(error);
     }
   };
+  
 
   const HandleClick = (e) => {
     if (e.key === "Enter") {
