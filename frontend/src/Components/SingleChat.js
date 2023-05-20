@@ -189,7 +189,7 @@ const SingleChat = () => {
   // };
 
 
-  const HandleSendMessage = async () => {
+  const HandleSendmessage = async () => {
     // This is the API call function to handle all the post messages in a group or one-to-one
   
     try {
@@ -233,7 +233,7 @@ const SingleChat = () => {
           // Note: This is the group message API, we have to send the message on the group API
           headers: {
             "Content-type": "application/json",
-            token: Toekn.DATA,
+           token: Toekn.DATA,
           },
         };
   
